@@ -1690,6 +1690,9 @@
     .aimgbox{height:clamp(110px,26dvh,200px)}
   }
 }
+/* ホーム画面起動でステータスバー確保とenv()が両方効く端末の補正（2026-08-31）。JSが実測でsbdupを付けたときだけ効く */
+.sbdup .screen{padding-top:22px!important}
+@media(max-width:480px){.sbdup .screen{padding-top:14px!important}}
 </style>
 </head>
 <body>
@@ -4272,7 +4275,11 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   /* ---- 広告 ---- */
   var PLAT=(function(){try{var C=window.Capacitor;return (C&&C.getPlatform)?C.getPlatform():'web';}catch(e){return 'web';}})();
   if(PLAT==='web'){try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(e){}/* ブラウザ都合のデータ削除を抑止（2026-08-30） */
-    var _pl9=document.querySelector('.plinks');if(_pl9)_pl9.style.display='none';}/* Webは購入導線（サブスク内容・復元）を出さない（2026-08-30） */
+    var _pl9=document.querySelector('.plinks');if(_pl9)_pl9.style.display='none';
+    var _ins9=0;try{var _pr9=document.createElement('div');_pr9.style.cssText='position:fixed;top:0;left:0;height:0;padding-top:env(safe-area-inset-top,0px);visibility:hidden';document.documentElement.appendChild(_pr9);_ins9=parseFloat(getComputedStyle(_pr9).paddingTop)||0;_pr9.remove();}catch(e){}
+    try{if(navigator.standalone===true&&_ins9>0&&(screen.height-window.innerHeight)>30)document.documentElement.classList.add('sbdup');}catch(e){}/* ホーム画面起動：OSがバー分を確保済みなのにenv()も値を返す端末では上が二重に空く。実測で検出したときだけenv加算をやめる（2026-08-31） */
+    try{var _ib9=document.getElementById('impBtn');if(_ib9&&_ib9.parentElement){var _v9=document.createElement('div');_v9.style.cssText='text-align:center;color:#c9cdd4;font-size:11px;padding:10px 0 0';_v9.textContent='Web w0831b';_ib9.parentElement.appendChild(_v9);}}catch(e){}/* 版の目印（キャッシュ確認用） */
+    try{if(location.hash==='#dbg'){var _dg=document.createElement('div');_dg.style.cssText='position:fixed;z-index:99999;left:8px;right:8px;bottom:12px;background:#000;color:#0f0;font:12px/1.7 monospace;padding:10px 12px;white-space:pre;border-radius:8px';_dg.textContent='ver: w0831b'+'\nstandalone: '+(navigator.standalone===true)+'\ninner: '+window.innerWidth+'x'+window.innerHeight+'\nscreen: '+screen.width+'x'+screen.height+'\ninset-top: '+_ins9+'px'+'\nsbdup: '+document.documentElement.classList.contains('sbdup');(document.body||document.documentElement).appendChild(_dg);}}catch(e){}}/* Webは購入導線（サブスク内容・復元）を出さない（2026-08-30） */
   /* 広告ユニットはOSごとに別物。AndroidはAdMobにアプリを登録してから採番するので、
      それまでは空にしておく＝Androidでは広告を出さない（2026-08-29） */
   var ADUNIT={ios:'ca-app-pub-4932559321126464/9914782913',android:''};
