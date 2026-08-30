@@ -4213,7 +4213,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
      icBackup と同じ形に固めて文字列にする。読み込みは中身を検証してから流し込み、
      成功したら再起動して全体を読み直す（部分適用のまま動かすと状態がねじれる） */
   function expText(){
-    var o={__v:1,__app:'MemoraX',__d:dayKey(new Date())};
+    var o={__v:1,__app:'MemoraX',__b:'w0831d',__d:dayKey(new Date())};/* 内部ビルド印。画面には出さない（2026-08-31） */
     try{dataKeys().forEach(function(k){var v=localStorage.getItem(k);if(v!=null)o[k]=v;});
       ['mxdict_w','mxdict_m','mxdict_note','mx2_ent','mx2_solved','mx2_guided','mx2_snd','mx2_examday','mx2_revreq','mx2_revpend','mx2_wn_idioms'].forEach(function(k){var v=localStorage.getItem(k);if(v!=null)o[k]=v;});
     }catch(e){}
@@ -4278,8 +4278,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var _pl9=document.querySelector('.plinks');if(_pl9)_pl9.style.display='none';
     var _ins9=0;try{var _pr9=document.createElement('div');_pr9.style.cssText='position:fixed;top:0;left:0;height:0;padding-top:env(safe-area-inset-top,0px);visibility:hidden';document.documentElement.appendChild(_pr9);_ins9=parseFloat(getComputedStyle(_pr9).paddingTop)||0;_pr9.remove();}catch(e){}
     try{if(navigator.standalone===true&&_ins9>0&&(screen.height-window.innerHeight)>30)document.documentElement.classList.add('sbdup');}catch(e){}/* ホーム画面起動：OSがバー分を確保済みなのにenv()も値を返す端末では上が二重に空く。実測で検出したときだけenv加算をやめる（2026-08-31） */
-    try{var _ib9=document.getElementById('impBtn');if(_ib9&&_ib9.parentElement){var _v9=document.createElement('div');_v9.style.cssText='text-align:center;color:#c9cdd4;font-size:11px;padding:10px 0 0';_v9.textContent='Web w0831c';_ib9.parentElement.appendChild(_v9);}}catch(e){}/* 版の目印（キャッシュ確認用） */
-    var _mxdbg=function(){var _x=document.getElementById('mxdbg');if(_x){_x.remove();return;}var _dg=document.createElement('div');_dg.id='mxdbg';_dg.style.cssText='position:fixed;z-index:99999;left:8px;right:8px;bottom:12px;background:#000;color:#0f0;font:12px/1.7 monospace;padding:10px 12px;white-space:pre;border-radius:8px';var NL9=String.fromCharCode(10);_dg.textContent='ver: w0831c'+NL9+'standalone: '+(navigator.standalone===true)+NL9+'inner: '+window.innerWidth+'x'+window.innerHeight+NL9+'screen: '+screen.width+'x'+screen.height+NL9+'inset-top: '+_ins9+'px'+NL9+'sbdup: '+document.documentElement.classList.contains('sbdup')+NL9+'dpr: '+(window.devicePixelRatio||1);(document.body||document.documentElement).appendChild(_dg);};try{if(location.hash==='#dbg')_mxdbg();}catch(e){}try{var _tc9=0,_tt9=0;document.addEventListener('pointerdown',function(e){if(e.clientY>80)return;var _w9=window.innerWidth;if(e.clientX<_w9*0.3||e.clientX>_w9*0.7)return;var n=Date.now();if(n-_tt9>2500)_tc9=0;_tt9=n;if(++_tc9>=7){_tc9=0;_mxdbg();}},true);}catch(e){}}/* 画面上部中央を素早く7回タップで診断表示（ホーム画面版用・2026-08-31） *//* Webは購入導線（サブスク内容・復元）を出さない（2026-08-30） */
+    }/* Webは購入導線（サブスク内容・復元）を出さない（2026-08-30） */
   /* 広告ユニットはOSごとに別物。AndroidはAdMobにアプリを登録してから採番するので、
      それまでは空にしておく＝Androidでは広告を出さない（2026-08-29） */
   var ADUNIT={ios:'ca-app-pub-4932559321126464/9914782913',android:''};
