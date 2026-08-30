@@ -4089,7 +4089,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
      ③それでも読めない時だけオンボーディングへ（mx2dmg_が残るので後から救出できる）
      ※リセット（wipeData）はmxプレフィックス一括削除なのでバックアップごと消える＝意図どおり */
   function dataKeys(){var ks=['mx2_state','mx2_done','mx2_day','mx2_pstat','mx2_solved'],i;
-    for(i=0;i<BOOKS.length;i++){var id=BOOKS[i].id;['wst','fc','miss','whist','grad','rev','munk','skim','fctotal','fclap'].forEach(function(p){ks.push('mx2_'+p+'_'+id);});}
+    for(i=0;i<BOOKS.length;i++){var id=BOOKS[i].id;['wst','fc','miss','whist','grad','rev','munk','skim','fctotal','fclap','lap1'].forEach(function(p){ks.push('mx2_'+p+'_'+id);});}
     return ks;}
   function bakSave(){try{var tk=dayKey(new Date());if(localStorage.getItem('mx2_bakd')===tk)return;
     /* 週1回、上書き前の日次バックアップ（＝昨日までの正常品）を第2世代へ昇格。
@@ -4197,7 +4197,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function expText(){
     var o={__v:1,__app:'MemoraX',__d:dayKey(new Date())};
     try{dataKeys().forEach(function(k){var v=localStorage.getItem(k);if(v!=null)o[k]=v;});
-      ['mxdict_w','mxdict_m','mxdict_note','mx2_ent','mx2_solved','mx2_guided'].forEach(function(k){var v=localStorage.getItem(k);if(v!=null)o[k]=v;});
+      ['mxdict_w','mxdict_m','mxdict_note','mx2_ent','mx2_solved','mx2_guided','mx2_snd','mx2_examday','mx2_revreq','mx2_revpend','mx2_wn_idioms'].forEach(function(k){var v=localStorage.getItem(k);if(v!=null)o[k]=v;});
     }catch(e){}
     return JSON.stringify(o);
   }
