@@ -4257,7 +4257,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   /* ---- 広告 ---- */
   var PLAT=(function(){try{var C=window.Capacitor;return (C&&C.getPlatform)?C.getPlatform():'web';}catch(e){return 'web';}})();
   if(PLAT==='web'){try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(e){}/* ブラウザ都合のデータ削除を抑止（2026-08-30） */
-    var _pl9=document.querySelector('.plinks');if(_pl9)_pl9.style.display='none';}/* Webは購入導線（サブスク内容・復元）を出さない（2026-08-30） *//* ホーム画面起動はアプリと同じ上部余白にする（2026-08-30） */
+    var _pl9=document.querySelector('.plinks');if(_pl9)_pl9.style.display='none';}/* Webは購入導線（サブスク内容・復元）を出さない（2026-08-30） */
   /* 広告ユニットはOSごとに別物。AndroidはAdMobにアプリを登録してから採番するので、
      それまでは空にしておく＝Androidでは広告を出さない（2026-08-29） */
   var ADUNIT={ios:'ca-app-pub-4932559321126464/9914782913',android:''};
