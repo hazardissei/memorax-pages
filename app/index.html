@@ -1676,6 +1676,20 @@
   .msheet .pwl{text-align:center;margin-top:6px}
   .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 84px);transform:translateX(-50%) translateY(16px);background:#111;color:#fff;padding:10px 16px;border-radius:6px;font-size:14px;font-weight:800;opacity:0;pointer-events:none;transition:.2s;z-index:200;width:max-content;max-width:300px;text-align:center;line-height:1.6}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Safariのツールバー分を含まない「見えている高さ」基準にする（Web対策 2026-08-31）。
+   土台(.app/.screen)と画像枠だけvhのまま残っていて、Safariでは実寸より大きく組まれて
+   はみ出し判定(tight)が誤発動→画像が上から切られていた。dvh非対応の古い環境は従来のvhで動く */
+@supports (height:100dvh){
+  .app{min-height:100dvh}
+  .screen{min-height:100dvh}
+  .aimgbox{height:clamp(190px,36dvh,320px)}
+  .card.cfopen .aimgbox{height:clamp(110px,18dvh,170px)}
+  .card.tight .aimgbox{height:clamp(110px,20dvh,200px)}
+  .card.tight.cfopen .aimgbox{height:clamp(90px,13dvh,140px)}
+  @media (max-height:740px){
+    .aimgbox{height:clamp(110px,26dvh,200px)}
+  }
+}
 </style>
 </head>
 <body>
