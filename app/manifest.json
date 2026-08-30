@@ -1,0 +1,10 @@
+{
+  "name": "Memora X 大学受験英単語",
+  "short_name": "Memora X",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [{"src": "icon.png", "sizes": "1024x1024", "type": "image/png"}]
+}
