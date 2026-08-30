@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<link rel="manifest" href="manifest.json"><link rel="icon" href="icon.png"><link rel="apple-touch-icon" href="icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#ffffff"><meta name="description" content="センター・共通テスト・全大学の過去問から作った大学受験英単語アプリ。1語1義・例文・発音・画像つき。無料。"><!-- Web版用（2026-08-30）。アプリ内では実害なし -->
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon.png"><link rel="apple-touch-icon" href="icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Memora X"><meta name="theme-color" content="#ffffff"><meta name="description" content="センター・共通テスト・全大学の過去問から作った大学受験英単語アプリ。1語1義・例文・発音・画像つき。無料。"><!-- Web版用（2026-08-30）。アプリ内では実害なし -->
 <title>Memora X 大学受験英単語</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4257,7 +4257,6 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   /* ---- 広告 ---- */
   var PLAT=(function(){try{var C=window.Capacitor;return (C&&C.getPlatform)?C.getPlatform():'web';}catch(e){return 'web';}})();
   if(PLAT==='web'){try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(e){}/* ブラウザ都合のデータ削除を抑止（2026-08-30） */
-    try{if(matchMedia('(display-mode: standalone)').matches)document.documentElement.classList.add('native');}catch(e){}
     var _pl9=document.querySelector('.plinks');if(_pl9)_pl9.style.display='none';}/* Webは購入導線（サブスク内容・復元）を出さない（2026-08-30） *//* ホーム画面起動はアプリと同じ上部余白にする（2026-08-30） */
   /* 広告ユニットはOSごとに別物。AndroidはAdMobにアプリを登録してから採番するので、
      それまでは空にしておく＝Androidでは広告を出さない（2026-08-29） */
