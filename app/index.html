@@ -2757,6 +2757,7 @@
      GUIDED（初回ガイド完了）を条件にしない：リセット後にガイド未完走の端末で永遠に出なくなるため。
      ガイドとの衝突は「tourOv表示中は消化せず持ち越し」で防ぐ（2026-08-16） */
   function maybeAskReview(){try{
+    if(PLAT!=='ios')return;                             /* App Storeレビュー専用。Web・Androidでは出さない（2026-08-31） */
     if(!state.cards)return;                              /* オンボーディング前は出さない */
     if(localStorage.getItem('mx2_revreq'))return;        /* 一度きり */
     if(localStorage.getItem('mx2_revpend')!=='1')return; /* モード1回済みの印がある時だけ */
