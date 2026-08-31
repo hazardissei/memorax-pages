@@ -1693,6 +1693,11 @@
 /* ホーム画面起動でステータスバー確保とenv()が両方効く端末の補正（2026-08-31）。JSが実測でsbdupを付けたときだけ効く */
 .sbdup .screen{padding-top:22px!important}
 @media(max-width:480px){.sbdup .screen{padding-top:14px!important}}
+/* ダークモード（2026-08-31 ユーザー要望）：白黒モノリスは反転がそのまま成立する。
+   意味色（正誤の緑赤）はinvert+hue-rotateの二段でほぼ元の色相に戻る。画像だけ二重反転で写真の色を保つ */
+html.dark{background:#0e0f12}
+html.dark body{filter:invert(1) hue-rotate(180deg);background:#0e0f12}
+html.dark img{filter:invert(1) hue-rotate(180deg)}
 </style>
 </head>
 <body>
@@ -2034,7 +2039,8 @@
         <button class="c2 sel" data-m="word">単語を追加</button>
       </div>
       <input class="dfield" id="addW" type="text" placeholder="単語（例: resilience）" autocomplete="off" style="margin-top:10px">
-      <input class="dfield" id="addM" type="text" placeholder="意味（例: 回復力、しなやかさ）" autocomplete="off">
+      <input class="dfield" id="addM" type="text" placeholder="意味（複数は「、」で区切り）" autocomplete="off">
+      <div class="chips2" id="addPos" style="margin-top:10px"><button class="c2 sel" type="button" data-p="">品詞なし</button><button class="c2" type="button" data-p="名詞">名詞</button><button class="c2" type="button" data-p="動詞">動詞</button><button class="c2" type="button" data-p="形容詞">形容詞</button><button class="c2" type="button" data-p="副詞">副詞</button></div><!-- 追加単語の品詞（2026-08-31 ユーザー要望） -->
       <button class="dbtn" id="addGo">追加する</button>
       <div class="dmsg" id="dictMsg"></div>
       <div class="note" style="text-align:left;max-width:none;margin-top:14px">あなたが追加した単語は審査され、必要性が高いと判断されれば、みんなの単語帳リストに追加される可能性があります。</div>
@@ -2053,6 +2059,8 @@
         <i class="sddiv"></i>
         <div class="sd"><div class="sec-t">答えの画像表示</div><div class="chips2" data-k="wimg"></div></div>
       </div>
+      <div class="sec-t" style="margin-top:22px">画面の色</div>
+      <div class="chips2" data-k="dark"></div><!-- ダークモード（2026-08-31 ユーザー要望） -->
       <!-- 英熟語カットイン。熟語帳を買うまでは暗くして触れない（2026-08-27） -->
       <div id="idmcutBox"><div class="sec-t" style="margin-top:22px">英熟語カットイン</div><div class="chips2" data-k="idmcut"></div></div>
       <div class="sec-t" style="margin-top:30px">試験日</div>
@@ -3390,11 +3398,12 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   document.querySelectorAll('.mh-info').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();var t=b.getAttribute('data-t'),tip=$('tip-'+t);if(!tip)return;var was=tip.classList.contains('on');document.querySelectorAll('.mh-tipb.on').forEach(function(x){x.classList.remove('on');});if(!was){tip.innerHTML=TIPS[t]||'';tip.classList.add('on');}});});
   document.addEventListener('click',function(e){if(!e.target.closest('.mh-info'))document.querySelectorAll('.mh-tipb.on').forEach(function(x){x.classList.remove('on');});});
   /* 設定画面（学年・レベル・1日の問数） */
-  var SETOPTS={grade:['中3','高1','高2','高3','浪人'],level:['共通テスト','上位国立大学','旧帝大以上','日東駒専','MARCH','早慶'],cards:['100','150','200','300'],cutin:['オン','オフ'],wimg:['オン','オフ'],idmcut:['オン','オフ']};
-  function renderSettings(){document.querySelectorAll('#sc-settings .chips2').forEach(function(box){var k=box.getAttribute('data-k');box.innerHTML=SETOPTS[k].map(function(v){var sel=String(state[k]||(k==='cutin'||k==='wimg'||k==='idmcut'?'オン':''))===v;return '<button class="c2'+(sel?' sel':'')+'" data-v="'+v+'">'+v+(k==='cards'?'問':'')+'</button>';}).join('');});
+  var SETOPTS={grade:['中3','高1','高2','高3','浪人'],level:['共通テスト','上位国立大学','旧帝大以上','日東駒専','MARCH','早慶'],cards:['100','150','200','300'],cutin:['オン','オフ'],wimg:['オン','オフ'],idmcut:['オン','オフ'],dark:['ライト','ダーク']};
+  function applyDark(){document.documentElement.classList.toggle('dark',state.dark==='ダーク');}/* 画面の色（2026-08-31 ユーザー要望）。既定はライト */
+  function renderSettings(){document.querySelectorAll('#sc-settings .chips2').forEach(function(box){var k=box.getAttribute('data-k');box.innerHTML=SETOPTS[k].map(function(v){var sel=String(state[k]||(k==='cutin'||k==='wimg'||k==='idmcut'?'オン':(k==='dark'?'ライト':'')))===v;return '<button class="c2'+(sel?' sel':'')+'" data-v="'+v+'">'+v+(k==='cards'?'問':'')+'</button>';}).join('');});
     var ib=$('idmcutBox');if(ib)ib.classList.toggle('locked',!ENT.idioms);/* 熟語帳を買うまでは触れない（2026-08-27） */
     var rc=$('resetConf');if(rc)rc.style.display='none';/* 画面を開き直したら確認は閉じる */}
-  document.querySelectorAll('#sc-settings .chips2').forEach(function(box){box.addEventListener('click',function(e){var b=e.target.closest('.c2');if(!b)return;var k=box.getAttribute('data-k'),v=b.getAttribute('data-v');if(k==='cards')state.cards=parseInt(v,10);else state[k]=v;if(k==='grade')setExamFromGrade();computePlan();renderSettings();saveAll();/* 変えた時点で保存する。従来は次に問題を解くまでメモリ上だけで、落とすと消えていた（2026-08-27） */});});
+  document.querySelectorAll('#sc-settings .chips2').forEach(function(box){box.addEventListener('click',function(e){var b=e.target.closest('.c2');if(!b)return;var k=box.getAttribute('data-k'),v=b.getAttribute('data-v');if(k==='cards')state.cards=parseInt(v,10);else state[k]=v;if(k==='grade')setExamFromGrade();if(k==='dark')applyDark();computePlan();renderSettings();saveAll();/* 変えた時点で保存する。従来は次に問題を解くまでメモリ上だけで、落とすと消えていた（2026-08-27） */});});
   /* 学習データリセット（設定画面・はい/いいえ×2段階確認。#resetが使えない環境＝実機/プレビュー用） */
   (function(){var rb=$('resetBtn'),box=$('resetConf'),q=$('resetQ'),y=$('rcYes'),n=$('rcNo'),step=0;if(!rb||!box)return;
     function close(){step=0;box.style.display='none';}
@@ -3827,7 +3836,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       var ta=$('dsTa');ta.value=note;/* innerHTML経由だとエスケープが要るのでvalueで入れる */
       ta.addEventListener('input',function(){var nv=String(ta.value||'').replace(/\r/g,'').split('\n').slice(0,2).map(function(x){return x.slice(0,28);}).join('\n');if(nv!==ta.value)ta.value=nv;});
       $('dsMemoSave').onclick=function(){var v=memNorm(ta.value);if(v)NOTES[lw]=v;else delete NOTES[lw];noteSave();haptic(10);toastMsg(v?'メモを保存しました':'メモを削除しました');if(window._memW===lw)memSetup(lw);/* カード側の表示も追従 */};
-      $('dsClose').onclick=sheetClose;
+      $('dsClose').onclick=closeMSheet;
       var bF=$('dsForget'),bM=$('dsMiss'),bR=$('dsRev');
       if(bF)bF.onclick=function(){var e=dictStateApply(w,'forget');if(e){toastMsg(e);return;}haptic(10);toastMsg('「覚えていない」に戻しました');paint();};
       if(bM)bM.onclick=function(){var e=dictStateApply(w,'miss');if(e){toastMsg(e);return;}haptic(10);toastMsg('苦手リストに入れました');paint();};
@@ -3845,7 +3854,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var hitE=wordFind(w);
     if(dictMode==='word'){
       if(hitE){msg.textContent='「'+hitE.w+'」は既にある単語です（意味の追加は「意味を追加」から）';return;}
-      var ent={w:w.toLowerCase(),m:m,st:'new',user:1,ad:dayKey(new Date())};
+      var ent={w:w.toLowerCase(),m:m,st:'new',user:1,ad:dayKey(new Date())};if(ADDPOS)ent.pos=ADDPOS;
       USERWORDS.push(ent);BOOKS.forEach(function(bk){bk.deck.push(ent);});
       BOOKS.forEach(function(bk){var secU=null;for(var i=0;i<bk.sections.length;i++)if(bk.sections[i].name==='あなたの追加単語')secU=bk.sections[i];if(secU){secU.arr=USERWORDS;}else{bk.sections.push({name:'あなたの追加単語',arr:USERWORDS});}});
       dictSave();msg.className='dmsg ok';msg.textContent='単語追加ありがとうございます。追加した単語は、明日以降ライブラリからの学習で出題されます。また、単語は運営で審査し、アプリ利用者全員に出題される可能性がございます。';
@@ -3862,7 +3871,8 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   $('addGo').addEventListener('click',function(){dictAdd();});
   $('dictMode').addEventListener('click',function(e){var b=e.target.closest('.c2');if(!b)return;dictMode=b.getAttribute('data-m');document.querySelectorAll('#dictMode .c2').forEach(function(c){c.classList.toggle('sel',c===b);});
     $('addW').placeholder=dictMode==='word'?'単語（例: resilience）':'意味を足したい単語（例: run）';
-    $('addM').placeholder=dictMode==='word'?'意味（例: 回復力、しなやかさ）':'追加する意味（例: 経営する）';});
+    $('addM').placeholder=dictMode==='word'?'意味（複数は「、」で区切り）':'追加する意味（例: 経営する）';var _ap9=$('addPos');if(_ap9)_ap9.style.display=dictMode==='word'?'':'none';});
+  var ADDPOS='';(function(){var box=$('addPos');if(!box)return;box.addEventListener('click',function(e){var b=e.target.closest('.c2');if(!b)return;ADDPOS=b.getAttribute('data-p')||'';box.querySelectorAll('.c2').forEach(function(c){c.classList.toggle('sel',c===b);});haptic(4);});})();/* 追加単語の品詞（2026-08-31 ユーザー要望）。答えの品詞マーク（d.pos）にそのまま出る */
   var STLABEL={learned:"覚えた",review:"また出る",weak:"苦手",new:"未学習"};
   var deckFilter='all',deckSection=null;
   function stCount(st,arr){/* 冊全体の集計は語のユニーク数（学部重複帳対策・2026-08-13）。セクション内は重複がないので影響なし */
@@ -4220,6 +4230,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function entApply(ids){ids=ids||[];ENT.noads=ids.indexOf(PRODUCTS.noads)>-1;ENT.idioms=ids.indexOf(PRODUCTS.idioms)>-1;entSave();renderPremium();if(ENT.noads&&adOn)adHide(true);if(!ENT.noads)adPrepare();/* 解約後は広告を再開（2026-08-26） */}
   function skPlugin(){try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.StoreKit2)return C.Plugins.StoreKit2;}catch(e){}return null;}
   function toastMsg(t){var el=$('toast');if(!el)return;el.textContent=t;el.classList.add('on');clearTimeout(window._tt);window._tt=setTimeout(function(){el.classList.remove('on');},Math.min(6000,2200+t.length*60));}
+  function closeMSheet(){var m=$('modal'),ms=$('msheet');if(m)m.classList.remove('on');if(ms)ms.innerHTML='';}/* msheet共通クローズ。settings節のsheetCloseはIIFE内ローカルで外から見えない（2026-08-31 実機バグ修正） */
   function renderPremium(){/* 設定の購入ボタンは廃止。いまは英熟語カットインの行のロックだけ更新する（2026-08-27） */
     var ib=$('idmcutBox');if(ib)ib.classList.toggle('locked',!ENT.idioms);}
   function premiumBoot(){entLoad();renderPremium();var sk=skPlugin();if(!sk)return;
@@ -4408,7 +4419,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       +'<button class="opt" id="rwGo" type="button" style="width:100%;margin-top:10px">動画を見る</button>'
       +'<div class="pwl"><button class="plink" id="rwNo" type="button">今はいい</button></div>';
     $('modal').classList.add('on');phrasifyDom(ms);
-    $('rwGo').onclick=function(){sheetClose();rwShow();};$('rwNo').onclick=sheetClose;haptic(6);}
+    $('rwGo').onclick=function(){closeMSheet();rwShow();};$('rwNo').onclick=closeMSheet;haptic(6);}
   (function(){var g0=window.go;if(typeof g0==='function'){window.go=function(id){g0.apply(this,arguments);if(id==='sc-settings')try{rwPaint();}catch(e){}if(id==='sc-dict')try{uwPaint();}catch(e){}};}})();/* 設定を開くたびボタン状態を更新（2026-08-31） */
   (function(){var f0=window.entApply;if(typeof f0==='function'){window.entApply=function(){var r=f0.apply(this,arguments);try{rwPaint();}catch(e){}return r;};}})();/* 購入・復元の反映でもボタンを消す（2026-08-31検証） */
   document.addEventListener('visibilitychange',function(){if(!document.hidden)try{rwPaint();}catch(e){}});/* 日付を跨いで戻ってきた時にボタン表示を直す（2026-08-31検証） */
@@ -4462,6 +4473,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       else if(bakRestore(2)&&loadAll())_booted=true;/* 日次でもダメなら週次の第2世代から */
     }
   }
+  try{applyDark();}catch(e){}/* 保存済みの画面の色を起動直後に反映（2026-08-31） */
   if(_booted){bakSave();icBackup();showHello();}
   else{
     var _startOnboard=function(){narrate($('wNarr'),$('wTap'),'まずはあなたについて\n教えてください',function(){go('sc-grade');});};/* 導入1文（2026-08-02 ユーザー指定・句読点なし） */
