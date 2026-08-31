@@ -2060,6 +2060,9 @@
       <!-- 機種変更や再インストールに備えた退避。AndroidにはiCloud自動バックアップが無いので必須（2026-08-30） -->
       <button class="dbtn" id="expBtn" style="background:#fff;color:#111;border:1.5px solid #111">学習データを書き出す</button>
       <button class="dbtn" id="impBtn" style="background:#fff;color:#111;border:1.5px solid #111;margin-top:10px">書き出したデータを読み込む</button>
+      <!-- リワード動画で今日の広告を消す（1.0.4）。広告が出るOSでリワードのユニットIDがある時だけJSが表示する（2026-08-31） -->
+      <div id="rwBox" style="display:none"><div class="sec-t" style="margin-top:30px">広告</div>
+      <button class="dbtn" id="rwBtn" style="background:#fff;color:#111;border:1.5px solid #111">動画を1本見て、今日の広告を消す</button></div>
       <div class="pnote" style="margin-top:10px">機種変更やアプリを入れ直す前に書き出しておくと、新しい端末で続きから学習できます。</div>
       <button class="dbtn" id="resetBtn" style="background:#fff;color:#111;border:1.5px solid #111;margin-top:22px">学習データをリセット</button>
       <div id="resetConf" style="display:none">
@@ -4286,26 +4289,74 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
    バナーではなく全画面にした理由：日本のeCPMがバナー¥15-80に対し全画面¥1,080（72倍）。
    広告ユニット側で「動画」をオフにしてある（動画は×ボタンが出るまで最大12-30秒かかり、学習が止まるため）。
    その代わりeCPMは下がる見込み。実データを見て再検討する */
+  var ADUNIT_RW={ios:'',android:''};/* リワード動画のユニットID。AdMobで採番したら入れる。空なら機能ごと出ない（2026-08-31） */
+  var RW={unit:ADUNIT_RW[PLAT]||'',ready:false,loading:false,fail:0,maxFail:3};
+  var NPA=true;/* 既定は非パーソナライズ。iOSでATT許可が取れた時だけfalseにして単価を上げる（2026-08-31） */
+  function adOffToday(){try{return localStorage.getItem('mx2_adoff')===dayKey(new Date());}catch(e){return false;}}
   var ADQ=0;try{ADQ=parseInt(localStorage.getItem('mx2_adq')||'0',10)||0;}catch(e){}
   var adPending=false,adOn=false,adInit=false,adFail=0,adTimer=null,adGotFill=false,adReady=false,adLoading=false;/* adFail=連続失敗、adReady=次の全画面広告が用意できている（2026-08-26） */
   function adMob(){try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.AdMob)return C.Plugins.AdMob;}catch(e){}return null;}
-  function adsEnabled(){if(!ADS.unit)return false;/* そのOSのユニットIDが未採番なら出さない（2026-08-29） */if(ENT.noads)return false;if(!state.cards||coaching)return false;if(SOLVED<ADS.minSolved)return false;if(adFail>=ADS.maxFail)return false;/* 在庫なし・オフライン等が続いたらこのセッションは出さない（2026-08-26） */return !!adMob()||location.hash==='#ads';}
-  function adTick(){if(ENT.noads)return;ADQ++;if(ADQ>=ADS.every){ADQ=0;if(adsEnabled())adPending=true;}try{localStorage.setItem('mx2_adq',''+ADQ);}catch(e){}}
+  function adsEnabled(){if(!ADS.unit)return false;/* そのOSのユニットIDが未採番なら出さない（2026-08-29） */if(ENT.noads)return false;if(adOffToday())return false;/* 動画視聴で今日は非表示（2026-08-31） */if(!state.cards||coaching)return false;if(SOLVED<ADS.minSolved)return false;if(adFail>=ADS.maxFail)return false;/* 在庫なし・オフライン等が続いたらこのセッションは出さない（2026-08-26） */return !!adMob()||location.hash==='#ads';}
+  function adTick(){if(ENT.noads)return;ADQ++;if(ADQ===ADS.every-5)adPrepare();/* 5問前に次の広告を確実に仕込む＝表示率の取りこぼし回収（2026-08-31） */if(ADQ>=ADS.every){ADQ=0;if(adsEnabled())adPending=true;}try{localStorage.setItem('mx2_adq',''+ADQ);}catch(e){}}
   function nextCardA(){if(adPending&&idx+1<queue.length){adPending=false;showAdCard(nextCard);}else{adPending=false;nextCard();}}
   function adsBoot(){if(!ADS.unit)return;/* そのOSのユニットIDが未採番ならSDKごと動かさない（2026-08-30） */
     var am=adMob();if(!am||adInit)return;adInit=true;am.initialize({initializeForTesting:ADS.test}).catch(function(){});
     try{
       am.addListener('interstitialAdLoaded',function(){adReady=true;adLoading=false;adFail=0;});
-      am.addListener('interstitialAdFailedToLoad',function(){adReady=false;adLoading=false;adFail++;if(adOn)adFallback();});
+      am.addListener('interstitialAdFailedToLoad',function(){adReady=false;adLoading=false;adFail++;if(adOn)adFallback();if(adFail<ADS.maxFail)setTimeout(adPrepare,20000);/* 在庫切れ等は少し置いて取り直す（2026-08-31） */});
       am.addListener('interstitialAdShowed',function(){if(adTimer){clearTimeout(adTimer);adTimer=null;}});/* 広告が実際に出たら保険タイマーを解除する。これが無いと表示中の5秒後に裏で次の問題へ進んでしまう（2026-08-27） */
       am.addListener('interstitialAdFailedToShow',function(){adReady=false;adFail++;adFallback();});
-      am.addListener('interstitialAdDismissed',function(){adReady=false;adDone();adPrepare();/* 閉じたら次の分を仕込む */});
+      am.addListener('interstitialAdDismissed',function(){adReady=false;adDone();adPrepare();rwPromptMaybe();/* 閉じたら次の分を仕込む。動画提案は1日1回（2026-08-31） */});
+      if(RW.unit){/* リワード動画（今日の広告オフ）。イベント名はプラグインv6.2.0の実文字列で確認済み（2026-08-31） */
+        am.addListener('onRewardedVideoAdLoaded',function(){RW.ready=true;RW.loading=false;RW.fail=0;});
+        am.addListener('onRewardedVideoAdFailedToLoad',function(){RW.ready=false;RW.loading=false;RW.fail++;});
+        am.addListener('onRewardedVideoAdFailedToShow',function(){RW.ready=false;toastMsg('動画を再生できませんでした');});
+        am.addListener('onRewardedVideoAdDismissed',function(){RW.ready=false;rwPaint();});
+        am.addListener('onRewardedVideoAdReward',function(){try{localStorage.setItem('mx2_adoff',dayKey(new Date()));}catch(e){}toastMsg('今日はもう広告は出ません');rwPaint();});
+      }
     }catch(e){}
-    adPrepare();}
+    attBoot(function(){adPrepare();rwPrepare();});}
   /* 次の全画面広告を事前に読み込んでおく（15問目に待たせない） */
   function adPrepare(){if(!ADS.unit)return;/* 空のユニットIDでSDKを叩かない（2026-08-30） */
     var am=adMob();if(!am||adReady||adLoading||ENT.noads||adFail>=ADS.maxFail)return;adLoading=true;
-    am.prepareInterstitial({adId:ADS.unit,isTesting:ADS.test,npa:true}).catch(function(){adLoading=false;adReady=false;});}
+    am.prepareInterstitial({adId:ADS.unit,isTesting:ADS.test,npa:NPA}).catch(function(){adLoading=false;adReady=false;});}
+  /* ---- ATT（iOSのみ・1.0.4） ----
+     許可した人にだけパーソナライズ広告＝単価が上がる。拒否・未対応・失敗はすべて従来どおり非パーソナライズ。
+     初回オンボーディング中はダイアログを出さない（state.cardsができた次の起動から） */
+  function attBoot(done){var am=adMob();
+    if(PLAT!=='ios'||!am||!am.trackingAuthorizationStatus){done();return;}
+    var fin=function(st){NPA=(st!=='authorized');done();};
+    am.trackingAuthorizationStatus().then(function(r){
+      var st=r&&r.status;
+      if(st==='notDetermined'&&state.cards&&am.requestTrackingAuthorization){
+        am.requestTrackingAuthorization().then(function(){
+          am.trackingAuthorizationStatus().then(function(r2){fin(r2&&r2.status);}).catch(function(){done();});
+        }).catch(function(){done();});
+      }else{fin(st);}
+    }).catch(function(){done();});}
+  /* ---- リワード動画「今日の広告オフ」（1.0.4） ---- */
+  function rwPrepare(){if(!RW.unit)return;var am=adMob();if(!am||RW.ready||RW.loading||RW.fail>=RW.maxFail||adOffToday())return;RW.loading=true;
+    am.prepareRewardVideoAd({adId:RW.unit,isTesting:ADS.test,npa:NPA}).catch(function(){RW.loading=false;});}
+  function rwShow(){var am=adMob();if(!am||!RW.unit)return;
+    if(adOffToday()){toastMsg('今日はもう広告は出ません');return;}
+    if(!RW.ready){toastMsg('動画を準備しています。少し待ってからもう一度押してください');RW.fail=0;rwPrepare();return;}
+    am.showRewardVideoAd().catch(function(){RW.ready=false;toastMsg('動画を再生できませんでした');});}
+  function rwAvail(){return !!(RW.unit&&ADS.unit&&adMob()&&!ENT.noads&&state.cards);}
+  function rwPaint(){var bx=$('rwBox'),b=$('rwBtn');if(!bx||!b)return;
+    if(!rwAvail()){bx.style.display='none';return;}
+    bx.style.display='';
+    if(adOffToday()){b.textContent='✓ 今日は広告なし';b.disabled=true;b.style.opacity='.38';}
+    else{b.textContent='動画を1本見て、今日の広告を消す';b.disabled=false;b.style.opacity='';}}
+  (function(){var b=$('rwBtn');if(b)b.onclick=function(){haptic(6);rwShow();};})();
+  function rwPromptMaybe(){if(!rwAvail()||adOffToday())return;var tk=dayKey(new Date());
+    try{if(localStorage.getItem('mx2_rwp')===tk)return;localStorage.setItem('mx2_rwp',tk);}catch(e){}/* 提案は1日1回（2026-08-31） */
+    var ms=$('msheet');if(!ms||$('modal').classList.contains('on'))return;
+    ms.innerHTML='<div class="q" style="font-size:19px;margin-bottom:8px">動画を1本見ると<br>今日はもう広告が出ません</div>'
+      +'<button class="opt" id="rwGo" type="button" style="width:100%;margin-top:10px">動画を見る</button>'
+      +'<div class="pwl"><button class="plink" id="rwNo" type="button">今はいい</button></div>';
+    $('modal').classList.add('on');phrasifyDom(ms);
+    $('rwGo').onclick=function(){sheetClose();rwShow();};$('rwNo').onclick=sheetClose;haptic(6);}
+  (function(){var g0=window.go;if(typeof g0==='function'){window.go=function(id){g0.apply(this,arguments);if(id==='sc-settings')try{rwPaint();}catch(e){}};}})();/* 設定を開くたびボタン状態を更新（2026-08-31） */
   /* 広告が出せない・失敗したとき：待たずに次の問題へ（学習を止めない） */
   function adFallback(){if(!adOn)return;if(adTimer){clearTimeout(adTimer);adTimer=null;}adHide(true);}
   /* 全画面広告が閉じられた：カードを片付けて次の問題へ */
@@ -4346,7 +4397,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function chainPick(it){if(!it)return null;var base=it.d||it.alt||null,im=idiomChain(it.w);if(base&&im)return Math.random()<0.5?base:im;return base||im;}
   window.showPaywall=showPaywall;
   window.buyBook=function(k){if(PLAT==='web'){toastMsg('熟語帳はWeb版では準備中です');return;}showPaywall(k);};/* 審査3.1.2(c)：購入シートの前に必ず条件を提示する（2026-08-29） */
-  premiumBoot();adsBoot();
+  premiumBoot();adsBoot();try{rwPaint();}catch(e){}
   var _booted=false;
   if(location.hash!=='#reset'){
     if(loadAll())_booted=true;
