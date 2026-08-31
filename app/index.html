@@ -186,19 +186,21 @@
   /* 混同しやすい単語を開くとカードが伸びて、メモ／報告ボタンに重なり画面下からはみ出す。
      開いている間だけ画像を縮めて場所を作る（2026-08-27）。
      clamp()同士のheightトランジションは開始値で固まって効かなかったので付けない */
-  .card.cfopen .aimgbox{height:clamp(110px,18vh,170px)}
+  .card.cfopen .aimgbox{display:none}/* リストを読む間は画像に場所を渡さない。縮小表示（旧18vh）は頭が切れるのでやめた（2026-08-31） */
   /* 入りきらないときだけ画像を縮める。判定は fitCard()（2026-08-27） */
   .card.tight .aimgbox{height:clamp(110px,20vh,200px)}
-  .card.tight.cfopen .aimgbox{height:clamp(90px,13vh,140px)}
+  .card.noimg .aimgbox{display:none}/* tightでも入らない時の最終手段（判定はfitCard・2026-08-31） */
+  .card.noimg.imgmode.revealed .wwrap{padding-top:6px}
+  .card.noimg.imgmode .ansb{margin-top:16px;padding-top:16px}/* 画像を隠したら通常カードの余白に戻す（2026-08-31） */
   .card.revealed .ansb{padding-bottom:26px}/* メモ／報告(absolute bottom:10px)の下に本文が潜らないよう場所を空ける（2026-08-27） */
   @media (max-height:740px){
     .aimgbox{height:clamp(110px,26vh,200px)}
-    .card.cfopen .aimgbox,.card.tight .aimgbox{display:none}/* 低い画面では縮めても足りないので、入りきらないとき／混同語を開いている間は画像を隠す（2026-08-27） */
+    .card.tight .aimgbox{display:none}/* 低い画面では縮めても足りない（2026-08-27）。cfopen中の非表示は全画面サイズ共通ルールへ移動（2026-08-31） */
     .card.revealed .ansb{gap:10px;padding-bottom:18px}
     .memtxt{margin-top:8px}
     .cflist{padding:2px 12px}
   }
-  .aimgbox img{width:100%;height:100%;object-fit:cover;object-position:center bottom;display:block}/* 画像下部の英単語表記を切らない（2026-08-14） */
+  .aimgbox img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}/* 切るときは上下均等。旧「下部の英単語表記を守る」は現行画像に文字が無いので廃止（2026-08-31実物確認） */
   /* ===== 混同しやすい単語（答え画面・タップ開閉） ===== */
   .cfbox{display:none;margin-top:14px}
   .cfbox.on{display:block}
@@ -1683,9 +1685,7 @@
   .app{min-height:100dvh}
   .screen{min-height:100dvh}
   .aimgbox{height:clamp(190px,36dvh,320px)}
-  .card.cfopen .aimgbox{height:clamp(110px,18dvh,170px)}
   .card.tight .aimgbox{height:clamp(110px,20dvh,200px)}
-  .card.tight.cfopen .aimgbox{height:clamp(90px,13dvh,140px)}
   @media (max-height:740px){
     .aimgbox{height:clamp(110px,26dvh,200px)}
   }
@@ -2425,7 +2425,7 @@
       if(c==='、'&&dep===0){if(cur)out.push(cur);cur='';}else cur+=c;}
     if(cur)out.push(cur);
     return out.join('\n');}
-  function reveal(c){window._qdt=(!chainMode&&window._qT0)?(Date.now()-window._qT0):null;/* 解答時間＝表示完了→最初のスワイプ（2026-08-13） */conf=c;phase='a';if(coaching&&idx===0&&!chainMode)swipeLock=true;/* 「答え合わせです」のコーチとデモが終わるまでスワイプ不可（2026-08-14）。解除はdemoAns末尾 */card.classList.add('revealed');ansb.classList.add('show');if(coachTimer)clearTimeout(coachTimer);hideCoach();card.classList.add('snap');card.style.transform='';card.style.background='';card.style.borderColor='';setTimeout(function(){card.classList.remove('snap');},220);var d=chainMode?chainData:queue[idx];var _wp=$('wipa');if(_wp){var _ip9=(window.IPA||{})[(d.w||'').toLowerCase()]||'';/* 発音記号（2026-08-16）。熟語はデータなし＝非表示が正 */_wp.textContent=_ip9;/* スラッシュなし（2026-08-20 ユーザー指定） */_wp.style.display=_ip9?'':'none';}var ai=$('ansImg'),ab=$('aimgbox');if(ai&&ab){ab.classList.remove('on');card.classList.remove('imgmode');var ip=state.wimg==='オフ'?null:(chainMode&&chainData&&chainData.kind==='alt')?(WIMG[d.w]?WIMG[d.w].replace(/\.(webp|jpg)$/,'_2.$1'):null):(d.img||WIMG[d.w]);/* 難訳は専用の_2画像（2026-08-05）。設定で画像オフ可 *//* 難訳（②の意味）は別概念なので画像を出さない（2026-08-03 FB）。派生チェインは対象 */if(ip){ai._alt=0;ai.onload=function(){ab.classList.add('on');card.classList.add('imgmode');};ai.onerror=function(){/* webp↔jpg を1回だけ入れ替えて再試行（2026-08-26） */var _s=ai.src;if(!ai._alt){ai._alt=1;if(_s.slice(-5)==='.webp'){ai.src=_s.slice(0,-5)+'.jpg';return;}if(_s.slice(-4)==='.jpg'){ai.src=_s.slice(0,-4)+'.webp';return;}if(_s.slice(-4)==='.png'){ai.src=_s.slice(0,-4)+'.jpg';return;}}ab.classList.remove('on');card.classList.remove('imgmode');};ai.src=ip;}}var _pl=d.kind==='alt'?'':(function(){var _p9=(window.POSD||{})[(d.w||'').toLowerCase()];if(_p9)return '（'+_p9+'）';return d.pos?'（'+d.pos+'）':'';})();/* 品詞マーク（2026-08-16）：見出しはPOSD、派生は従来のpos */var _mBody=d.m;var _um=USERMEAN[d.w];if(_um)_mBody+='、'+_um;_mBody=fmtMean(_mBody);memSetup((d.w||'').toLowerCase());var _am=$('ansM');if(_am){var _ml=Math.max.apply(null,_mBody.split('\n').map(function(s){return s.length;}));_am.classList.toggle('long',_ml>11);}var _ib=$('ansImp');if(_ib){var _tx='';if(!chainMode){var _bk2=BOOKS[CURBOOK]&&BOOKS[CURBOOK].id;if(d&&d.cnt!=null&&(_bk2==='waseda'||_bk2==='keio')){var _un=(_bk2==='waseda'?'早稲田':'慶応');
+  function reveal(c){window._qdt=(!chainMode&&window._qT0)?(Date.now()-window._qT0):null;/* 解答時間＝表示完了→最初のスワイプ（2026-08-13） */conf=c;phase='a';if(coaching&&idx===0&&!chainMode)swipeLock=true;/* 「答え合わせです」のコーチとデモが終わるまでスワイプ不可（2026-08-14）。解除はdemoAns末尾 */card.classList.add('revealed');ansb.classList.add('show');if(coachTimer)clearTimeout(coachTimer);hideCoach();card.classList.add('snap');card.style.transform='';card.style.background='';card.style.borderColor='';setTimeout(function(){card.classList.remove('snap');},220);var d=chainMode?chainData:queue[idx];var _wp=$('wipa');if(_wp){var _ip9=(window.IPA||{})[(d.w||'').toLowerCase()]||'';/* 発音記号（2026-08-16）。熟語はデータなし＝非表示が正 */_wp.textContent=_ip9;/* スラッシュなし（2026-08-20 ユーザー指定） */_wp.style.display=_ip9?'':'none';}var ai=$('ansImg'),ab=$('aimgbox');if(ai&&ab){ab.classList.remove('on');card.classList.remove('imgmode');var ip=state.wimg==='オフ'?null:(chainMode&&chainData&&chainData.kind==='alt')?(WIMG[d.w]?WIMG[d.w].replace(/\.(webp|jpg)$/,'_2.$1'):null):(d.img||WIMG[d.w]);/* 難訳は専用の_2画像（2026-08-05）。設定で画像オフ可 *//* 難訳（②の意味）は別概念なので画像を出さない（2026-08-03 FB）。派生チェインは対象 */if(ip){ai._alt=0;ai.onload=function(){ab.classList.add('on');card.classList.add('imgmode');if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);/* 画像は非同期に載るので、載った後で入るかを測り直す。これが無いと縮小判定が画像の読み込み順に左右される（2026-08-31） */};ai.onerror=function(){/* webp↔jpg を1回だけ入れ替えて再試行（2026-08-26） */var _s=ai.src;if(!ai._alt){ai._alt=1;if(_s.slice(-5)==='.webp'){ai.src=_s.slice(0,-5)+'.jpg';return;}if(_s.slice(-4)==='.jpg'){ai.src=_s.slice(0,-4)+'.webp';return;}if(_s.slice(-4)==='.png'){ai.src=_s.slice(0,-4)+'.jpg';return;}}ab.classList.remove('on');card.classList.remove('imgmode');if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);};ai.src=ip;}}var _pl=d.kind==='alt'?'':(function(){var _p9=(window.POSD||{})[(d.w||'').toLowerCase()];if(_p9)return '（'+_p9+'）';return d.pos?'（'+d.pos+'）':'';})();/* 品詞マーク（2026-08-16）：見出しはPOSD、派生は従来のpos */var _mBody=d.m;var _um=USERMEAN[d.w];if(_um)_mBody+='、'+_um;_mBody=fmtMean(_mBody);memSetup((d.w||'').toLowerCase());var _am=$('ansM');if(_am){var _ml=Math.max.apply(null,_mBody.split('\n').map(function(s){return s.length;}));_am.classList.toggle('long',_ml>11);}var _ib=$('ansImp');if(_ib){var _tx='';if(!chainMode){var _bk2=BOOKS[CURBOOK]&&BOOKS[CURBOOK].id;if(d&&d.cnt!=null&&(_bk2==='waseda'||_bk2==='keio')){var _un=(_bk2==='waseda'?'早稲田':'慶応');
         /* セクション＝学部なので、その学部での回数を主に出す。大学全体の計も併記する。
            従来は全セクションで大学全体の計だけを出していて、学部の実数と最大32倍ずれていた（2026-08-30） */
         _tx=(d.fc!=null&&d.g)?(d.g+'で'+d.fc+'回 ／ '+_un+'全体'+d.cnt+'回'):(_un+'全体で'+d.cnt+'回');}else if(d&&d.cnt!=null&&_bk2==='idioms')_tx=idmLvl(d.g)+'で出題 '+d.cnt+'回';else{var _v2=impPct(d);if(_v2!=null)_tx=state.level+'レベル重要度 '+_v2+'%';}}else if(chainData&&chainData.kind==='idiom'&&chainData.cnt!=null)_tx=idmLvl(chainData.g)+'で出題 '+chainData.cnt+'回';_ib.textContent=_tx;_ib.style.display=_tx?'':'none';ansb.classList.toggle('hasimp',!!_tx);/* 重要度ピルは絶対配置なので、出るときは必ず上に余白を確保する。画像オフや読み込み前でも重ならないように（2026-08-27 実機報告 principal/issue/adopt） */}
@@ -2808,8 +2808,10 @@
      .app が overflow:hidden なので、はみ出した分はスクロールもできずに切れてしまう。
      いったん tight を外して素の高さで測り直してから判定する（2026-08-27） */
   function fitCard(){var c=$('card');if(!c||!c.classList.contains('revealed'))return;
-    c.classList.remove('tight');
-    if(c.getBoundingClientRect().bottom>window.innerHeight-4)c.classList.add('tight');}
+    c.classList.remove('tight');c.classList.remove('noimg');
+    if(c.getBoundingClientRect().bottom>window.innerHeight-4){c.classList.add('tight');
+      if(c.getBoundingClientRect().bottom>window.innerHeight-4)c.classList.add('noimg');/* 縮めても入らない：切れた写真を出すより隠す（2026-08-31） */}}
+  window.addEventListener('resize',function(){if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);});/* 回転・キーボードで測り直す（2026-08-31） */
   function memSetup(w){window._memW=w;var b=$('memBtn'),t=$('memTxt');if(!b)return;var n=NOTES[w]||'';
     b.textContent=n?'メモ':'＋ メモ';b.classList.toggle('has',!!n);
     if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);/* 描画が終わってから測る（2026-08-27） */
