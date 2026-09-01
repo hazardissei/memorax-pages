@@ -4235,7 +4235,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var ib=$('idmcutBox');if(ib)ib.classList.toggle('locked',!ENT.idioms);}
   function premiumBoot(){entLoad();renderPremium();var sk=skPlugin();if(!sk)return;
     sk.getEntitlements().then(function(r){entApply(r&&r.entitlements);}).catch(function(){});
-    sk.getProducts({ids:[PRODUCTS.idioms,PRODUCTS.noads]})/* noads=広告非表示（月額300円）を販売再開（2026-08-31） */.then(function(r){(r&&r.products||[]).forEach(function(p){if(p&&p.id&&p.price)PRICES[p.id]=p.price;/* 表示価格（例 ¥300）。App Storeが返した値だけを使う（2026-08-27） */});renderPremium();}).catch(function(){});
+    sk.getProducts({ids:[PRODUCTS.idioms,PRODUCTS.noads]})/* noads=広告非表示（月額300円）を販売再開（2026-08-31） */.then(function(r){(r&&r.products||[]).forEach(function(p){if(p&&p.id&&p.price)PRICES[p.id]=p.price;/* 表示価格（例 ¥300）。App Storeが返した値だけを使う（2026-08-27） */});renderPremium();try{rwPaint();}catch(e){}/* 価格が届いたら広告節のボタンも更新（2026-08-31） */}).catch(function(){});
     try{sk.addListener('entitlementsChanged',function(r){entApply(r&&r.entitlements);});}catch(e){}}
   function buy(kind){var sk=skPlugin(),id=PRODUCTS[kind];haptic(10);if(!sk){toastMsg('購入はアプリ版で行えます');return;}
     sk.purchase({id:id}).then(function(r){if(r&&r.state==='purchased'){entApply(r.entitlements);toastMsg(kind==='noads'?'広告を消しました':'熟語帳を開放しました');}else if(r&&r.state==='pending')toastMsg('承認待ちです');}).catch(function(e){var m=(e&&(e.message||e.errorMessage))||'';/* 原因が分からないと直せないので理由を出す（2026-08-27） */
@@ -4404,6 +4404,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function rwAvail(){return !!(RW.unit&&ADS.unit&&adMob()&&!ENT.noads&&state.cards&&SOLVED>=ADS.minSolved);}/* まだ広告が出ない新規ユーザーには消すボタンも出さない（2026-08-31検証） */
   function rwPaint(){var ax=$('adSetBox');if(!ax)return;
     var base=!!(ADS.unit&&adMob()&&state.cards&&!ENT.noads);ax.style.display=base?'':'none';if(!base)return;/* 広告が出ない環境・購入済みなら節ごと出さない（2026-08-31） */
+    var nb9=$('noadsBox');if(nb9)nb9.style.display=(PRICES[PRODUCTS.noads])?'':'none';/* ASCに商品を作るまでは出さない。作れば次回起動から自動で出る（2026-08-31） */
     var bx=$('rwBox'),b=$('rwBtn');
     if(bx&&b){if(!rwAvail()){bx.style.display='none';}else{bx.style.display='';
       if(adOffToday()){b.textContent='✓ 今日は広告なし';b.disabled=true;b.style.opacity='.38';}
