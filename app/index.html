@@ -2069,10 +2069,9 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
       <!-- 機種変更や再インストールに備えた退避。AndroidにはiCloud自動バックアップが無いので必須（2026-08-30） -->
       <button class="dbtn" id="expBtn" style="background:#fff;color:#111;border:1.5px solid #111">学習データを書き出す</button>
       <button class="dbtn" id="impBtn" style="background:#fff;color:#111;border:1.5px solid #111;margin-top:10px">書き出したデータを読み込む</button>
-      <!-- 広告の節（1.0.4）。広告が出る環境でだけJSが表示する。リワードはユニットID採番後に有効化（2026-08-31） -->
+      <!-- 広告の節：月額の広告非表示のみ。広告が出る環境＆App Storeに商品がある時だけJSが表示する。リワード動画は2026-08-31にユーザー指示で完全撤去 -->
       <div id="adSetBox" style="display:none"><div class="sec-t" style="margin-top:30px">広告</div>
-      <div id="rwBox" style="display:none"><button class="dbtn" id="rwBtn" style="background:#fff;color:#111;border:1.5px solid #111">動画を1本見て、今日の広告を消す</button></div>
-      <div id="noadsBox"><button class="plink" id="noadsBtn" type="button" style="margin-top:10px">月額300円で、広告を出さないようにする</button></div></div>
+      <div id="noadsBox"><button class="plink" id="noadsBtn" type="button" style="margin-top:6px">月額300円で、広告を出さないようにする</button></div></div>
       <div class="pnote" style="margin-top:10px">機種変更やアプリを入れ直す前に書き出しておくと、新しい端末で続きから学習できます。</div>
       <button class="dbtn" id="resetBtn" style="background:#fff;color:#111;border:1.5px solid #111;margin-top:22px">学習データをリセット</button>
       <div id="resetConf" style="display:none">
@@ -4235,7 +4234,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var ib=$('idmcutBox');if(ib)ib.classList.toggle('locked',!ENT.idioms);}
   function premiumBoot(){entLoad();renderPremium();var sk=skPlugin();if(!sk)return;
     sk.getEntitlements().then(function(r){entApply(r&&r.entitlements);}).catch(function(){});
-    sk.getProducts({ids:[PRODUCTS.idioms,PRODUCTS.noads]})/* noads=広告非表示（月額300円）を販売再開（2026-08-31） */.then(function(r){(r&&r.products||[]).forEach(function(p){if(p&&p.id&&p.price)PRICES[p.id]=p.price;/* 表示価格（例 ¥300）。App Storeが返した値だけを使う（2026-08-27） */});renderPremium();try{rwPaint();}catch(e){}/* 価格が届いたら広告節のボタンも更新（2026-08-31） */}).catch(function(){});
+    sk.getProducts({ids:[PRODUCTS.idioms,PRODUCTS.noads]})/* noads=広告非表示（月額300円）を販売再開（2026-08-31） */.then(function(r){(r&&r.products||[]).forEach(function(p){if(p&&p.id&&p.price)PRICES[p.id]=p.price;/* 表示価格（例 ¥300）。App Storeが返した値だけを使う（2026-08-27） */});renderPremium();try{adSetPaint();}catch(e){}/* 価格が届いたら広告節のボタンも更新（2026-08-31） */}).catch(function(){});
     try{sk.addListener('entitlementsChanged',function(r){entApply(r&&r.entitlements);});}catch(e){}}
   function buy(kind){var sk=skPlugin(),id=PRODUCTS[kind];haptic(10);if(!sk){toastMsg('購入はアプリ版で行えます');return;}
     sk.purchase({id:id}).then(function(r){if(r&&r.state==='purchased'){entApply(r.entitlements);toastMsg(kind==='noads'?'広告を消しました':'熟語帳を開放しました');}else if(r&&r.state==='pending')toastMsg('承認待ちです');}).catch(function(e){var m=(e&&(e.message||e.errorMessage))||'';/* 原因が分からないと直せないので理由を出す（2026-08-27） */
@@ -4348,15 +4347,11 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
    バナーではなく全画面にした理由：日本のeCPMがバナー¥15-80に対し全画面¥1,080（72倍）。
    広告ユニット側で「動画」をオフにしてある（動画は×ボタンが出るまで最大12-30秒かかり、学習が止まるため）。
    その代わりeCPMは下がる見込み。実データを見て再検討する */
-  var ADUNIT_RW={ios:'',android:''};/* リワード動画のユニットID。AdMobで採番したら入れる。空なら機能ごと出ない（2026-08-31） */
-  var RW={unit:ADUNIT_RW[PLAT]||'',ready:false,loading:false,fail:0,maxFail:3};
   var NPA=true;/* 既定は非パーソナライズ。iOSでATT許可が取れた時だけfalseにして単価を上げる（2026-08-31） */
-  var ADOFF_MEM='',RWP_MEM='';/* localStorageが書けない端末でも当日フラグが機能するようにする控え（2026-08-31検証） */
-  function adOffToday(){var tk=dayKey(new Date());if(ADOFF_MEM===tk)return true;try{return localStorage.getItem('mx2_adoff')===tk;}catch(e){return false;}}
   var ADQ=0;try{ADQ=parseInt(localStorage.getItem('mx2_adq')||'0',10)||0;}catch(e){}
   var adPending=false,adOn=false,adInit=false,adFail=0,adTimer=null,adGotFill=false,adReady=false,adLoading=false;/* adFail=連続失敗、adReady=次の全画面広告が用意できている（2026-08-26） */
   function adMob(){try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.AdMob)return C.Plugins.AdMob;}catch(e){}return null;}
-  function adsEnabled(){if(!ADS.unit)return false;/* そのOSのユニットIDが未採番なら出さない（2026-08-29） */if(ENT.noads)return false;if(adOffToday())return false;/* 動画視聴で今日は非表示（2026-08-31） */if(!state.cards||coaching)return false;if(SOLVED<ADS.minSolved)return false;if(adFail>=ADS.maxFail)return false;/* 在庫なし・オフライン等が続いたらこのセッションは出さない（2026-08-26） */return !!adMob()||location.hash==='#ads';}
+  function adsEnabled(){if(!ADS.unit)return false;/* そのOSのユニットIDが未採番なら出さない（2026-08-29） */if(ENT.noads)return false;if(!state.cards||coaching)return false;if(SOLVED<ADS.minSolved)return false;if(adFail>=ADS.maxFail)return false;/* 在庫なし・オフライン等が続いたらこのセッションは出さない（2026-08-26） */return !!adMob()||location.hash==='#ads';}
   function adTick(){if(ENT.noads)return;ADQ++;if(ADQ===ADS.every-5)adPrepare();/* 5問前に次の広告を確実に仕込む＝表示率の取りこぼし回収（2026-08-31） */if(ADQ>=ADS.every){ADQ=0;if(adsEnabled())adPending=true;}try{localStorage.setItem('mx2_adq',''+ADQ);}catch(e){}}
   function nextCardA(){if(adPending&&idx+1<queue.length){adPending=false;showAdCard(nextCard);}else{adPending=false;nextCard();}}
   function adsBoot(){if(!ADS.unit)return;/* そのOSのユニットIDが未採番ならSDKごと動かさない（2026-08-30） */
@@ -4366,18 +4361,11 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       am.addListener('interstitialAdFailedToLoad',function(){adReady=false;adLoading=false;adFail++;if(adOn)adFallback();if(adFail<ADS.maxFail)setTimeout(adPrepare,20000);/* 在庫切れ等は少し置いて取り直す（2026-08-31） */});
       am.addListener('interstitialAdShowed',function(){if(adTimer){clearTimeout(adTimer);adTimer=null;}});/* 広告が実際に出たら保険タイマーを解除する。これが無いと表示中の5秒後に裏で次の問題へ進んでしまう（2026-08-27） */
       am.addListener('interstitialAdFailedToShow',function(){adReady=false;adFail++;adFallback();});
-      am.addListener('interstitialAdDismissed',function(){adReady=false;adDone();adPrepare();rwPromptMaybe();/* 閉じたら次の分を仕込む。動画提案は1日1回（2026-08-31） */});
-      if(RW.unit){/* リワード動画（今日の広告オフ）。イベント名はプラグインv6.2.0の実文字列で確認済み（2026-08-31） */
-        am.addListener('onRewardedVideoAdLoaded',function(){RW.ready=true;RW.loading=false;RW.fail=0;});
-        am.addListener('onRewardedVideoAdFailedToLoad',function(){RW.ready=false;RW.loading=false;RW.fail++;if(RW.fail<RW.maxFail)setTimeout(rwPrepare,20000);/* 在庫切れは少し置いて取り直す（2026-08-31検証） */});
-        am.addListener('onRewardedVideoAdFailedToShow',function(){RW.ready=false;toastMsg('動画を再生できませんでした');});
-        am.addListener('onRewardedVideoAdDismissed',function(){RW.ready=false;rwPaint();});
-        am.addListener('onRewardedVideoAdReward',function(){ADOFF_MEM=dayKey(new Date());try{localStorage.setItem('mx2_adoff',ADOFF_MEM);}catch(e){}toastMsg('今日はもう広告は出ません');rwPaint();});
-      }
+      am.addListener('interstitialAdDismissed',function(){adReady=false;adDone();adPrepare();/* 閉じたら次の分を仕込む */});
     }catch(e){}
-    attBoot(function(){adPrepare();rwPrepare();});}
+    attBoot(function(){adPrepare();});}
   /* 次の全画面広告を事前に読み込んでおく（15問目に待たせない） */
-  function adPrepare(){if(!ADS.unit)return;/* 空のユニットIDでSDKを叩かない（2026-08-30） */if(adOffToday())return;/* 動画で消した日は読み込みもしない＝ショー率を汚さない（2026-08-31検証） */
+  function adPrepare(){if(!ADS.unit)return;/* 空のユニットIDでSDKを叩かない（2026-08-30） */
     var am=adMob();if(!am||adReady||adLoading||ENT.noads||adFail>=ADS.maxFail)return;adLoading=true;
     am.prepareInterstitial({adId:ADS.unit,isTesting:ADS.test,npa:NPA}).catch(function(){adLoading=false;adReady=false;});}
   /* ---- ATT（iOSのみ・1.0.4） ----
@@ -4394,36 +4382,13 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
         }).catch(function(){done();});
       }else{fin(st);}
     }).catch(function(){done();});}
-  /* ---- リワード動画「今日の広告オフ」（1.0.4） ---- */
-  function rwPrepare(){if(!RW.unit)return;var am=adMob();if(!am||RW.ready||RW.loading||RW.fail>=RW.maxFail||adOffToday())return;RW.loading=true;
-    am.prepareRewardVideoAd({adId:RW.unit,isTesting:ADS.test,npa:NPA}).then(function(){RW.loading=false;},function(){RW.loading=false;});}/* readyはLoadedイベントで立てる。イベントが来ない異常でもloadingは解く（2026-08-31検証） */
-  function rwShow(){var am=adMob();if(!am||!rwAvail())return;/* 広告なし購入者・対象外ユーザーは無意味な視聴をさせない（2026-08-31検証） */
-    if(adOffToday()){toastMsg('今日はもう広告は出ません');return;}
-    if(!RW.ready){toastMsg('動画を準備しています。少し待ってからもう一度押してください');RW.fail=0;rwPrepare();return;}
-    am.showRewardVideoAd().catch(function(){RW.ready=false;toastMsg('動画を再生できませんでした');});}
-  function rwAvail(){return !!(RW.unit&&ADS.unit&&adMob()&&!ENT.noads&&state.cards&&SOLVED>=ADS.minSolved);}/* まだ広告が出ない新規ユーザーには消すボタンも出さない（2026-08-31検証） */
-  function rwPaint(){var ax=$('adSetBox');if(!ax)return;
-    var base=!!(ADS.unit&&adMob()&&state.cards&&!ENT.noads);ax.style.display=base?'':'none';if(!base)return;/* 広告が出ない環境・購入済みなら節ごと出さない（2026-08-31） */
-    var nb9=$('noadsBox');if(nb9)nb9.style.display=(PRICES[PRODUCTS.noads])?'':'none';/* ASCに商品を作るまでは出さない。作れば次回起動から自動で出る（2026-08-31） */
-    var bx=$('rwBox'),b=$('rwBtn');
-    if(bx&&b){if(!rwAvail()){bx.style.display='none';}else{bx.style.display='';
-      if(adOffToday()){b.textContent='✓ 今日は広告なし';b.disabled=true;b.style.opacity='.38';}
-      else{b.textContent='動画を1本見て、今日の広告を消す';b.disabled=false;b.style.opacity='';}}}}
-  (function(){var b=$('rwBtn');if(b)b.onclick=function(){haptic(6);rwShow();};})();
+  /* ---- 設定の広告節（noadsのみ）。リワード動画は2026-08-31にユーザー指示で完全撤去 ---- */
+  function adSetPaint(){var ax=$('adSetBox');if(!ax)return;
+    var base=!!(ADS.unit&&adMob()&&state.cards&&!ENT.noads);ax.style.display=base?'':'none';if(!base)return;/* 広告が出ない環境・購入済みなら節ごと出さない */
+    var nb9=$('noadsBox');if(nb9)nb9.style.display=(PRICES[PRODUCTS.noads])?'':'none';}/* ASCに商品を作るまでは出さない。作れば次回起動から自動で出る（2026-08-31） */
   (function(){var b=$('noadsBtn');if(b)b.onclick=function(){haptic(6);showPaywall('noads');};})();/* 広告非表示＝月額300円のサブスク（2026-08-31 ユーザー指定） */
-  function rwPromptMaybe(){if(!rwAvail()||adOffToday())return;
-    if(!RW.ready){rwPrepare();return;}/* 動画が未準備なら提案せず翌回へ持ち越す＝1日1回の機会を焼かない（2026-08-31検証） */
-    var ms=$('msheet');if(!ms||$('modal').classList.contains('on'))return;
-    var tk=dayKey(new Date()),seen=(RWP_MEM===tk);try{seen=seen||localStorage.getItem('mx2_rwp')===tk;}catch(e){}
-    if(seen)return;RWP_MEM=tk;try{localStorage.setItem('mx2_rwp',tk);}catch(e){}/* 表示が確定してから当日分を消費する（2026-08-31検証） */
-    ms.innerHTML='<div class="q" style="font-size:19px;margin-bottom:8px">動画を1本見ると<br>今日はもう広告が出ません</div>'
-      +'<button class="opt" id="rwGo" type="button" style="width:100%;margin-top:10px">動画を見る</button>'
-      +'<div class="pwl"><button class="plink" id="rwNo" type="button">今はいい</button></div>';
-    $('modal').classList.add('on');phrasifyDom(ms);
-    $('rwGo').onclick=function(){closeMSheet();rwShow();};$('rwNo').onclick=closeMSheet;haptic(6);}
-  (function(){var g0=window.go;if(typeof g0==='function'){window.go=function(id){g0.apply(this,arguments);if(id==='sc-settings')try{rwPaint();}catch(e){}if(id==='sc-dict')try{uwPaint();}catch(e){}};}})();/* 設定を開くたびボタン状態を更新（2026-08-31） */
-  (function(){var f0=window.entApply;if(typeof f0==='function'){window.entApply=function(){var r=f0.apply(this,arguments);try{rwPaint();}catch(e){}return r;};}})();/* 購入・復元の反映でもボタンを消す（2026-08-31検証） */
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)try{rwPaint();}catch(e){}});/* 日付を跨いで戻ってきた時にボタン表示を直す（2026-08-31検証） */
+  (function(){var g0=window.go;if(typeof g0==='function'){window.go=function(id){g0.apply(this,arguments);if(id==='sc-settings')try{adSetPaint();}catch(e){}if(id==='sc-dict')try{uwPaint();}catch(e){}};}})();/* 画面を開くたびボタン状態を更新（2026-08-31） */
+  (function(){var f0=window.entApply;if(typeof f0==='function'){window.entApply=function(){var r=f0.apply(this,arguments);try{adSetPaint();}catch(e){}return r;};}})();/* 購入・復元の反映でもボタンを消す（2026-08-31） */
   /* 広告が出せない・失敗したとき：待たずに次の問題へ（学習を止めない） */
   function adFallback(){if(!adOn)return;if(adTimer){clearTimeout(adTimer);adTimer=null;}adHide(true);}
   /* 全画面広告が閉じられた：カードを片付けて次の問題へ */
@@ -4464,7 +4429,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function chainPick(it){if(!it)return null;var base=it.d||it.alt||null,im=idiomChain(it.w);if(base&&im)return Math.random()<0.5?base:im;return base||im;}
   window.showPaywall=showPaywall;
   window.buyBook=function(k){if(PLAT==='web'){toastMsg('熟語帳はWeb版では準備中です');return;}showPaywall(k);};/* 審査3.1.2(c)：購入シートの前に必ず条件を提示する（2026-08-29） */
-  premiumBoot();adsBoot();try{rwPaint();}catch(e){}try{uwPaint();}catch(e){}
+  premiumBoot();adsBoot();try{adSetPaint();}catch(e){}try{uwPaint();}catch(e){}
   var _booted=false;
   if(location.hash!=='#reset'){
     if(loadAll())_booted=true;
