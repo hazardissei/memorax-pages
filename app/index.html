@@ -2059,15 +2059,14 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
         <i class="sddiv"></i>
         <div class="sd"><div class="sec-t">答えの画像表示</div><div class="chips2" data-k="wimg"></div></div>
       </div>
-      <div class="sec-t" style="margin-top:22px">画面の色</div>
-      <div class="chips2" data-k="dark"></div><!-- ダークモード（2026-08-31 ユーザー要望） -->
-      <!-- 英熟語カットイン。熟語帳を買うまでは暗くして触れない（2026-08-27） -->
-      <div id="idmcutBox"><div class="sec-t" style="margin-top:22px">英熟語カットイン</div><div class="chips2" data-k="idmcut"></div></div>
+      <div class="setduo" style="margin-top:6px"><!-- 画面の色×英熟語カットインを横並びに（2026-09-02 ユーザー指定）。熟語帳を買うまで右は暗い -->
+        <div class="sd"><div class="sec-t">画面の色</div><div class="chips2" data-k="dark"></div></div>
+        <i class="sddiv"></i>
+        <div class="sd" id="idmcutBox"><div class="sec-t">英熟語カットイン</div><div class="chips2" data-k="idmcut"></div></div>
+      </div>
       <div class="sec-t" style="margin-top:30px">試験日</div>
       <button class="dbtn" id="examSetBtn" style="background:#fff;color:#111;border:1.5px solid #111">試験日を設定する</button>
-      <!-- リマインダー通知（1.0.4）。ネイティブで通知プラグインがある時だけJSが表示する（2026-09-02 ユーザー要望） -->
-      <div id="remindBox" style="display:none"><div class="sec-t" style="margin-top:30px">リマインダー</div>
-      <div class="chips2" data-k="remind"></div></div>
+
       <div class="sec-t" style="margin-top:30px">データ</div>
       <!-- 機種変更や再インストールに備えた退避。AndroidにはiCloud自動バックアップが無いので必須（2026-08-30） -->
       <button class="dbtn" id="expBtn" style="background:#fff;color:#111;border:1.5px solid #111">学習データを書き出す</button>
@@ -2652,7 +2651,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   }
   function result(ok){
     if(chainMode){recs.push({conf:conf,ok:ok,chain:true});HIST.push({t:'c',i:idx,l:lapNo,d:chainData});var cw=chainData?chainData.w:null;if(cw){var _whC=(WHIST[cw]=WHIST[cw]||[]);_whC.push(ok);if(_whC.length>10)_whC.splice(0,_whC.length-10);}if(state.cards)addSolved(1);saveAll();chainMode=false;chainData=null;fly(ok?1:-1,nextCardA);return;}
-    recs.push({conf:conf,ok:ok});adTick();/* 広告カウント＝答えを開いた1問（カットインは数えない・2026-08-21） */
+    recs.push({conf:conf,ok:ok});adTick();/* 広告カウント＝答えを開いた1問（カットインは数えない・2026-08-21） */if(Object.keys(TODAYLOG).length===30)try{remindDone();}catch(e){}/* 今日30問に到達＝18時のリマインダーは不要（2026-09-02） */
     (function(){var _w0=queue[idx].w,_mi0=-1,_me0=null,_i0;
       for(_i0=0;_i0<MISSLOG.length;_i0++)if(MISSLOG[_i0].w===_w0){_mi0=_i0;_me0=JSON.parse(JSON.stringify(MISSLOG[_i0]));break;}
       HIST.push({t:'b',i:idx,l:lapNo,w:_w0,ok:ok,snap:{
@@ -3400,27 +3399,31 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   document.querySelectorAll('.mh-info').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();var t=b.getAttribute('data-t'),tip=$('tip-'+t);if(!tip)return;var was=tip.classList.contains('on');document.querySelectorAll('.mh-tipb.on').forEach(function(x){x.classList.remove('on');});if(!was){tip.innerHTML=TIPS[t]||'';tip.classList.add('on');}});});
   document.addEventListener('click',function(e){if(!e.target.closest('.mh-info'))document.querySelectorAll('.mh-tipb.on').forEach(function(x){x.classList.remove('on');});});
   /* 設定画面（学年・レベル・1日の問数） */
-  var SETOPTS={grade:['中3','高1','高2','高3','浪人'],level:['共通テスト','上位国立大学','旧帝大以上','日東駒専','MARCH','早慶'],cards:['100','150','200','300'],cutin:['オン','オフ'],wimg:['オン','オフ'],idmcut:['オン','オフ'],dark:['ライト','ダーク'],remind:['オフ','7時','12時','18時','21時']};
+  var SETOPTS={grade:['中3','高1','高2','高3','浪人'],level:['共通テスト','上位国立大学','旧帝大以上','日東駒専','MARCH','早慶'],cards:['100','150','200','300'],cutin:['オン','オフ'],wimg:['オン','オフ'],idmcut:['オン','オフ'],dark:['ライト','ダーク']};
   function applyDark(){document.documentElement.classList.toggle('dark',state.dark==='ダーク');}/* 画面の色（2026-08-31 ユーザー要望）。既定はライト */
   /* ---- リマインダー通知（1.0.4・2026-09-02 ユーザー要望） ----
      毎日決まった時刻のローカル通知。スケジュールはOSが保持するので起動ごとの再登録は不要。
      許可が取れなければオフに戻して案内する */
   function lnPlugin(){try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.LocalNotifications)return C.Plugins.LocalNotifications;}catch(e){}return null;}
-  function remindPaint(){var bx=$('remindBox');if(!bx)return;bx.style.display=lnPlugin()?'':'none';}
-  function remindApply(){var ln=lnPlugin();if(!ln)return;
-    ln.cancel({notifications:[{id:710}]}).catch(function(){});
-    var v=state.remind||'オフ';if(v==='オフ')return;
-    var h=parseInt(v,10)||19;
-    ln.requestPermissions().then(function(r){
-      if(!r||r.display!=='granted'){state.remind='オフ';renderSettings();saveAll();toastMsg('通知が許可されていません。iPhoneの設定 → Memora X → 通知 から許可してください');return;}
-      ln.schedule({notifications:[{id:710,title:'Memora X',body:'今日の英単語をやりましょう',schedule:{on:{hour:h,minute:0},allowWhileIdle:true}}]})
-        .then(function(){toastMsg('毎日'+h+'時に通知します');})
-        .catch(function(){toastMsg('通知を設定できませんでした');});
+  /* 毎日18:00、その日30問未満の人にだけ届く自動リマインダー（2026-09-02 ユーザー指定・設定なし）。
+     仕組み：起動のたびに向こう7日分の18:00を一括登録し、今日30問に達した瞬間に今日の分だけ取り消す。
+     通知は端末側で発火するので、アプリを開かない日も7日分までは届き続ける */
+  var RM_MSG='「頑張れない日の10問だけ」ほど価値が高いものはありません';
+  function remindSync(){var ln=lnPlugin();if(!ln||!state.cards)return;
+    var ids=[],i;for(i=0;i<7;i++)ids.push({id:711+i});
+    ln.cancel({notifications:ids}).catch(function(){});
+    ln.requestPermissions().then(function(r){if(!r||r.display!=='granted')return;/* 拒否されたら黙って何もしない */
+      var now=new Date(),list=[];
+      for(i=0;i<7;i++){var d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,18,0,0);
+        if(i===0&&(now.getHours()>=18||Object.keys(TODAYLOG).length>=30))continue;/* 今日は18時を過ぎている／もう30問やった */
+        list.push({id:711+i,title:'Memora X',body:RM_MSG,schedule:{at:d,allowWhileIdle:true}});}
+      if(list.length)ln.schedule({notifications:list}).catch(function(){});
     }).catch(function(){});}
-  function renderSettings(){document.querySelectorAll('#sc-settings .chips2').forEach(function(box){var k=box.getAttribute('data-k');box.innerHTML=SETOPTS[k].map(function(v){var sel=String(state[k]||(k==='cutin'||k==='wimg'||k==='idmcut'?'オン':(k==='dark'?'ライト':(k==='remind'?'オフ':''))))===v;return '<button class="c2'+(sel?' sel':'')+'" data-v="'+v+'">'+v+(k==='cards'?'問':'')+'</button>';}).join('');});
+  function remindDone(){var ln=lnPlugin();if(!ln)return;ln.cancel({notifications:[{id:711}]}).catch(function(){});}/* 今日のぶんだけ取り消す */
+  function renderSettings(){document.querySelectorAll('#sc-settings .chips2').forEach(function(box){var k=box.getAttribute('data-k');box.innerHTML=SETOPTS[k].map(function(v){var sel=String(state[k]||(k==='cutin'||k==='wimg'||k==='idmcut'?'オン':(k==='dark'?'ライト':'')))===v;return '<button class="c2'+(sel?' sel':'')+'" data-v="'+v+'">'+v+(k==='cards'?'問':'')+'</button>';}).join('');});
     var ib=$('idmcutBox');if(ib)ib.classList.toggle('locked',!ENT.idioms);/* 熟語帳を買うまでは触れない（2026-08-27） */
     var rc=$('resetConf');if(rc)rc.style.display='none';/* 画面を開き直したら確認は閉じる */}
-  document.querySelectorAll('#sc-settings .chips2').forEach(function(box){box.addEventListener('click',function(e){var b=e.target.closest('.c2');if(!b)return;var k=box.getAttribute('data-k'),v=b.getAttribute('data-v');if(k==='cards')state.cards=parseInt(v,10);else state[k]=v;if(k==='grade')setExamFromGrade();if(k==='dark')applyDark();if(k==='remind')remindApply();computePlan();renderSettings();saveAll();/* 変えた時点で保存する。従来は次に問題を解くまでメモリ上だけで、落とすと消えていた（2026-08-27） */});});
+  document.querySelectorAll('#sc-settings .chips2').forEach(function(box){box.addEventListener('click',function(e){var b=e.target.closest('.c2');if(!b)return;var k=box.getAttribute('data-k'),v=b.getAttribute('data-v');if(k==='cards')state.cards=parseInt(v,10);else state[k]=v;if(k==='grade')setExamFromGrade();if(k==='dark')applyDark();computePlan();renderSettings();saveAll();/* 変えた時点で保存する。従来は次に問題を解くまでメモリ上だけで、落とすと消えていた（2026-08-27） */});});
   /* 学習データリセット（設定画面・はい/いいえ×2段階確認。#resetが使えない環境＝実機/プレビュー用） */
   (function(){var rb=$('resetBtn'),box=$('resetConf'),q=$('resetQ'),y=$('rcYes'),n=$('rcNo'),step=0;if(!rb||!box)return;
     function close(){step=0;box.style.display='none';}
@@ -4367,17 +4370,25 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
    その代わりeCPMは下がる見込み。実データを見て再検討する */
   var NPA=true;/* 既定は非パーソナライズ。iOSでATT許可が取れた時だけfalseにして単価を上げる（2026-08-31） */
   var ADQ=0;try{ADQ=parseInt(localStorage.getItem('mx2_adq')||'0',10)||0;}catch(e){}
-  var adPending=false,adOn=false,adInit=false,adFail=0,adTimer=null,adGotFill=false,adReady=false,adLoading=false;/* adFail=連続失敗、adReady=次の全画面広告が用意できている（2026-08-26） */
+  var adPending=ADQ>=ADS.every,adOn=false,adInit=false,adFail=0,adTimer=null,adRetryTimer=null,adGotFill=false,adReady=false,adLoading=false;/* adFail=連続失敗、adReady=次の全画面広告が用意できている（2026-08-26） */
   function adMob(){try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.AdMob)return C.Plugins.AdMob;}catch(e){}return null;}
   function adsEnabled(){if(!ADS.unit)return false;/* そのOSのユニットIDが未採番なら出さない（2026-08-29） */if(ENT.noads)return false;if(!state.cards||coaching)return false;if(SOLVED<ADS.minSolved)return false;if(adFail>=ADS.maxFail)return false;/* 在庫なし・オフライン等が続いたらこのセッションは出さない（2026-08-26） */return !!adMob()||location.hash==='#ads';}
-  function adTick(){if(ENT.noads)return;ADQ++;if(ADQ===ADS.every-5)adPrepare();/* 5問前に次の広告を確実に仕込む＝表示率の取りこぼし回収（2026-08-31） */if(ADQ>=ADS.every){ADQ=0;if(adsEnabled())adPending=true;}try{localStorage.setItem('mx2_adq',''+ADQ);}catch(e){}}
-  function nextCardA(){if(adPending&&idx+1<queue.length){adPending=false;showAdCard(nextCard);}else{adPending=false;nextCard();}}
+  function adCountSave(){try{localStorage.setItem('mx2_adq',''+ADQ);}catch(e){}}
+  function adTick(){if(ENT.noads||!state.cards||coaching)return;/* チュートリアルは広告カウントに含めない */
+    if(SOLVED+1<=ADS.minSolved){ADQ=0;adPending=false;adCountSave();return;}/* 最初の累計30問は完全に広告なし。31問目から数え始める */
+    ADQ=Math.min(ADS.every,ADQ+1);/* 表示されるまでは15のまま保持し、機会を捨てない */
+    if(ADQ>=ADS.every-5)adPrepare();/* 5問前から先読み。失敗後も次の解答で再確認する */
+    if(ADQ>=ADS.every&&adsEnabled())adPending=true;
+    adCountSave();}
+  function nextCardA(){if(adPending)showAdCard(nextCard);else nextCard();}/* セット最終問でも、結果画面への自然な切り替わりで表示する */
+  function adImpression(){ADQ=0;adPending=false;adCountSave();}/* 実際に画面へ出た時だけ15問分を消費する */
+  function adRetrySoon(){if(adRetryTimer||adReady||ENT.noads||adFail>=ADS.maxFail)return;adRetryTimer=setTimeout(function(){adRetryTimer=null;adPrepare();},20000);}
   function adsBoot(){if(!ADS.unit)return;/* そのOSのユニットIDが未採番ならSDKごと動かさない（2026-08-30） */
     var am=adMob();if(!am||adInit)return;adInit=true;am.initialize({initializeForTesting:ADS.test}).catch(function(){});
     try{
-      am.addListener('interstitialAdLoaded',function(){adReady=true;adLoading=false;adFail=0;});
-      am.addListener('interstitialAdFailedToLoad',function(){adReady=false;adLoading=false;adFail++;if(adOn)adFallback();if(adFail<ADS.maxFail)setTimeout(adPrepare,20000);/* 在庫切れ等は少し置いて取り直す（2026-08-31） */});
-      am.addListener('interstitialAdShowed',function(){if(adTimer){clearTimeout(adTimer);adTimer=null;}});/* 広告が実際に出たら保険タイマーを解除する。これが無いと表示中の5秒後に裏で次の問題へ進んでしまう（2026-08-27） */
+      am.addListener('interstitialAdLoaded',function(){adReady=true;adLoading=false;adFail=0;if(adRetryTimer){clearTimeout(adRetryTimer);adRetryTimer=null;}});
+      am.addListener('interstitialAdFailedToLoad',function(){adReady=false;adLoading=false;adFail++;if(adOn)adFallback();adRetrySoon();/* 在庫切れ等は少し置いて取り直す（2026-09-02） */});
+      am.addListener('interstitialAdShowed',function(){if(adTimer){clearTimeout(adTimer);adTimer=null;}adImpression();});/* 実表示を確認してから問題カウントを戻す */
       am.addListener('interstitialAdFailedToShow',function(){adReady=false;adFail++;adFallback();});
       am.addListener('interstitialAdDismissed',function(){adReady=false;adDone();adPrepare();/* 閉じたら次の分を仕込む */});
     }catch(e){}
@@ -4385,7 +4396,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   /* 次の全画面広告を事前に読み込んでおく（15問目に待たせない） */
   function adPrepare(){if(!ADS.unit)return;/* 空のユニットIDでSDKを叩かない（2026-08-30） */
     var am=adMob();if(!am||adReady||adLoading||ENT.noads||adFail>=ADS.maxFail)return;adLoading=true;
-    am.prepareInterstitial({adId:ADS.unit,isTesting:ADS.test,npa:NPA}).catch(function(){adLoading=false;adReady=false;});}
+    am.prepareInterstitial({adId:ADS.unit,isTesting:ADS.test,npa:NPA}).catch(function(){adLoading=false;adReady=false;adRetrySoon();});}
   /* ---- ATT（iOSのみ・1.0.4） ----
      許可した人にだけパーソナライズ広告＝単価が上がる。拒否・未対応・失敗はすべて従来どおり非パーソナライズ。
      初回オンボーディング中はダイアログを出さない（state.cardsができた次の起動から） */
@@ -4405,7 +4416,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var base=!!(ADS.unit&&adMob()&&state.cards&&!ENT.noads);ax.style.display=base?'':'none';if(!base)return;/* 広告が出ない環境・購入済みなら節ごと出さない */
     var nb9=$('noadsBox');if(nb9)nb9.style.display=(PRICES[PRODUCTS.noads])?'':'none';}/* ASCに商品を作るまでは出さない。作れば次回起動から自動で出る（2026-08-31） */
   (function(){var b=$('noadsBtn');if(b)b.onclick=function(){haptic(6);showPaywall('noads');};})();/* 広告非表示＝月額300円のサブスク（2026-08-31 ユーザー指定） */
-  (function(){var g0=window.go;if(typeof g0==='function'){window.go=function(id){g0.apply(this,arguments);if(id==='sc-settings'){try{adSetPaint();}catch(e){}try{remindPaint();}catch(e){}}if(id==='sc-dict')try{uwPaint();}catch(e){}};}})();/* 画面を開くたびボタン状態を更新（2026-08-31） */
+  (function(){var g0=window.go;if(typeof g0==='function'){window.go=function(id){g0.apply(this,arguments);if(id==='sc-settings')try{adSetPaint();}catch(e){}if(id==='sc-dict')try{uwPaint();}catch(e){}};}})();/* 画面を開くたびボタン状態を更新（2026-08-31） */
   (function(){var f0=window.entApply;if(typeof f0==='function'){window.entApply=function(){var r=f0.apply(this,arguments);try{adSetPaint();}catch(e){}return r;};}})();/* 購入・復元の反映でもボタンを消す（2026-08-31） */
   /* 広告が出せない・失敗したとき：待たずに次の問題へ（学習を止めない） */
   function adFallback(){if(!adOn)return;if(adTimer){clearTimeout(adTimer);adTimer=null;}adHide(true);}
@@ -4413,7 +4424,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function adDone(){if(!adOn)return;if(adTimer){clearTimeout(adTimer);adTimer=null;}adHide(true);}
   function showAdCard(cb){var ac=$('adcard');if(!ac||!adsEnabled()){cb();return;}
     var am=adMob();
-    if(am){/* 実機：AdMobの全画面広告。用意できていなければ待たずに素通り（2026-08-26） */
+    if(am){/* 実機：未準備なら学習は止めず、表示権を次の問題へ持ち越す */
       if(!adReady){adPrepare();cb();return;}
       adOn=true;window._adCb=cb;
       if(adTimer)clearTimeout(adTimer);
@@ -4457,7 +4468,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       else if(bakRestore(2)&&loadAll())_booted=true;/* 日次でもダメなら週次の第2世代から */
     }
   }
-  try{applyDark();}catch(e){}try{remindPaint();}catch(e){}/* 保存済みの画面の色を起動直後に反映（2026-08-31） */
+  try{applyDark();}catch(e){}setTimeout(function(){try{remindSync();}catch(e){}},12000);/* リマインダー登録。ATTダイアログと重ならないよう遅らせる（2026-09-02） */
   if(_booted){bakSave();icBackup();showHello();}
   else{
     var _startOnboard=function(){narrate($('wNarr'),$('wTap'),'まずはあなたについて\n教えてください',function(){go('sc-grade');});};/* 導入1文（2026-08-02 ユーザー指定・句読点なし） */
