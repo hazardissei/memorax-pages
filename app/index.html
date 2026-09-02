@@ -1696,7 +1696,7 @@
 /* ダークモード（2026-08-31 ユーザー要望）：白黒モノリスは反転がそのまま成立する。
    意味色（正誤の緑赤）はinvert+hue-rotateの二段でほぼ元の色相に戻る。画像だけ二重反転で写真の色を保つ */
 html.dark{background:#0e0f12}
-html.dark body{filter:invert(1) hue-rotate(180deg);background:#0e0f12}
+html.dark body{filter:invert(1) hue-rotate(180deg)}/* 背景はライトの#ffのまま反転させて黒にする。ここに暗色を書くと反転で明るくなる（2026-09-02 実機FBで修正） */
 html.dark img{filter:invert(1) hue-rotate(180deg)}
 </style>
 </head>
