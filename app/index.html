@@ -4364,23 +4364,23 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   /* 広告ユニットはOSごとに別物。AndroidはAdMobにアプリを登録してから採番するので、
      それまでは空にしておく＝Androidでは広告を出さない（2026-08-29） */
   var ADUNIT={ios:'ca-app-pub-4932559321126464/9914782913',android:''};
-  var ADS={unit:ADUNIT[PLAT]||'',test:false,every:15,minSolved:30,waitMs:5000,maxFail:3};/* インタースティシャル（全画面）のユニットID。2026-08-27 に本番IDへ差し替え、test:false に。
+  var ADS={unit:ADUNIT[PLAT]||'',test:false,every:12,minSolved:30,waitMs:5000,maxFail:3};/* 15→12（2026-09-02 ユーザー指定） *//* インタースティシャル（全画面）のユニットID。2026-08-27 に本番IDへ差し替え、test:false に。
    バナーではなく全画面にした理由：日本のeCPMがバナー¥15-80に対し全画面¥1,080（72倍）。
    広告ユニット側で「動画」をオフにしてある（動画は×ボタンが出るまで最大12-30秒かかり、学習が止まるため）。
    その代わりeCPMは下がる見込み。実データを見て再検討する */
   var NPA=true;/* 既定は非パーソナライズ。iOSでATT許可が取れた時だけfalseにして単価を上げる（2026-08-31） */
   var ADQ=0;try{ADQ=parseInt(localStorage.getItem('mx2_adq')||'0',10)||0;}catch(e){}
-  var adPending=ADQ>=ADS.every,adOn=false,adInit=false,adFail=0,adTimer=null,adRetryTimer=null,adGotFill=false,adReady=false,adLoading=false;/* adFail=連続失敗、adReady=次の全画面広告が用意できている（2026-08-26） */
+  var adPending=ADQ>=ADS.every,adOn=false,adInit=false,adFail=0,adTimer=null,adRetryTimer=null,adGotFill=false,adReady=false,adLoading=false,SESSQ=0;/* SESSQ=このセッションで解いた数。開幕即広告を避ける（2026-09-02） *//* adFail=連続失敗、adReady=次の全画面広告が用意できている（2026-08-26） */
   function adMob(){try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.AdMob)return C.Plugins.AdMob;}catch(e){}return null;}
   function adsEnabled(){if(!ADS.unit)return false;/* そのOSのユニットIDが未採番なら出さない（2026-08-29） */if(ENT.noads)return false;if(!state.cards||coaching)return false;if(SOLVED<ADS.minSolved)return false;if(adFail>=ADS.maxFail)return false;/* 在庫なし・オフライン等が続いたらこのセッションは出さない（2026-08-26） */return !!adMob()||location.hash==='#ads';}
   function adCountSave(){try{localStorage.setItem('mx2_adq',''+ADQ);}catch(e){}}
   function adTick(){if(ENT.noads||!state.cards||coaching)return;/* チュートリアルは広告カウントに含めない */
     if(SOLVED+1<=ADS.minSolved){ADQ=0;adPending=false;adCountSave();return;}/* 最初の累計30問は完全に広告なし。31問目から数え始める */
-    ADQ=Math.min(ADS.every,ADQ+1);/* 表示されるまでは15のまま保持し、機会を捨てない */
+    ADQ=Math.min(ADS.every,ADQ+1);SESSQ++;/* 表示されるまでは上限のまま保持し、機会を捨てない */
     if(ADQ>=ADS.every-5)adPrepare();/* 5問前から先読み。失敗後も次の解答で再確認する */
     if(ADQ>=ADS.every&&adsEnabled())adPending=true;
     adCountSave();}
-  function nextCardA(){if(adPending)showAdCard(nextCard);else nextCard();}/* セット最終問でも、結果画面への自然な切り替わりで表示する */
+  function nextCardA(){if(adPending&&SESSQ>=3)showAdCard(nextCard);else nextCard();}/* セット最終問でも出す。ただし持ち越し分があっても開いた直後の1〜2問目では出さない（2026-09-02） */
   function adImpression(){ADQ=0;adPending=false;adCountSave();}/* 実際に画面へ出た時だけ15問分を消費する */
   function adRetrySoon(){if(adRetryTimer||adReady||ENT.noads||adFail>=ADS.maxFail)return;adRetryTimer=setTimeout(function(){adRetryTimer=null;adPrepare();},20000);}
   function adsBoot(){if(!ADS.unit)return;/* そのOSのユニットIDが未採番ならSDKごと動かさない（2026-08-30） */
@@ -4394,7 +4394,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     }catch(e){}
     attBoot(function(){adPrepare();});}
   /* 次の全画面広告を事前に読み込んでおく（15問目に待たせない） */
-  function adPrepare(){if(!ADS.unit)return;/* 空のユニットIDでSDKを叩かない（2026-08-30） */
+  function adPrepare(){if(!ADS.unit)return;/* 空のユニットIDでSDKを叩かない（2026-08-30） */if(SOLVED<ADS.minSolved)return;/* まだ広告対象でない人のぶんは読み込まない＝ショー率を汚さず無駄リクエストも出さない（2026-09-02） */
     var am=adMob();if(!am||adReady||adLoading||ENT.noads||adFail>=ADS.maxFail)return;adLoading=true;
     am.prepareInterstitial({adId:ADS.unit,isTesting:ADS.test,npa:NPA}).catch(function(){adLoading=false;adReady=false;adRetrySoon();});}
   /* ---- ATT（iOSのみ・1.0.4） ----
