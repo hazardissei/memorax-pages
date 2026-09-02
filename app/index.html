@@ -1698,6 +1698,7 @@
 html.dark{background:#0e0f12}
 html.dark body{filter:invert(1) hue-rotate(180deg)}/* 背景はライトの#ffのまま反転させて黒にする。ここに暗色を書くと反転で明るくなる（2026-09-02 実機FBで修正） */
 html.dark img{filter:invert(1) hue-rotate(180deg)}
+.addmrow{margin-top:12px}.addmrow .dfield{margin-top:0}.addmrow .chips2{margin-top:6px}
 </style>
 </head>
 <body>
@@ -2033,14 +2034,11 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     <input class="dfield" id="dictQ" type="text" placeholder="単語を検索" autocomplete="off">
     <div class="scrollbody">
       <div id="dictList"></div>
-      <button class="dbtn" id="uwPractice" style="display:none;background:#fff;color:#111;border:1.5px solid #111;margin-top:12px">追加した単語だけで練習する</button><!-- 2026-08-31 ユーザー要望 -->
-      <div class="sec-t" style="margin-top:26px">単語・意味を追加</div>
-      <div class="chips2" id="dictMode">
-        <button class="c2 sel" data-m="word">単語を追加</button>
-      </div>
+      <div id="uwListBox" style="display:none"><div class="sec-t" style="margin-top:26px">あなたの追加単語</div><div id="uwList"></div></div><!-- タップで編集・削除（2026-09-02 ユーザー要望） -->
+      <div class="sec-t" style="margin-top:26px">単語を追加</div>
       <input class="dfield" id="addW" type="text" placeholder="単語（例: resilience）" autocomplete="off" style="margin-top:10px">
-      <input class="dfield" id="addM" type="text" placeholder="意味（複数は「、」で区切り）" autocomplete="off">
-      <div class="chips2" id="addPos" style="margin-top:10px"><button class="c2 sel" type="button" data-p="">品詞なし</button><button class="c2" type="button" data-p="名詞">名詞</button><button class="c2" type="button" data-p="動詞">動詞</button><button class="c2" type="button" data-p="形容詞">形容詞</button><button class="c2" type="button" data-p="副詞">副詞</button></div><!-- 追加単語の品詞（2026-08-31 ユーザー要望） -->
+      <div id="addMs"></div><!-- 意味の行（入力＋品詞チップ）。＋で増える。各意味に品詞を付けられる（2026-09-02 ユーザー指定） -->
+      <button class="dbtn" id="addMore" type="button" style="background:#fff;color:#111;border:1.5px dashed #999;margin-top:10px">＋ 意味を追加</button>
       <button class="dbtn" id="addGo">追加する</button>
       <div class="dmsg" id="dictMsg"></div>
       <div class="note" style="text-align:left;max-width:none;margin-top:14px">あなたが追加した単語は審査され、必要性が高いと判断されれば、みんなの単語帳リストに追加される可能性があります。</div>
@@ -3755,7 +3753,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   (function(){try{USERWORDS=JSON.parse(localStorage.getItem('mxdict_w')||'[]');USERMEAN=JSON.parse(localStorage.getItem('mxdict_m')||'{}');}catch(e){USERWORDS=[];USERMEAN={};}
     /* ユーザー追加単語は基礎帳（英単語）にだけ載せる */
     if(USERWORDS.length)BOOKS.forEach(function(bk){USERWORDS.forEach(function(u){bk.deck.push(u);});bk.sections.push({name:'あなたの追加単語',arr:USERWORDS});});})();/* 追加単語は全帳共通（2026-08-02 FB⑦） */
-  function dictSave(){try{localStorage.setItem('mxdict_w',JSON.stringify(USERWORDS));localStorage.setItem('mxdict_m',JSON.stringify(USERMEAN));}catch(e){}}
+  function dictSave(){try{localStorage.setItem('mxdict_w',JSON.stringify(USERWORDS));localStorage.setItem('mxdict_m',JSON.stringify(USERMEAN));}catch(e){}try{renderUwList();}catch(e){}}
   /* ===== あなたの追加単語：ライブラリでタップ→編集/削除（2026-08-16 ユーザー指定） ===== */
   function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   function showUserWordSheet(d){
@@ -3816,7 +3814,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     };
   }
   function wordFind(w){var lw=(w||'').trim().toLowerCase();if(!lw)return null;for(var i=0;i<DECKDATA.length;i++){if(DECKDATA[i].w.toLowerCase()===lw)return DECKDATA[i];}return null;}
-  var dictMode='word';
+
   function renderDict(){$('dictCnt').textContent='全 '+fmtN(DECKDATA.length)+' 語';$('dictMsg').textContent='';$('dictMsg').className='dmsg';dictSearch();}
   /* 索引：全冊横断・最大3件・所在（冊名＋Section）付き（2026-07-21 FB） */
   function dictSearch(){var q=($('dictQ').value||'').trim().toLowerCase(),list=$('dictList');
@@ -3862,37 +3860,41 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       if(bM)bM.onclick=function(){var e=dictStateApply(w,'miss');if(e){toastMsg(e);return;}haptic(10);toastMsg('苦手リストに入れました');paint();};
       if(bR)bR.onclick=function(){var e=dictStateApply(w,'rev');if(e){toastMsg(e);return;}haptic(10);toastMsg('今日の復習に追加しました');paint();};}
     paint();$('modal').classList.add('on');}
-  /* 追加した単語だけで練習（2026-08-31 ユーザー要望）。ライブラリの範囲選択と同じ流れに乗せる */
-  function uwPaint(){var b=$('uwPractice');if(!b)return;b.style.display=USERWORDS.length?'':'none';}
-  (function(){var b=$('uwPractice');if(b)b.onclick=function(){haptic(6);
-    var bk=BOOKS[CURBOOK],sec=null,i;if(bk)for(i=0;i<bk.sections.length;i++)if(bk.sections[i].name==='あなたの追加単語')sec=bk.sections[i];
-    if(!sec||!USERWORDS.length){toastMsg('追加した単語がまだありません');return;}
-    showSkimOpts(sec);};})();
-  window.dictAdd=function(){var w=($('addW').value||'').trim(),m=($('addM').value||'').trim(),msg=$('dictMsg');
+  /* ---- 意味の行（入力＋品詞チップ）。＋で増やし、各意味に品詞を付けられる（2026-09-02 ユーザー指定） ---- */
+  var POSOPTS=['','名詞','動詞','他動詞','自動詞','形容詞','副詞'];
+  function addMRow(){var box=$('addMs');if(!box)return;var i=box.children.length;
+    var row=document.createElement('div');row.className='addmrow';
+    row.innerHTML='<input class="dfield" type="text" placeholder="'+(i===0?'意味（例: 回復力）':'意味 '+(i+1))+'" autocomplete="off">'
+      +'<div class="chips2 addpos">'+POSOPTS.map(function(p,j){return '<button class="c2'+(j===0?' sel':'')+'" type="button" data-p="'+p+'">'+(p||'品詞なし')+'</button>';}).join('')+'</div>';
+    row.querySelector('.addpos').addEventListener('click',function(e){var b=e.target.closest('.c2');if(!b)return;this.querySelectorAll('.c2').forEach(function(c){c.classList.toggle('sel',c===b);});haptic(4);});
+    box.appendChild(row);}
+  function addMsReset(){var box=$('addMs');if(!box)return;box.innerHTML='';addMRow();}
+  function renderUwList(){var bx=$('uwListBox'),ls=$('uwList');if(!bx||!ls)return;
+    if(!USERWORDS.length){bx.style.display='none';ls.innerHTML='';return;}
+    bx.style.display='';
+    ls.innerHTML=USERWORDS.map(function(u,i){return '<div class="drow" data-ui="'+i+'" style="cursor:pointer"><div class="dw">'+u.w+'</div><div class="dm">'+u.m+'</div></div>';}).join('');
+    ls.querySelectorAll('.drow').forEach(function(r){r.onclick=function(){var u=USERWORDS[parseInt(r.getAttribute('data-ui'),10)];if(u)showUserWordSheet(u);};});
+    phrasifyDom(ls);}/* 索引に追加済み単語を常設表示（2026-09-02 ユーザー要望） */
+  (function(){var b=$('addMore');if(b)b.onclick=function(){haptic(4);addMRow();};})();
+  window.dictAdd=function(){var w=($('addW').value||'').trim(),msg=$('dictMsg');
     msg.className='dmsg err';
-    if(!w||!m){msg.textContent='単語と意味の両方を入力してください';return;}
+    var rows=[].slice.call(document.querySelectorAll('#addMs .addmrow')),ms=[];
+    rows.forEach(function(r){var mv=(r.querySelector('input').value||'').trim();if(!mv)return;
+      var pb=r.querySelector('.addpos .c2.sel'),pv=pb?(pb.getAttribute('data-p')||''):'';ms.push({m:mv,p:pv});});
+    if(!w||!ms.length){msg.textContent='単語と意味を入力してください';return;}
     var hitE=wordFind(w);
-    if(dictMode==='word'){
-      if(hitE){msg.textContent='「'+hitE.w+'」は既にある単語です（意味の追加は「意味を追加」から）';return;}
-      var ent={w:w.toLowerCase(),m:m,st:'new',user:1,ad:dayKey(new Date())};if(ADDPOS)ent.pos=ADDPOS;
-      USERWORDS.push(ent);BOOKS.forEach(function(bk){bk.deck.push(ent);});
-      BOOKS.forEach(function(bk){var secU=null;for(var i=0;i<bk.sections.length;i++)if(bk.sections[i].name==='あなたの追加単語')secU=bk.sections[i];if(secU){secU.arr=USERWORDS;}else{bk.sections.push({name:'あなたの追加単語',arr:USERWORDS});}});
-      dictSave();msg.className='dmsg ok';msg.textContent='単語追加ありがとうございます。追加した単語は、明日以降ライブラリからの学習で出題されます。また、単語は運営で審査し、アプリ利用者全員に出題される可能性がございます。';
-    }else{
-      if(!hitE){msg.textContent='「'+w+'」は収録されていません（新しい単語は「単語を追加」から）';return;}
-      USERMEAN[hitE.w]=m;dictSave();
-      msg.className='dmsg ok';msg.textContent='「'+hitE.w+'」に意味を追加しました。今後、この単語の答えに表示されます。';
-    }
+    if(hitE){msg.textContent='「'+hitE.w+'」は既にある単語です';return;}
+    var mstr=ms.map(function(x){return (x.p?'（'+x.p+'）':'')+x.m;}).join('、');/* 品詞は意味ごとに（）で埋め込む＝答え表示・索引・一覧すべて既存処理のまま出る */
+    var ent={w:w.toLowerCase(),m:mstr,st:'new',user:1,ad:dayKey(new Date()),ms:ms};/* msは将来の編集用に構造も保持 */
+    USERWORDS.push(ent);BOOKS.forEach(function(bk){bk.deck.push(ent);});
+    BOOKS.forEach(function(bk){var secU=null;for(var i=0;i<bk.sections.length;i++)if(bk.sections[i].name==='あなたの追加単語')secU=bk.sections[i];if(secU){secU.arr=USERWORDS;}else{bk.sections.push({name:'あなたの追加単語',arr:USERWORDS});}});
+    dictSave();msg.className='dmsg ok';msg.textContent='単語追加ありがとうございます。追加した単語は、明日以降ライブラリからの学習で出題されます。また、単語は運営で審査し、アプリ利用者全員に出題される可能性がございます。';
     var _mt=msg.textContent,_mc=msg.className;/* renderDictがメッセージを消すため退避（2026-07-27修正） */
-    $('addW').value='';$('addM').value='';renderDict();
+    $('addW').value='';addMsReset();renderDict();
     msg.className=_mc;msg.textContent=_mt;
-    $('dictCnt').textContent='全 '+fmtN(DECKDATA.length)+' 語';uwPaint();};
-  $('dictQ').addEventListener('input',dictSearch);
+    $('dictCnt').textContent='全 '+fmtN(DECKDATA.length)+' 語';};
+  $('dictQ').addEventListener('input',dictSearch);addMsReset();renderUwList();
   $('addGo').addEventListener('click',function(){dictAdd();});
-  $('dictMode').addEventListener('click',function(e){var b=e.target.closest('.c2');if(!b)return;dictMode=b.getAttribute('data-m');document.querySelectorAll('#dictMode .c2').forEach(function(c){c.classList.toggle('sel',c===b);});
-    $('addW').placeholder=dictMode==='word'?'単語（例: resilience）':'意味を足したい単語（例: run）';
-    $('addM').placeholder=dictMode==='word'?'意味（複数は「、」で区切り）':'追加する意味（例: 経営する）';var _ap9=$('addPos');if(_ap9)_ap9.style.display=dictMode==='word'?'':'none';});
-  var ADDPOS='';(function(){var box=$('addPos');if(!box)return;box.addEventListener('click',function(e){var b=e.target.closest('.c2');if(!b)return;ADDPOS=b.getAttribute('data-p')||'';box.querySelectorAll('.c2').forEach(function(c){c.classList.toggle('sel',c===b);});haptic(4);});})();/* 追加単語の品詞（2026-08-31 ユーザー要望）。答えの品詞マーク（d.pos）にそのまま出る */
   var STLABEL={learned:"覚えた",review:"また出る",weak:"苦手",new:"未学習"};
   var deckFilter='all',deckSection=null;
   function stCount(st,arr){/* 冊全体の集計は語のユニーク数（学部重複帳対策・2026-08-13）。セクション内は重複がないので影響なし */
@@ -4416,7 +4418,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var base=!!(ADS.unit&&adMob()&&state.cards&&!ENT.noads);ax.style.display=base?'':'none';if(!base)return;/* 広告が出ない環境・購入済みなら節ごと出さない */
     var nb9=$('noadsBox');if(nb9)nb9.style.display=(PRICES[PRODUCTS.noads])?'':'none';}/* ASCに商品を作るまでは出さない。作れば次回起動から自動で出る（2026-08-31） */
   (function(){var b=$('noadsBtn');if(b)b.onclick=function(){haptic(6);showPaywall('noads');};})();/* 広告非表示＝月額300円のサブスク（2026-08-31 ユーザー指定） */
-  (function(){var g0=window.go;if(typeof g0==='function'){window.go=function(id){g0.apply(this,arguments);if(id==='sc-settings')try{adSetPaint();}catch(e){}if(id==='sc-dict')try{uwPaint();}catch(e){}};}})();/* 画面を開くたびボタン状態を更新（2026-08-31） */
+  (function(){var g0=window.go;if(typeof g0==='function'){window.go=function(id){g0.apply(this,arguments);if(id==='sc-settings')try{adSetPaint();}catch(e){}};}})();/* 画面を開くたびボタン状態を更新（2026-08-31） */
   (function(){var f0=window.entApply;if(typeof f0==='function'){window.entApply=function(){var r=f0.apply(this,arguments);try{adSetPaint();}catch(e){}return r;};}})();/* 購入・復元の反映でもボタンを消す（2026-08-31） */
   /* 広告が出せない・失敗したとき：待たずに次の問題へ（学習を止めない） */
   function adFallback(){if(!adOn)return;if(adTimer){clearTimeout(adTimer);adTimer=null;}adHide(true);}
@@ -4458,7 +4460,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function chainPick(it){if(!it)return null;var base=it.d||it.alt||null,im=idiomChain(it.w);if(base&&im)return Math.random()<0.5?base:im;return base||im;}
   window.showPaywall=showPaywall;
   window.buyBook=function(k){if(PLAT==='web'){toastMsg('熟語帳はWeb版では準備中です');return;}showPaywall(k);};/* 審査3.1.2(c)：購入シートの前に必ず条件を提示する（2026-08-29） */
-  premiumBoot();adsBoot();try{adSetPaint();}catch(e){}try{uwPaint();}catch(e){}
+  premiumBoot();adsBoot();try{adSetPaint();}catch(e){}
   var _booted=false;
   if(location.hash!=='#reset'){
     if(loadAll())_booted=true;
