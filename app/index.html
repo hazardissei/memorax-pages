@@ -2073,7 +2073,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
       <button class="dbtn" id="impBtn" style="background:#fff;color:#111;border:1.5px solid #111;margin-top:10px">書き出したデータを読み込む</button>
       <!-- 広告の節：月額の広告非表示のみ。広告が出る環境＆App Storeに商品がある時だけJSが表示する。リワード動画は2026-08-31にユーザー指示で完全撤去 -->
       <div id="adSetBox" style="display:none"><div class="sec-t" style="margin-top:30px">広告</div>
-      <div id="noadsBox"><button class="plink" id="noadsBtn" type="button" style="margin-top:6px">月額300円で、広告を出さないようにする</button></div></div>
+      <div id="noadsBox"><button class="plink" id="noadsBtn" type="button" style="margin-top:6px">広告を完全削除する（買い切り1,200円）</button></div></div>
       <div class="pnote" style="margin-top:10px">機種変更やアプリを入れ直す前に書き出しておくと、新しい端末で続きから学習できます。</div>
       <button class="dbtn" id="resetBtn" style="background:#fff;color:#111;border:1.5px solid #111;margin-top:22px">学習データをリセット</button>
       <div id="resetConf" style="display:none">
@@ -4271,20 +4271,20 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var _p=PRICES[PRODUCTS[kind]];
     /* StoreKitは日本だと「¥300」で返す。日本語として自然な「300円」に直す。
        外貨（$2.99等）はそのまま出す（2026-08-30） */
-    if(_p)_p=_p.replace(/^¥([d,]+)$/,'$1円');
-    var _price=na?(_p||'300円'):(_p||'300円');/* 広告非表示は月額300円（2026-08-31 ユーザー指定） */
-    var _title=na?'広告を消す':'熟語帳＋熟語カットイン';
+    if(_p)_p=_p.replace(/^¥([\d,]+)$/,'$1円');
+    var _price=na?(_p||'1,200円'):(_p||'300円');/* 広告完全削除は買い切り1,200円（2026-09-02 ユーザー指定） */
+    var _title=na?'広告を完全削除':'熟語帳＋熟語カットイン';
     var _what=na
-      ?'アプリ内のすべての広告が表示されなくなります。'
+      ?'アプリ内のすべての広告が、今後ずっと表示されなくなります。一度きりの買い切りで、月額や自動更新はありません。'
       :'センター・共通テスト、MARCH、早慶の過去問1,133試験から抽出した<b>英熟語1,376語</b>を、出題回数の多い順に収録した熟語帳が使えるようになります。あわせて、英単語の学習中にその単語を含む熟語が差し込まれる「熟語カットイン」が有効になります。';
     ms.innerHTML='<div class="q" style="font-size:19px;margin-bottom:6px">'+_title+'</div>'
-      +'<div class="pwprice">'+_price+' ／ 1か月（自動更新）</div>'
+      +'<div class="pwprice">'+_price+(na?'（買い切り）':' ／ 1か月（自動更新）')+'</div>'
       +'<div class="pwd">'+_what+'</div>'
       +(ENT[kind]
-        ?'<div class="pwown">✓ 利用中</div>'
-        :'<button class="opt" id="pwBuy" type="button" style="width:100%">'+'月額'+_price+'で登録する</button>')
+        ?'<div class="pwown">'+(na?'✓ 購入済み（広告は表示されません）':'✓ 利用中')+'</div>'
+        :'<button class="opt" id="pwBuy" type="button" style="width:100%">'+(na?_price+'で購入する':'月額'+_price+'で登録する')+'</button>')
       +'<div class="pwl"><button class="plink" id="pwRestore" type="button">購入を復元</button></div>'
-      +'<div class="pnote">'+_title+'は月額'+_price+'の自動更新サブスクリプションです。期間終了の24時間前までに解約しない限り自動更新され、同額が請求されます。iPhoneの「設定」→ Apple ID →「サブスクリプション」からいつでも解約できます。<br><a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener">利用規約（EULA）</a>　<a href="https://hazardissei.github.io/memorax-pages/privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a></div>';
+      +'<div class="pnote">'+(na?'広告の完全削除は一度きりの買い切りです。自動更新や追加のお支払いはありません。機種変更・再インストール後は「購入を復元」で元に戻せます。<br>':_title+'は月額'+_price+'の自動更新サブスクリプションです。期間終了の24時間前までに解約しない限り自動更新され、同額が請求されます。iPhoneの「設定」→ Apple ID →「サブスクリプション」からいつでも解約できます。<br>')+'<a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener">利用規約（EULA）</a>　<a href="https://hazardissei.github.io/memorax-pages/privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a></div>';
     phrasifyDom(ms);$('modal').classList.add('on');
     var _pb=$('pwBuy');if(_pb)_pb.onclick=function(){$('modal').classList.remove('on');ms.innerHTML='';buy(kind);};
     $('pwRestore').onclick=function(){$('modal').classList.remove('on');ms.innerHTML='';restorePurchases();};}
