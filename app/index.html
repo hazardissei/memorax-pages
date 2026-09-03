@@ -4363,15 +4363,15 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function entMergeLocal(){if((state.entInvite||state.entGift||state.entWeb)&&!ENT.idioms){ENT.idioms=true;try{entSave();}catch(e){}try{renderPremium();}catch(e){}}}
   function applyAnyCode(raw,msgEl,repaint){
     var v=String(raw||'').trim().toUpperCase().replace(/[^A-Z0-9-]/g,'');
-    function say(t,err){if(msgEl){msgEl.textContent=t;msgEl.className='dmsg'+(err?' err':' ok');}}
+    function say(t,err){var m=document.getElementById('invMsg')||msgEl;if(m){m.textContent=t;m.className='dmsg'+(err?' err':' ok');}}
     var mG=v.match(/^GIFT-([A-Z0-9]{5})-([A-Z0-9]{4})$/);
     if(mG){if(state.entGift){say('ギフトコードは適用済みです',false);return;}
       if(_h32('mxgift1|'+mG[1])!==mG[2]){say('コードが正しくありません',true);return;}
-      state.entGift=1;entMergeLocal();saveAll();haptic(12);toastMsg('🎁 英熟語帳が解放されました！');say('英熟語帳がずっと使えるようになりました',false);if(repaint)repaint();return;}
+      state.entGift=1;entMergeLocal();saveAll();haptic(12);toastMsg('🎁 英熟語帳が解放されました！');if(repaint)repaint();say('英熟語帳がずっと使えるようになりました',false);return;}
     var mW=v.match(/^WEB-([A-Z0-9]{5})-([A-Z0-9]{4})$/);
     if(mW){if(state.entWeb){say('このキーは適用済みです',false);return;}
       if(_h32('mxweb1|'+mW[1])!==mW[2]){say('キーが正しくありません',true);return;}
-      state.entWeb=1;entMergeLocal();saveAll();haptic(12);toastMsg('✅ 購入を確認しました。英熟語帳が使えます');say('英熟語帳がずっと使えるようになりました',false);if(repaint)repaint();return;}
+      state.entWeb=1;entMergeLocal();saveAll();haptic(12);toastMsg('✅ 購入を確認しました。英熟語帳が使えます');if(repaint)repaint();say('英熟語帳がずっと使えるようになりました',false);return;}
     var f=v.replace(/-/g,'');if(f.length===8)v=f.slice(0,4)+'-'+f.slice(4);
     if(!/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(v)){say('コードの形式が違います（例 AB3D-7KQ2）',true);return;}
     if(v===state.friendCode){say('自分のコードは入力できません',true);return;}
@@ -4381,7 +4381,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var n=state.invites.length;
     if(n<=3){try{ptGain(1000);}catch(e){}toastMsg('🤝 招待成立 +1000💎（'+Math.min(n,3)+'/3人）');}
     if(n>=3&&!state.entInvite){state.entInvite=1;entMergeLocal();setTimeout(function(){toastMsg('🎉 3人達成！英熟語帳がずっと無料になりました');},900);}
-    saveAll();say(v+' を登録しました（'+Math.min(n,3)+'/3人）',false);if(repaint)repaint();}
+    saveAll();if(repaint)repaint();say(v+' を登録しました（'+Math.min(n,3)+'/3人）',false);}
   function openInvite(){var ms=$('msheet');if(ms)haptic(6);if(!ms)return;
     function paint(){
       var n=(state.invites||[]).length,done=!!(state.entInvite||state.entGift||state.entWeb||ENT.idioms);
