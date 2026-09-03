@@ -1724,6 +1724,16 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
 .card.anscompact .ansb .m{font-size:20px!important;line-height:1.55!important}
 .card.anscompact .ansb .ex{font-size:12.5px;line-height:1.45}
 .card.anscompact .memtxt{margin-top:7px;font-size:12.5px;line-height:1.5}
+/* 努力ダイヤ＆スワイプグロー（2026-09-03） */
+#swglow{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .22s;z-index:60}
+.pthero{text-align:center;padding:8px 0 2px}
+.pthero .l{font-size:13px;font-weight:800;color:#8a8f99;letter-spacing:.06em}
+.pthero .v{font-size:44px;font-weight:900;letter-spacing:.02em;margin-top:2px}
+.pthero .v span{font-size:24px;margin-left:2px}
+.pthero .s2{font-size:13px;color:#8a8f99;margin-top:6px}
+.ptv{font-style:normal;font-size:14px;font-weight:900;letter-spacing:.01em;white-space:nowrap}
+#hdrPts.pop{animation:ptpop .35s ease}
+@keyframes ptpop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
 </style>
 </head>
 <body>
@@ -1918,7 +1928,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
       <div class="h2-head">
         <div class="h2-title" onclick="showBookMenu()" style="cursor:pointer"><div class="t">Memora X</div><div class="s a2bk"><span id="hmBook">英単語</span><i class="tri">▼</i></div></div>
         <div class="h2-acts">
-          <div class="h2-act" onclick="go('sc-analysis')"><span class="h2-ring"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#dfe5ee" stroke-width="4"/><circle id="h2Arc" cx="20" cy="20" r="17" fill="none" stroke="#2261f5" stroke-width="4" stroke-linecap="round" stroke-dasharray="0 106.8" transform="rotate(-90 20 20)"/></svg><i id="h2Pct">0%</i></span><span class="lb">全体進捗</span></div>
+          <div class="h2-act" onclick="go('sc-analysis')"><span class="h2-ring"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#dfe5ee" stroke-width="4"/><circle id="h2Arc" cx="20" cy="20" r="17" fill="none" stroke="#2261f5" stroke-width="4" stroke-linecap="round" stroke-dasharray="0 106.8" transform="rotate(-90 20 20)"/></svg><i id="h2Pct">0%</i></span><span class="lb">全体進捗</span></div><div class="h2-act" id="hdrPtsAct" onclick="openPoints()"><span class="h2-ring" style="display:flex;align-items:center;justify-content:center"><i class="ptv" id="hdrPts">💎0</i></span><span class="lb">努力ダイヤ</span></div>
           <div class="h2-act" onclick="go('sc-dict')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v8M8 12h8"/></svg></span><span class="lb">単語追加</span></div>
           <div class="h2-act" onclick="go('sc-settings')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L14.2 3h-4l-.4 2.5a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2l.4 2.5h4l.4-2.5a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z"/></svg></span><span class="lb">設定</span></div>
         </div>
@@ -2210,6 +2220,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     <div class="adbox" id="adbox"><div class="adph" id="adph"></div></div>
     <div class="adhint">← スワイプで次の問題へ →</div><!-- 実機は全画面広告（2026-08-26）。このカードはWeb検証(#ads)専用 -->
   </div>
+  <div id="swglow"></div><!-- 正解スワイプの全画面グロー（2026-09-03 ユーザー要望） -->
   <div class="toast" id="toast"></div>
   <div class="modal" id="modal"><div class="msheet" id="msheet"></div></div>
   <!-- レビュー依頼（2026-08-16）：チュートリアルのコーチと同じ演出（ぼかし＋ぽつぽつ文字） -->
@@ -2424,10 +2435,16 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   var ICON={chk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></svg>',x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',til:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 13c1.2 1.2 2.8 1.2 4 0s2.8-1.2 4 0"/></svg>'};
   function frov(ic,hd){return '<div class="ic">'+ic+'</div><div class="hd">'+hd+'</div>';}
   function setTags(a,pct){var r=$('tagR'),l=$('tagL'),dd=$('tagD');r.style.transition=l.style.transition=dd.style.transition=a?'':'none';if(phase==='q'){r.innerHTML=frov(ICON.chk,'自信アリ');l.innerHTML=frov(ICON.x,'自信なし');dd.innerHTML=frov(ICON.til,'まあまあ');dd.style.display='';}else{r.innerHTML=frov(ICON.chk,'合っていた');l.innerHTML=frov(ICON.x,'間違っていた');dd.style.display='none';}r.style.opacity=l.style.opacity=0;dd.style.opacity=0;if(a){var t=a==='r'?r:a==='l'?l:dd;t.style.opacity=Math.min(1,(pct||0)*1.3);}}
-  function tintCard(dir,pct){/* 答え合わせの正誤スワイプだけ色を出す＝ユーザー確定の意味色（緑を強く・2026-08-31要望） */
-    if(phase==='a'&&dir==='r'&&pct>0){var a1=Math.min(.16,pct*.16);card.style.background='rgba(22,163,74,'+a1+')';card.style.borderColor='rgba(22,163,74,'+Math.min(.6,pct*.65)+')';return;}
-    if(phase==='a'&&dir==='l'&&pct>0){var a2=Math.min(.09,pct*.09);card.style.background='rgba(220,38,38,'+a2+')';card.style.borderColor='rgba(220,38,38,'+Math.min(.45,pct*.5)+')';return;}
-    card.style.background='';card.style.borderColor='';}
+  /* 正解スワイプの色は種類別（2026-09-03 ユーザー要望）：通常=緑・熟語=黄・派生/難訳=紫。
+     カードだけでなく画面全体（#swglow）も同色に染めて、スワイプの快感を強くする */
+  function swipeRGB(){try{if(chainMode&&chainData){if(chainData.kind==='idiom')return '234,179,8';return '139,92,246';}
+    var bk9=BOOKS[CURBOOK]&&BOOKS[CURBOOK].id;if(bk9==='idioms')return '234,179,8';}catch(e){}return '22,163,74';}
+  function swGlowSet(a){var g=$('swglow');if(!g)return;if(!a||a<=0){g.style.opacity='0';return;}g.style.background='rgba('+swipeRGB()+','+Math.min(.2,a)+')';g.style.opacity='1';}
+  function swPulse(){var g=$('swglow');if(!g)return;g.style.background='rgba('+swipeRGB()+',.26)';g.style.opacity='1';clearTimeout(window._swT);window._swT=setTimeout(function(){g.style.opacity='0';},380);}
+  function tintCard(dir,pct){
+    if(phase==='a'&&dir==='r'&&pct>0){var c9=swipeRGB();var a1=Math.min(.16,pct*.16);card.style.background='rgba('+c9+','+a1+')';card.style.borderColor='rgba('+c9+','+Math.min(.6,pct*.65)+')';swGlowSet(pct*.2);return;}
+    if(phase==='a'&&dir==='l'&&pct>0){var a2=Math.min(.09,pct*.09);card.style.background='rgba(220,38,38,'+a2+')';card.style.borderColor='rgba(220,38,38,'+Math.min(.45,pct*.5)+')';swGlowSet(0);return;}
+    card.style.background='';card.style.borderColor='';swGlowSet(0);}
   function chainOK(){if(!state.cards)return true;/* チュートリアル中は全員チェイン解禁（機能紹介） */if(state.cutin==='オフ')return false;/* 設定でOFF可（2026-07-27） */return (['早慶','旧帝大以上','上位国立大学','MARCH'].indexOf(state.level)>-1)||LAP>=2;}
   function chainDrop(){
     paintImp(null);/* チェイン中は重要度バッジ非表示 */
@@ -2679,8 +2696,9 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     finishPractice();
   }
   function result(ok){
-    if(chainMode){recs.push({conf:conf,ok:ok,chain:true});HIST.push({t:'c',i:idx,l:lapNo,d:chainData});var cw=chainData?chainData.w:null;if(cw){var _whC=(WHIST[cw]=WHIST[cw]||[]);_whC.push(ok);if(_whC.length>10)_whC.splice(0,_whC.length-10);}if(state.cards)addSolved(1);saveAll();chainMode=false;chainData=null;fly(ok?1:-1,nextCardA);return;}
+    if(chainMode){recs.push({conf:conf,ok:ok,chain:true});HIST.push({t:'c',i:idx,l:lapNo,d:chainData});var cw=chainData?chainData.w:null;if(cw){var _whC=(WHIST[cw]=WHIST[cw]||[]);_whC.push(ok);if(_whC.length>10)_whC.splice(0,_whC.length-10);}if(state.cards)addSolved(1);if(ok)try{swPulse();}catch(e){}try{ptOnGrade(ok,cw,null);}catch(e){}saveAll();chainMode=false;chainData=null;fly(ok?1:-1,nextCardA);return;}
     recs.push({conf:conf,ok:ok});adTick();/* 広告カウント＝答えを開いた1問（カットインは数えない・2026-08-21） */if(Object.keys(TODAYLOG).length===30)try{remindDone();}catch(e){}/* 今日30問に到達＝18時のリマインダーは不要（2026-09-02） */
+    try{ptOnGrade(ok,queue[idx].w,queue[idx]);}catch(e){}/* 努力ダイヤ：スワイプ+1・連続ボーナス・完成チェック（2026-09-03） */
     (function(){var _w0=queue[idx].w,_mi0=-1,_me0=null,_i0;
       for(_i0=0;_i0<MISSLOG.length;_i0++)if(MISSLOG[_i0].w===_w0){_mi0=_i0;_me0=JSON.parse(JSON.stringify(MISSLOG[_i0]));break;}
       HIST.push({t:'b',i:idx,l:lapNo,w:_w0,ok:ok,snap:{
@@ -2713,7 +2731,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
       _me.d=dayKey(new Date());_me.n=0;_me.h.push(false);if(_me.h.length>3)_me.h.shift();
       MISSLOG.unshift(_me);/* 新しいものが先頭 */
     }else{
-      ding();/* 合っていたスワイプの音（2026-08-31 ユーザー要望） */if(conf!=='none')queue[idx].st='learned';
+      ding();try{swPulse();}catch(e){}/* 合っていたスワイプの音と全画面グロー（2026-09-03） */if(conf!=='none')queue[idx].st='learned';
       if(_slow){/* 合ってるけど2秒超＝瞬発力不足として苦手入り。連続カウントは切る */
         _me=_me||{w:_wn2,h:[]};
         _me.tag='slow';_me.d=dayKey(new Date());_me.n=0;_me.h.push(2);if(_me.h.length>3)_me.h.shift();
@@ -4285,7 +4303,54 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function entApply(ids){ids=ids||[];ENT.noads=ids.indexOf(PRODUCTS.noads)>-1;ENT.idioms=ids.indexOf(PRODUCTS.idioms)>-1;entSave();renderPremium();if(ENT.noads&&adOn)adHide(true);if(!ENT.noads)adPrepare();/* 解約後は広告を再開（2026-08-26） */}
   function skPlugin(){try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.StoreKit2)return C.Plugins.StoreKit2;}catch(e){}return null;}
   function toastMsg(t){var el=$('toast');if(!el)return;el.textContent=t;el.classList.add('on');clearTimeout(window._tt);window._tt=setTimeout(function(){el.classList.remove('on');},Math.min(6000,2200+t.length*60));}
-  function closeMSheet(){var m=$('modal'),ms=$('msheet');if(m)m.classList.remove('on');if(ms)ms.innerHTML='';}/* msheet共通クローズ。settings節のsheetCloseはIIFE内ローカルで外から見えない（2026-08-31 実機バグ修正） */
+  function closeMSheet(){var m=$('modal'),ms=$('msheet');if(m)m.classList.remove('on');if(ms)ms.innerHTML='';}
+  /* ===== 努力ダイヤ（2026-09-03 ユーザー要望・世界史v115のルールを移植） =====
+     スワイプ1問=+1（わからないでも付く）／正解は直前の連続正解数で +3/5/10/15/30（5連続以上=習得済みは0）
+     0.4秒未満×5連打からは無効／セクション完成+50・単語帳マスター+500（各一度きり）
+     ログインボーナス=週サイクル200、7日目1000（自動付与）／保存は端末のみ（mx2_wallet） */
+  var WALLET={pt:0,awarded:{}},PTSESS=0,_ptLast=0,_ptFast=0;
+  var PTB={0:3,1:5,2:10,3:15,4:30};
+  function wLoad(){try{var w=JSON.parse(localStorage.getItem('mx2_wallet')||'null');if(w&&typeof w.pt==='number')WALLET=w;}catch(e){}if(!WALLET.awarded||typeof WALLET.awarded!=='object')WALLET.awarded={};}
+  function wSave(){try{localStorage.setItem('mx2_wallet',JSON.stringify(WALLET));}catch(e){}}
+  function _fmtP(n){n=n||0;if(n>=100000){var v=Math.round(n/1000)/10;return (v%1?v.toFixed(1):String(Math.round(v)))+'万';}return n.toLocaleString('ja-JP');}
+  function ptBadgeRefresh(){var el=$('hdrPts');if(el){el.textContent='💎'+_fmtP(WALLET.pt);el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}}
+  function ptGain(n){if(!n||n<=0)return;WALLET.pt+=n;PTSESS+=n;wSave();ptBadgeRefresh();}
+  function ptOnGrade(ok,w,d){var now=Date.now(),iv=_ptLast?now-_ptLast:0;_ptLast=now;
+    if(iv>0&&iv<400)_ptFast++;else _ptFast=0;
+    if(_ptFast>=5)return;/* 機械的な連打だけ無効。単発の速答はセーフ */
+    var earn=1;
+    if(ok){var prev=(w&&FC[w]&&FC[w].n)||0;if(prev<5)earn+=(PTB[prev]||0);}
+    ptGain(earn);
+    if(ok&&d)ptCompletion(d);}
+  function ptCompletion(d){try{
+    var si=secInfoOf(d);if(!si||si.name==='あなたの追加単語')return;
+    var bk9=BOOKS[CURBOOK]?BOOKS[CURBOOK].id:'b';
+    var k='s|'+bk9+'|'+si.name;
+    if(WALLET.awarded[k])return;
+    var A=SECTIONS[si.sec].arr,i;for(i=0;i<A.length;i++){if(!A[i].drv&&A[i].st!=='learned')return;}
+    WALLET.awarded[k]=1;ptGain(50);wSave();toastMsg('🏅 セクション完成！ +50💎');haptic(12);
+    var kb='b|'+bk9;if(WALLET.awarded[kb])return;
+    var s2,j2;for(s2=0;s2<SECTIONS.length;s2++){if(SECTIONS[s2].name==='あなたの追加単語')continue;var B=SECTIONS[s2].arr;for(j2=0;j2<B.length;j2++){if(!B[j2].drv&&B[j2].st!=='learned')return;}}
+    WALLET.awarded[kb]=1;ptGain(500);wSave();setTimeout(function(){toastMsg('🏆 単語帳マスター！！ +500💎');},1000);
+  }catch(e){}}
+  function loginBonusTick(){try{if(!state.cards)return;var tk=dayKey(new Date());if(state.lastLogin===tk)return;
+    var cont=state.lastLoginMs&&(Date.now()-state.lastLoginMs)<48*3600*1000;
+    state.loginStreak=cont?(state.loginStreak||0)+1:1;state.lastLogin=tk;state.lastLoginMs=Date.now();
+    var st9=state.loginStreak;
+    if(state.loginClaimed!==st9){var wk=((st9-1)%7)+1,amt=(wk===7)?1000:200;state.loginClaimed=st9;ptGain(amt);toastMsg('🎁 ログインボーナス +'+amt+'💎（🔥'+st9+'日目）');}
+    saveAll();}catch(e){}}
+  function openPoints(){var ms=$('msheet');if(!ms)return;haptic(6);
+    function paint(){
+      var ls=0;try{var bi,seen,dk,x,it;for(bi=0;bi<BOOKS.length;bi++){seen={};dk=BOOKS[bi].deck;for(x=0;x<dk.length;x++){it=dk[x];if(!it.drv&&it.st==='learned'&&!seen[it.w]){seen[it.w]=1;ls++;}}}}catch(e){}
+      var mig=(!state._ptMig&&SOLVED>0),gain=SOLVED+ls*30;
+      ms.innerHTML='<div class="pthero"><div class="l">努力ダイヤ</div><div class="v">'+_fmtP(WALLET.pt)+'<span>💎</span></div><div class="s2">ダイヤを集めると、今後いいことがあるかも……。</div></div>'
+        +(mig?'<button class="opt" id="ptMig" type="button" style="width:100%;margin-top:14px">これまでの学習をダイヤに反映する<small>解答'+fmtN(SOLVED)+'問＋覚えた'+fmtN(ls)+'語 → +'+_fmtP(gain)+'💎</small></button>':'')
+        +'<div class="pnote" style="text-align:center;margin-top:12px">努力ダイヤはこの端末に保存されています</div>'
+        +'<div class="pwl"><button class="plink" id="ptClose" type="button">とじる</button></div>';
+      $('ptClose').onclick=closeMSheet;
+      var mb=$('ptMig');if(mb)mb.onclick=function(){state._ptMig=1;ptGain(gain);saveAll();haptic(12);toastMsg('💎 +'+_fmtP(gain)+' を反映しました！');paint();};}
+    paint();$('modal').classList.add('on');}
+  window.openPoints=openPoints;/* msheet共通クローズ。settings節のsheetCloseはIIFE内ローカルで外から見えない（2026-08-31 実機バグ修正） */
   function renderPremium(){/* 設定の購入ボタンは廃止。いまは英熟語カットインの行のロックだけ更新する（2026-08-27） */
     var ib=$('idmcutBox');if(ib)ib.classList.toggle('locked',!ENT.idioms);}
   function premiumBoot(){entLoad();renderPremium();var sk=skPlugin();if(!sk)return;
@@ -4332,7 +4397,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function expText(){
     var o={__v:1,__app:'MemoraX',__b:'w0831d',__d:dayKey(new Date())};/* 内部ビルド印。画面には出さない（2026-08-31） */
     try{dataKeys().forEach(function(k){var v=localStorage.getItem(k);if(v!=null)o[k]=v;});
-      ['mxdict_w','mxdict_m','mxdict_note','mx2_ent','mx2_solved','mx2_guided','mx2_snd','mx2_examday','mx2_revreq','mx2_revpend','mx2_wn_idioms'].forEach(function(k){var v=localStorage.getItem(k);if(v!=null)o[k]=v;});
+      ['mxdict_w','mxdict_m','mxdict_note','mx2_ent','mx2_solved','mx2_guided','mx2_snd','mx2_examday','mx2_revreq','mx2_revpend','mx2_wn_idioms','mx2_wallet'].forEach(function(k){var v=localStorage.getItem(k);if(v!=null)o[k]=v;});
     }catch(e){}
     return JSON.stringify(o);
   }
@@ -4494,7 +4559,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function chainPick(it){if(!it)return null;var base=it.d||it.alt||null,im=idiomChain(it.w);if(base&&im)return Math.random()<0.5?base:im;return base||im;}
   window.showPaywall=showPaywall;
   window.buyBook=function(k){if(PLAT==='web'){toastMsg('熟語帳はWeb版では準備中です');return;}showPaywall(k);};/* 審査3.1.2(c)：購入シートの前に必ず条件を提示する（2026-08-29） */
-  premiumBoot();adsBoot();try{adSetPaint();}catch(e){}
+  try{wLoad();ptBadgeRefresh();}catch(e){}premiumBoot();adsBoot();try{adSetPaint();}catch(e){}
   var _booted=false;
   if(location.hash!=='#reset'){
     if(loadAll())_booted=true;
@@ -4505,7 +4570,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     }
   }
   try{applyDark();}catch(e){}setTimeout(function(){try{remindSync();}catch(e){}},12000);/* リマインダー登録。ATTダイアログと重ならないよう遅らせる（2026-09-02） */
-  if(_booted){bakSave();icBackup();showHello();}
+  if(_booted){bakSave();icBackup();showHello();setTimeout(function(){try{loginBonusTick();}catch(e){}},1800);}
   else{
     var _startOnboard=function(){narrate($('wNarr'),$('wTap'),'まずはあなたについて\n教えてください',function(){go('sc-grade');});};/* 導入1文（2026-08-02 ユーザー指定・句読点なし） */
     if(location.hash!=='#reset'&&!localStorage.getItem('mx2_state')&&icPlugin()){
