@@ -4358,22 +4358,24 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
      ・3人で英熟語帳が永久解放（state.entInvite）。入力1人ごとに+1000💎（3人まで）
      ・同じ入力欄で GIFT-（プレゼントキャンペーン）と WEB-（Web版買い切りのキー）も受ける。
        検証はハッシュ照合（_h32）。発行は tools/gen_gift_codes.js */
-  function invCode(){if(!state.friendCode){var B='ABCDEFGHJKMNPQRSTUVWXYZ23456789',t='',i;for(i=0;i<8;i++)t+=B[(Math.random()*B.length)|0];state.friendCode=t.slice(0,4)+'-'+t.slice(4);saveAll();}return state.friendCode;}
+  function invCode(){if(!state.friendCode||!/^[A-HJKMNP-Z2-9]{4}-[A-HJKMNP-Z2-9]{4}$/.test(state.friendCode)||_h32('mxfr1|'+state.friendCode.slice(0,4))!==state.friendCode.slice(5)){var B='ABCDEFGHJKMNPQRSTUVWXYZ23456789',t='',i;for(i=0;i<4;i++)t+=B[(Math.random()*B.length)|0];state.friendCode=t+'-'+_h32('mxfr1|'+t);saveAll();}return state.friendCode;}/* 後半はチェックサム。旧形式（検証なし時代）のコードは作り直す（2026-09-03 セキュリティ監査） */
   function _h32(str){var h=5381,i;for(i=0;i<str.length;i++){h=((h<<5)+h+str.charCodeAt(i))|0;}h=Math.abs(h);var B='ABCDEFGHJKMNPQRSTUVWXYZ23456789',o='',j;for(j=0;j<4;j++){o+=B[h%31];h=(h/31)|0;}return o;}
   function entMergeLocal(){if((state.entInvite||state.entGift||state.entWeb)&&!ENT.idioms){ENT.idioms=true;try{entSave();}catch(e){}try{renderPremium();}catch(e){}}}
   function applyAnyCode(raw,msgEl,repaint){
     var v=String(raw||'').trim().toUpperCase().replace(/[^A-Z0-9-]/g,'');
     function say(t,err){var m=document.getElementById('invMsg')||msgEl;if(m){m.textContent=t;m.className='dmsg'+(err?' err':' ok');}}
-    var mG=v.match(/^GIFT-([A-Z0-9]{5})-([A-Z0-9]{4})$/);
+    if(PLAT==='ios'&&/^(GIFT|WEB)-/.test(v)){say('このコードはWeb版・Android版でご利用いただけます',true);return;}/* App Store 3.1.1：ライセンスキーによる解放は不可（2026-09-03 規約調査） */
+    var mG=v.match(/^GIFT-([A-HJKMNP-Z2-9]{5})-([A-HJKMNP-Z2-9]{4})$/);/* 発行側と同じ31文字集合に限定（2026-09-03） */
     if(mG){if(state.entGift){say('ギフトコードは適用済みです',false);return;}
       if(_h32('mxgift1|'+mG[1])!==mG[2]){say('コードが正しくありません',true);return;}
       state.entGift=1;entMergeLocal();saveAll();haptic(12);toastMsg('🎁 英熟語帳が解放されました！');if(repaint)repaint();say('英熟語帳がずっと使えるようになりました',false);return;}
-    var mW=v.match(/^WEB-([A-Z0-9]{5})-([A-Z0-9]{4})$/);
+    var mW=v.match(/^WEB-([A-HJKMNP-Z2-9]{5})-([A-HJKMNP-Z2-9]{4})$/);/* 同上 */
     if(mW){if(state.entWeb){say('このキーは適用済みです',false);return;}
       if(_h32('mxweb1|'+mW[1])!==mW[2]){say('キーが正しくありません',true);return;}
       state.entWeb=1;entMergeLocal();saveAll();haptic(12);toastMsg('✅ 購入を確認しました。英熟語帳が使えます');if(repaint)repaint();say('英熟語帳がずっと使えるようになりました',false);return;}
     var f=v.replace(/-/g,'');if(f.length===8)v=f.slice(0,4)+'-'+f.slice(4);
-    if(!/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(v)){say('コードの形式が違います（例 AB3D-7KQ2）',true);return;}
+    if(!/^[A-HJKMNP-Z2-9]{4}-[A-HJKMNP-Z2-9]{4}$/.test(v)){say('コードの形式が違います（例 AB3D-7KQ2）',true);return;}
+    if(_h32('mxfr1|'+v.slice(0,4))!==v.slice(5)){say('そのコードは存在しません。友達のアプリに表示されているコードを確認してください',true);return;}/* 出まかせの入力を弾く（2026-09-03 セキュリティ監査） */
     if(v===state.friendCode){say('自分のコードは入力できません',true);return;}
     state.invites=Array.isArray(state.invites)?state.invites:[];
     if(state.invites.indexOf(v)>-1){say('このコードは登録済みです',true);return;}
@@ -4448,7 +4450,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function expText(){
     var o={__v:1,__app:'MemoraX',__b:'w0831d',__d:dayKey(new Date())};/* 内部ビルド印。画面には出さない（2026-08-31） */
     try{dataKeys().forEach(function(k){var v=localStorage.getItem(k);if(v!=null)o[k]=v;});
-      ['mxdict_w','mxdict_m','mxdict_note','mx2_ent','mx2_solved','mx2_guided','mx2_snd','mx2_examday','mx2_revreq','mx2_revpend','mx2_wn_idioms','mx2_wallet'].forEach(function(k){var v=localStorage.getItem(k);if(v!=null)o[k]=v;});
+      ['mxdict_w','mxdict_m','mxdict_note','mx2_solved','mx2_guided','mx2_snd','mx2_examday','mx2_revreq','mx2_revpend','mx2_wn_idioms','mx2_wallet']/* mx2_ent は載せない＝権利は引き継がない（2026-09-03） */.forEach(function(k){var v=localStorage.getItem(k);if(v!=null)o[k]=v;});
     }catch(e){}
     return JSON.stringify(o);
   }
@@ -4460,7 +4462,11 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     try{
       /* 取り込む前に、いまの端末の中身を退避しておく（間違えて上書きしても戻せる） */
       dataKeys().forEach(function(k){var v=localStorage.getItem(k);if(v!=null)localStorage.setItem('mx2imp_'+k,v);});
-      var n=0;for(var k in o){if(k.indexOf('__')===0)continue;localStorage.setItem(k,o[k]);n++;}
+      var n=0;for(var k in o){if(k.indexOf('__')===0)continue;
+        if(k==='mx2_ent')continue;/* 権利は引き継がない（2026-09-03 セキュリティ監査） */
+        var _v9=o[k];
+        if(k==='mx2_state'){try{var _st9=JSON.parse(_v9);delete _st9.entWeb;delete _st9.entGift;delete _st9.entInvite;delete _st9.invites;_v9=JSON.stringify(_st9);}catch(e){}}/* 解放済みの書き出しがそのまま出回るのを防ぐ */
+        localStorage.setItem(k,_v9);n++;}
       return n>0?null:'中身が空でした。';
     }catch(e){return '保存できませんでした。端末の空き容量を確認してください。';}
   }
@@ -4480,7 +4486,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   if((b=$('impBtn')))b.onclick=function(){
     var ms=$('msheet');if(!ms)return;
     ms.innerHTML='<div class="q" style="font-size:19px;margin-bottom:8px">データの読み込み</div>'
-      +'<div class="pwd">書き出しておいた文字列を貼り付けてください。<b>いまの端末の学習データは上書きされます。</b></div>'
+      +'<div class="pwd">書き出しておいた文字列を貼り付けてください。<b>いまの端末の学習データは上書きされます。</b><br><span style="font-size:13px;color:#8a8f99">購入・解放の権利は引き継がれません。購入は「購入を復元」、コードは再入力してください。</span></div>'
       +'<textarea id="impTa" placeholder="ここに貼り付け" style="width:100%;height:24vh;font-size:11px;line-height:1.5;border:1px solid var(--line);border-radius:10px;padding:10px"></textarea>'
       +'<div class="dmsg" id="impMsg"></div>'
       +'<button class="opt" id="impGo" type="button" style="width:100%;margin-top:6px">読み込む</button>'
