@@ -2107,6 +2107,8 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
       <!-- 広告の節：月額の広告非表示のみ。広告が出る環境＆App Storeに商品がある時だけJSが表示する。リワード動画は2026-08-31にユーザー指示で完全撤去 -->
       <div id="adSetBox" style="display:none"><div class="sec-t" style="margin-top:30px">広告</div>
       <div id="noadsBox"><button class="plink" id="noadsBtn" type="button" style="margin-top:6px">広告を完全削除する（買い切り1,200円）</button></div></div>
+      <div class="sec-t" style="margin-top:30px">友達招待・コード入力</div>
+      <button class="dbtn" id="invBtn" style="background:#fff;color:#111;border:1.5px solid #111">招待とコード入力<small style="display:block;font-weight:600;color:#8a8f99">3人招待で英熟語帳がずっと無料</small></button><!-- 2026-09-03 ユーザー要望 -->
       <div class="pnote" style="margin-top:10px">機種変更やアプリを入れ直す前に書き出しておくと、新しい端末で続きから学習できます。</div>
       <button class="dbtn" id="resetBtn" style="background:#fff;color:#111;border:1.5px solid #111;margin-top:22px">学習データをリセット</button>
       <div id="resetConf" style="display:none">
@@ -4300,7 +4302,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function entLoad(){try{var o=JSON.parse(localStorage.getItem('mx2_ent')||'{}');ENT.noads=!!o.noads;ENT.idioms=!!o.idioms;}catch(e){}
     var h=location.hash;if(h==='#premium'){ENT.noads=true;ENT.idioms=true;}else if(h==='#noads')ENT.noads=true;else if(h==='#idioms')ENT.idioms=true;}
   function entSave(){try{localStorage.setItem('mx2_ent',JSON.stringify({noads:ENT.noads,idioms:ENT.idioms,t:Date.now()}));}catch(e){}}
-  function entApply(ids){ids=ids||[];ENT.noads=ids.indexOf(PRODUCTS.noads)>-1;ENT.idioms=ids.indexOf(PRODUCTS.idioms)>-1;entSave();renderPremium();if(ENT.noads&&adOn)adHide(true);if(!ENT.noads)adPrepare();/* 解約後は広告を再開（2026-08-26） */}
+  function entApply(ids){ids=ids||[];ENT.noads=ids.indexOf(PRODUCTS.noads)>-1;ENT.idioms=ids.indexOf(PRODUCTS.idioms)>-1;if(state.entInvite||state.entGift||state.entWeb)ENT.idioms=true;/* 招待3人・ギフト・Web買い切りの永久解放（2026-09-03） */entSave();renderPremium();if(ENT.noads&&adOn)adHide(true);if(!ENT.noads)adPrepare();/* 解約後は広告を再開（2026-08-26） */}
   function skPlugin(){try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.StoreKit2)return C.Plugins.StoreKit2;}catch(e){}return null;}
   function toastMsg(t){var el=$('toast');if(!el)return;el.textContent=t;el.classList.add('on');clearTimeout(window._tt);window._tt=setTimeout(function(){el.classList.remove('on');},Math.min(6000,2200+t.length*60));}
   function closeMSheet(){var m=$('modal'),ms=$('msheet');if(m)m.classList.remove('on');if(ms)ms.innerHTML='';}
@@ -4350,7 +4352,55 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       $('ptClose').onclick=closeMSheet;
       var mb=$('ptMig');if(mb)mb.onclick=function(){state._ptMig=1;ptGain(gain);saveAll();haptic(12);toastMsg('💎 +'+_fmtP(gain)+' を反映しました！');paint();};}
     paint();$('modal').classList.add('on');}
-  window.openPoints=openPoints;/* msheet共通クローズ。settings節のsheetCloseはIIFE内ローカルで外から見えない（2026-08-31 実機バグ修正） */
+  window.openPoints=openPoints;
+  /* ===== 友達招待＆コード入力（2026-09-03 ユーザー要望・世界史v115と同じ暫定クライアント判定） =====
+     ・自分のフレンドコードを共有→友達がインストールすると友達側にもコードが発行される→それを入力して1人カウント
+     ・3人で英熟語帳が永久解放（state.entInvite）。入力1人ごとに+1000💎（3人まで）
+     ・同じ入力欄で GIFT-（プレゼントキャンペーン）と WEB-（Web版買い切りのキー）も受ける。
+       検証はハッシュ照合（_h32）。発行は tools/gen_gift_codes.js */
+  function invCode(){if(!state.friendCode){var B='ABCDEFGHJKMNPQRSTUVWXYZ23456789',t='',i;for(i=0;i<8;i++)t+=B[(Math.random()*B.length)|0];state.friendCode=t.slice(0,4)+'-'+t.slice(4);saveAll();}return state.friendCode;}
+  function _h32(str){var h=5381,i;for(i=0;i<str.length;i++){h=((h<<5)+h+str.charCodeAt(i))|0;}h=Math.abs(h);var B='ABCDEFGHJKMNPQRSTUVWXYZ23456789',o='',j;for(j=0;j<4;j++){o+=B[h%31];h=(h/31)|0;}return o;}
+  function entMergeLocal(){if((state.entInvite||state.entGift||state.entWeb)&&!ENT.idioms){ENT.idioms=true;try{entSave();}catch(e){}try{renderPremium();}catch(e){}}}
+  function applyAnyCode(raw,msgEl,repaint){
+    var v=String(raw||'').trim().toUpperCase().replace(/[^A-Z0-9-]/g,'');
+    function say(t,err){if(msgEl){msgEl.textContent=t;msgEl.className='dmsg'+(err?' err':' ok');}}
+    var mG=v.match(/^GIFT-([A-Z0-9]{5})-([A-Z0-9]{4})$/);
+    if(mG){if(state.entGift){say('ギフトコードは適用済みです',false);return;}
+      if(_h32('mxgift1|'+mG[1])!==mG[2]){say('コードが正しくありません',true);return;}
+      state.entGift=1;entMergeLocal();saveAll();haptic(12);toastMsg('🎁 英熟語帳が解放されました！');say('英熟語帳がずっと使えるようになりました',false);if(repaint)repaint();return;}
+    var mW=v.match(/^WEB-([A-Z0-9]{5})-([A-Z0-9]{4})$/);
+    if(mW){if(state.entWeb){say('このキーは適用済みです',false);return;}
+      if(_h32('mxweb1|'+mW[1])!==mW[2]){say('キーが正しくありません',true);return;}
+      state.entWeb=1;entMergeLocal();saveAll();haptic(12);toastMsg('✅ 購入を確認しました。英熟語帳が使えます');say('英熟語帳がずっと使えるようになりました',false);if(repaint)repaint();return;}
+    var f=v.replace(/-/g,'');if(f.length===8)v=f.slice(0,4)+'-'+f.slice(4);
+    if(!/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(v)){say('コードの形式が違います（例 AB3D-7KQ2）',true);return;}
+    if(v===state.friendCode){say('自分のコードは入力できません',true);return;}
+    state.invites=Array.isArray(state.invites)?state.invites:[];
+    if(state.invites.indexOf(v)>-1){say('このコードは登録済みです',true);return;}
+    state.invites.push(v);
+    var n=state.invites.length;
+    if(n<=3){try{ptGain(1000);}catch(e){}toastMsg('🤝 招待成立 +1000💎（'+Math.min(n,3)+'/3人）');}
+    if(n>=3&&!state.entInvite){state.entInvite=1;entMergeLocal();setTimeout(function(){toastMsg('🎉 3人達成！英熟語帳がずっと無料になりました');},900);}
+    saveAll();say(v+' を登録しました（'+Math.min(n,3)+'/3人）',false);if(repaint)repaint();}
+  function openInvite(){var ms=$('msheet');if(ms)haptic(6);if(!ms)return;
+    function paint(){
+      var n=(state.invites||[]).length,done=!!(state.entInvite||state.entGift||state.entWeb||ENT.idioms);
+      var dots='';for(var i=0;i<3;i++)dots+='<i style="display:inline-block;width:12px;height:12px;border-radius:50%;margin:0 4px;'+(i<Math.min(n,3)?'background:#111':'background:#e2e4e9')+'"></i>';
+      ms.innerHTML='<div class="q" style="font-size:19px;margin-bottom:6px">友達招待・コード入力</div>'
+        +'<div class="pwd" style="margin-bottom:6px">あなたの<b>フレンドコード</b>を友達に共有。友達がアプリを入れると友達にもコードが発行されるので、それをここに入力してください。<b>3人で英熟語帳がずっと無料</b>、1人ごとに<b>+1000💎</b>。</div>'
+        +'<div style="display:flex;gap:8px;margin:10px 0"><input class="dfield" id="myInvCode" readonly value="'+invCode()+'" style="flex:1;margin:0;text-align:center;font-weight:900;letter-spacing:.08em"><button class="dbtn" id="invCopy" type="button" style="width:auto;padding:0 14px;margin:0">コピー</button></div>'
+        +'<div style="text-align:center;margin:6px 0 2px">'+dots+'<span style="font-size:13px;color:#8a8f99;margin-left:8px">'+Math.min(n,3)+'/3人</span>'+(done?'<div style="font-weight:800;margin-top:6px">✓ 英熟語帳は解放済みです</div>':'')+'</div>'
+        +'<div class="sec-t" style="margin-top:14px">コードを入力</div>'
+        +'<input class="dfield" id="invIn" type="text" placeholder="フレンドコード／GIFT-／WEB-" autocapitalize="characters" spellcheck="false">'
+        +'<button class="dbtn" id="invGo" type="button" style="margin-top:8px">適用する</button>'
+        +'<div class="dmsg" id="invMsg"></div>'
+        +'<div class="pwl"><button class="plink" id="invClose" type="button">とじる</button></div>';
+      $('invClose').onclick=closeMSheet;
+      $('invCopy').onclick=function(){var el=$('myInvCode');try{el.select();document.execCommand('copy');}catch(e){}try{if(navigator.clipboard)navigator.clipboard.writeText(invCode());}catch(e){}haptic(6);toastMsg('コードをコピーしました');};
+      $('invGo').onclick=function(){applyAnyCode($('invIn').value,$('invMsg'),paint);};}
+    paint();$('modal').classList.add('on');}
+  window.openInvite=openInvite;
+  (function(){var b=$('invBtn');if(b)b.onclick=function(){openInvite();};})();/* msheet共通クローズ。settings節のsheetCloseはIIFE内ローカルで外から見えない（2026-08-31 実機バグ修正） */
   function renderPremium(){/* 設定の購入ボタンは廃止。いまは英熟語カットインの行のロックだけ更新する（2026-08-27） */
     var ib=$('idmcutBox');if(ib)ib.classList.toggle('locked',!ENT.idioms);}
   function premiumBoot(){entLoad();renderPremium();var sk=skPlugin();if(!sk)return;
@@ -4383,11 +4433,12 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       +(ENT[kind]
         ?'<div class="pwown">'+(na?'✓ 購入済み（広告は表示されません）':'✓ 利用中')+'</div>'
         :'<button class="opt" id="pwBuy" type="button" style="width:100%">'+(na?_price+'で購入する':'月額'+_price+'で登録する')+'</button>')
-      +'<div class="pwl"><button class="plink" id="pwRestore" type="button">購入を復元</button></div>'
+      +'<div class="pwl"><button class="plink" id="pwRestore" type="button">購入を復元</button>'+(na?'':'<span>・</span><button class="plink" id="pwInv" type="button">友達3人の招待で無料</button>')+'</div>'
       +'<div class="pnote">'+(na?'広告の完全削除は一度きりの買い切りです。自動更新や追加のお支払いはありません。機種変更・再インストール後は「購入を復元」で元に戻せます。<br>':_title+'は月額'+_price+'の自動更新サブスクリプションです。期間終了の24時間前までに解約しない限り自動更新され、同額が請求されます。iPhoneの「設定」→ Apple ID →「サブスクリプション」からいつでも解約できます。<br>')+'<a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener">利用規約（EULA）</a>　<a href="https://hazardissei.github.io/memorax-pages/privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a></div>';
     phrasifyDom(ms);$('modal').classList.add('on');
     var _pb=$('pwBuy');if(_pb)_pb.onclick=function(){$('modal').classList.remove('on');ms.innerHTML='';buy(kind);};
-    $('pwRestore').onclick=function(){$('modal').classList.remove('on');ms.innerHTML='';restorePurchases();};}
+    $('pwRestore').onclick=function(){$('modal').classList.remove('on');ms.innerHTML='';restorePurchases();};
+    var _pi=$('pwInv');if(_pi)_pi.onclick=function(){closeMSheet();openInvite();};}
   (function(){var b;if((b=$('buyNoads')))b.onclick=function(){buy('noads');};if((b=$('buyIdioms')))b.onclick=function(){buy('idioms');};
     if((b=$('subInfoBtn')))b.onclick=function(){showPaywall('idioms');};/* 購入済みでも条件をいつでも見られるように（2026-08-29） */
     if((b=$('restoreBtn')))b.onclick=restorePurchases;if((b=$('manageBtn')))b.onclick=manageSubs;
@@ -4570,7 +4621,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     }
   }
   try{applyDark();}catch(e){}setTimeout(function(){try{remindSync();}catch(e){}},12000);/* リマインダー登録。ATTダイアログと重ならないよう遅らせる（2026-09-02） */
-  if(_booted){bakSave();icBackup();showHello();setTimeout(function(){try{loginBonusTick();}catch(e){}},1800);}
+  if(_booted){bakSave();icBackup();try{entMergeLocal();}catch(e){}showHello();setTimeout(function(){try{loginBonusTick();}catch(e){}},1800);}
   else{
     var _startOnboard=function(){narrate($('wNarr'),$('wTap'),'まずはあなたについて\n教えてください',function(){go('sc-grade');});};/* 導入1文（2026-08-02 ユーザー指定・句読点なし） */
     if(location.hash!=='#reset'&&!localStorage.getItem('mx2_state')&&icPlugin()){
