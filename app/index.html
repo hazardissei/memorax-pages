@@ -1636,6 +1636,10 @@
   #sc-miss .scrollbody{min-height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:44px}
   /* 発音記号（2026-08-16 ユーザー要望）：答え表示中だけ英単語の真下に小さくグレーで */
   .wipa{font-size:14.5px;font-weight:600;color:var(--sub);letter-spacing:.03em;margin-top:2px;text-align:center}
+  .wipaRow{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:2px}
+  .wipaRow .wipa{margin-top:0}
+  .wsay{border:1.5px solid var(--line);background:#fff;color:var(--sub);width:26px;height:26px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;padding:0;cursor:pointer}
+  .wsay:active{transform:scale(.92)}
   /* 品詞マーク（2026-08-20改）：意味の中央揃えに影響させず、1行目の左に浮かせて添える */
   .ansb .m{position:relative}
   .posk{position:absolute;transform:translate(-100%,10px);margin-left:-7px;font-size:15px;font-weight:700;color:var(--sub);line-height:1;white-space:nowrap}
@@ -1699,6 +1703,27 @@ html.dark{background:#0e0f12}
 html.dark body{filter:invert(1) hue-rotate(180deg)}/* 背景はライトの#ffのまま反転させて黒にする。ここに暗色を書くと反転で明るくなる（2026-09-02 実機FBで修正） */
 html.dark img{filter:invert(1) hue-rotate(180deg)}
 .addmrow{margin-top:12px}.addmrow .dfield{margin-top:0}.addmrow .chips2{margin-top:6px}
+/* ===== 出題カードの可変レイアウト（2026-09-03） =====
+   全画像は800×533なので、通常時は素材と同じ比率で全体を表示する。
+   縦が足りずtightになった場合もcontainを維持し、上端を切らない。 */
+.aimgbox{height:auto;aspect-ratio:800/533;background:#f3f5f8}
+.aimgbox img{object-fit:contain;object-position:center top}
+@media(max-height:740px){.card.tight .aimgbox.on{display:block}}
+/* 長い単語・熟語は意味のない途中切れを避け、行全体を均等に折り返す */
+.word{max-width:100%;overflow-wrap:anywhere;word-break:normal;text-wrap:balance}
+.word.long{font-size:36px;line-height:1.32}
+.word.xlong{font-size:29px;line-height:1.38;letter-spacing:-.01em}
+.card.revealed .word.long{font-size:23px}
+.card.revealed .word.xlong{font-size:20px}
+/* 行数が多い答え／実測ではみ出す答えを段階的に圧縮する */
+.ansb .m{max-width:100%;overflow-wrap:anywhere;word-break:auto-phrase}
+.ansb .m.dense{font-size:19px!important;line-height:1.55!important}
+.card.anscompact.revealed .wwrap{padding-top:2px}
+.card.anscompact.revealed .word{font-size:21px}
+.card.anscompact .ansb{gap:8px;padding-bottom:18px}
+.card.anscompact .ansb .m{font-size:20px!important;line-height:1.55!important}
+.card.anscompact .ansb .ex{font-size:12.5px;line-height:1.45}
+.card.anscompact .memtxt{margin-top:7px;font-size:12.5px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -1858,7 +1883,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
       <div class="card" id="card">
         <div class="aimgbox" id="aimgbox"><img id="ansImg" alt=""></div>
         <div class="cbdg" id="cbdg"></div>
-        <div class="wwrap"><div class="d5" id="d5"><i></i><i></i><i></i><i></i><i></i></div><div class="impb" id="impBadge" style="display:none"></div><div class="imptip" id="impTip" style="display:none">重要度は、大学過去問の出題率調査に基づくものです。</div><div class="cknown" id="cknown" style="display:none"></div><div class="word" id="word"></div><div class="wipa" id="wipa" style="display:none"></div><div class="csub" id="csub"></div><div class="mhint" id="mhint" style="display:none"></div><div class="fcv" id="fcv" style="display:none"></div></div>
+        <div class="wwrap"><div class="d5" id="d5"><i></i><i></i><i></i><i></i><i></i></div><div class="impb" id="impBadge" style="display:none"></div><div class="imptip" id="impTip" style="display:none">重要度は、大学過去問の出題率調査に基づくものです。</div><div class="cknown" id="cknown" style="display:none"></div><div class="word" id="word"></div><div class="wipaRow" id="wipaRow" style="display:none"><span class="wipa" id="wipa"></span><button class="wsay" id="wsayBtn" type="button" aria-label="発音を再生"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button></div><div class="csub" id="csub"></div><div class="mhint" id="mhint" style="display:none"></div><div class="fcv" id="fcv" style="display:none"></div></div>
         <div class="ansb" id="ansb"><div class="ansimp" id="ansImp" style="display:none"></div><div class="mpick" id="mpick" style="display:none"></div><div class="m" id="ansM"></div><div class="ex" id="ansEx"></div>
           <div class="cfbox" id="cfbox"><button class="cft" id="cfToggle" type="button"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 4.5h3.4l.6 9h-4.6zM12 20a2 2 0 1 0 0-.01"/></svg>混同しやすい単語<svg class="chv" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div class="cflist" id="cfList"></div></div>
           <div class="memtxt" id="memTxt" style="display:none"></div>
@@ -2267,12 +2292,19 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
      読み上げ機構ごと詰まることがあるため、180msデバウンスして連打を1発にまとめる。
      バックグラウンド中は話さない（復帰時に詰まる既知の癖） */
   var _spkT=null;
-  function speakWord(t){try{if(!SNDON)return;if(!('speechSynthesis'in window)||!t)return;
+  function speakWord(t,force){try{if(!force&&!SNDON)return;/* forceは再生ボタン用（2026-09-02） */if(!('speechSynthesis'in window)||!t)return;
     if(_spkT)clearTimeout(_spkT);
     _spkT=setTimeout(function(){_spkT=null;try{
       if(document.hidden)return;
       window.speechSynthesis.cancel();if(!_voice)_voice=pickVoice();var u=new SpeechSynthesisUtterance(t);if(_voice){u.voice=_voice;u.lang=_voice.lang;}else u.lang='en-US';u.rate=.9;u.pitch=1;window.speechSynthesis.speak(u);}catch(e){}},180);
   }catch(e){}}
+  function showWipa(w){var r=$('wipaRow'),p=$('wipa');if(!r||!p)return;window._curW=w||'';
+    var ip=(window.IPA||{})[(w||'').toLowerCase()]||'';
+    p.textContent=ip;p.style.display=ip?'':'none';
+    r.style.display=w?'':'none';}/* 発音記号は問題側に出す。記号が無い語（熟語・派生）もボタンだけ出す（2026-09-02 ユーザー指定） */
+  (function(){var b=$('wsayBtn');if(!b)return;
+    b.addEventListener('pointerdown',function(e){e.stopPropagation();});/* カードのスワイプに拾わせない */
+    b.addEventListener('click',function(e){e.stopPropagation();haptic(4);speakWord(window._curW,true);});})();/* 押すたび何回でも再生（2026-09-02 ユーザー指定）。音声OFF設定でも鳴らす */
   /* mute=true で音・振動なし（問題文・答えは無音固定。ぽつぽつはナレーション/チュートリアル専用） */
   function typeInto(node,text,cb,clr,spd,mute){text=phrasify(text);if(twT)clearInterval(twT);node.innerHTML='<span></span><span class="tw-g"></span>';var sEl=node.firstChild,gEl=node.lastChild;gEl.textContent=text;var i=0;twT=setInterval(function(){if(i>=text.length){clearInterval(twT);twT=null;if(cb)cb();return;}if(clr)sEl.innerHTML=colorConf(text.slice(0,i+1));else sEl.textContent=text.slice(0,i+1);gEl.textContent=text.slice(i+1);var ch=text.charAt(i);if(!mute&&ch!==' '&&ch!=='、'&&ch!=='。'&&ch!=='？'&&ch!=='​'&&ch!=='\n')pop();i++;},spd||55);}
   function splitSentences(t){var out=[];t.split(/\n{2,}/).forEach(function(p){p=p.trim();if(!p)return;var m=p.match(/[^。？]*[。？]|[^。？]+$/g);if(m)m.forEach(function(x){x=x.trim();if(x)out.push(x);});else out.push(p);});return out;}
@@ -2401,7 +2433,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     paintImp(null);/* チェイン中は重要度バッジ非表示 */
     var isAlt=chainData.kind==='alt',isIdm=chainData.kind==='idiom';if(isIdm)IDM_SHOWN[chainData.w]=1;
     phase='q';conf=null;swipeLock=true;
-    card.classList.remove('revealed');card.style.transition='none';card.style.transform='translateY(-130%) rotate(-5deg)';card.style.opacity=1;card.style.background='';card.style.borderColor='';
+    card.classList.remove('revealed','anscompact','tight','noimg');card.style.transition='none';card.style.transform='translateY(-130%) rotate(-5deg)';card.style.opacity=1;card.style.background='';card.style.borderColor='';
     $('sc-practice').classList.add(isIdm?'dmi':isAlt?'dmo':'dmp');card.classList.add(isIdm?'dci':isAlt?'dco':'dcp');
     $('cbdg').innerHTML=isIdm?'<span class="cpill i">熟語</span><span class="cparent">'+chainData.parent+' を含む熟語</span>':isAlt
       ?'<span class="cpill o">難訳</span><span class="cparent">'+chainData.parent+' の ②</span>'
@@ -2415,22 +2447,20 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     $('pcount').innerHTML=(curTask==='goku'?(fmtN(FCTOTAL)+' <small>問</small>'):((idx+1)+' <small>/ '+queue.length+' 問</small>'))+' <small style="color:'+(isIdm?'#8a6a00':isAlt?'#b4770a':'#7c5cff')+';font-weight:800">＋チェイン</small>';
     var f=$('pflash');f.className='pflash '+(isIdm?'i':isAlt?'o':'p')+' on';setTimeout(function(){f.classList.remove('on');},170);
     var cb=$('chainb');cb.classList.toggle('o',isAlt);cb.classList.toggle('i',isIdm);$('chainbT').textContent=isIdm?'熟語チェイン':isAlt?'難訳チェイン':'派生チェイン';cb.classList.remove('pop');void cb.offsetWidth;cb.classList.add('pop');setTimeout(function(){cb.classList.remove('pop');},1500);
-    typeInto($('word'),chainData.w,null,false,22,true);if(!isAlt)speakWord(chainData.w);
+    sizeQuestionWord(chainData.w);typeInto($('word'),chainData.w,null,false,22,true);showWipa(chainData.w);if(!isAlt)speakWord(chainData.w);
     setTags();pbtns.innerHTML='';paintLamps();
     requestAnimationFrame(function(){requestAnimationFrame(function(){
       card.style.transition='transform .34s cubic-bezier(.2,.9,.3,1.3)';card.style.transform='';
       setTimeout(function(){haptic(18);card.style.transition='';swipeLock=false;},350);
     });});
   }
-  function renderCard(){var d=queue[idx];if(!d){finishPractice();return;}/* 範囲外なら固まらず終了（2026-08-14） */phase='q';conf=null;swipeLock=(coaching&&idx===0);chainMode=false;card.classList.remove('revealed','dcp','dco','dci');/* dci(熟語の黄色)が抜けていて、カットインの後の普通のカードまで黄色いままだった（2026-08-27） */$('cbdg').innerHTML='';$('cknown').style.display='none';$('csub').textContent='';var _wp0=$('wipa');if(_wp0){_wp0.textContent='';_wp0.style.display='none';}
+  /* 問題側の長い英単語・熟語を文字数で2段階縮小。空白のない長語もCSSで安全に折る */
+  function sizeQuestionWord(w){var el=$('word');if(!el)return;var n=Array.from(String(w||'')).length;el.classList.toggle('long',n>15);el.classList.toggle('xlong',n>22);}
+  function renderCard(){var d=queue[idx];if(!d){finishPractice();return;}/* 範囲外なら固まらず終了（2026-08-14） */phase='q';conf=null;swipeLock=(coaching&&idx===0);chainMode=false;card.classList.remove('revealed','dcp','dco','dci','anscompact','tight','noimg');/* dci(熟語の黄色)が抜けていて、カットインの後の普通のカードまで黄色いままだった（2026-08-27） */$('cbdg').innerHTML='';$('cknown').style.display='none';$('csub').textContent='';var _wp0=$('wipa');if(_wp0){_wp0.textContent='';_wp0.style.display='none';}
     paintMHint(d);window._qalt=(function(){var _mh=$('mhint');return _mh&&_mh.style.display!=='none';})();/* 「〜以外の意味は？」は読むのに時間がかかるので秒数判定を免除（2026-08-14） */paintFCurve(d);$('sc-practice').classList.remove('dmp','dmo','dmi');
     $('sc-practice').classList.toggle('bkidm',(BOOKS[CURBOOK]||{}).id==='idioms');/* 英熟語帳を回している間は黄色を薄く敷く（2026-08-27） */
-    card.style.transition='';card.style.transform='';card.style.opacity=1;card.style.background='';card.style.borderColor='';window._qT0=null;window._qdt=null;typeInto($('word'),d.w,function(){window._qT0=Date.now();/* 表示完了から計測（2026-08-13） */},false,coaching?55:22,true);speakWord(d.w);ansb.classList.remove('show');$('ansM').textContent='';$('ansEx').textContent='';var _ai=$('ansImg'),_ab=$('aimgbox');if(_ai)_ai.removeAttribute('src');if(_ab)_ab.classList.remove('on');card.classList.remove('imgmode');var _cf=$('cfbox');if(_cf)_cf.classList.remove('on','open');card.classList.remove('cfopen');var _si=(curTask==='skim'&&lapNo===1)?secInfoOf(d):null;/* スキミング1周目はセクション内位置（2026-08-03 FB・途中開始は途中スタート） */var _pn=_si?_si.pos:(idx+1),_pt=_si?_si.total:queue.length;$('pcount').innerHTML=(curTask==='goku'?(fmtN(FCTOTAL)+' <small>問</small>'):(_pn+' <small>/ '+_pt+' 問</small>'))+(lapNo===2?' <small style="color:#b4770a;font-weight:800">・2周目</small>':'');$('ppbar').style.width=(curTask==='goku'?(FCLAP/FCGOAL*100):(_pn/_pt*100))+'%';var _gm=$('goalmk');if(_gm){_gm.textContent=curTask==='goku'?(FCGOAL+'問'):'';_gm.style.display=curTask==='goku'?'':'none';}var _pp=$('ppct');if(_pp)_pp.textContent=Math.round(_pn/_pt*100)+'%';paintImp(d);setTags();tintCard();pbtns.innerHTML='';paintLamps();hideCoach();if(coachTimer)clearTimeout(coachTimer);if(coaching&&idx===0)coachTimer=setTimeout(function(){showCoach('imagine');},1200);if(PLAT==='web'&&state.wimg!=='オフ'){try{var _pf9=(d.img||WIMG[d.w]);if(_pf9){var _pi9=new Image();_pi9.src=_pf9;}}catch(e){}}/* Web: 出題中に答え画像を先読みして、開いた瞬間に出す（2026-08-31） */}
-  /* 答えの意味を整形（2026-07-19 データ掃除後版）：長い意味は語義の「、」で改行（カッコ内の「、」は無視） */
-  /* 答えの意味の整形。読点ごとの強制改行は 2026-08-10 に廃止（古典版と同じに揃えた）。
-     中央揃えで読点で折ると行長がばらつき、階段状になって読みにくかった。
-     実測：33字の訳で 強制改行あり=4行・行幅の差234px ／ なし=3行・差65px。
-     折り返しはブラウザの均等配分（text-wrap:balance）に任せる。 */
+    card.style.transition='';card.style.transform='';card.style.opacity=1;card.style.background='';card.style.borderColor='';window._qT0=null;window._qdt=null;sizeQuestionWord(d.w);typeInto($('word'),d.w,function(){window._qT0=Date.now();/* 表示完了から計測（2026-08-13） */},false,coaching?55:22,true);speakWord(d.w);showWipa(d.w);ansb.classList.remove('show');$('ansM').textContent='';$('ansEx').textContent='';var _ai=$('ansImg'),_ab=$('aimgbox');if(_ai)_ai.removeAttribute('src');if(_ab)_ab.classList.remove('on');card.classList.remove('imgmode');var _cf=$('cfbox');if(_cf)_cf.classList.remove('on','open');card.classList.remove('cfopen');var _si=(curTask==='skim'&&lapNo===1)?secInfoOf(d):null;/* スキミング1周目はセクション内位置（2026-08-03 FB・途中開始は途中スタート） */var _pn=_si?_si.pos:(idx+1),_pt=_si?_si.total:queue.length;$('pcount').innerHTML=(curTask==='goku'?(fmtN(FCTOTAL)+' <small>問</small>'):(_pn+' <small>/ '+_pt+' 問</small>'))+(lapNo===2?' <small style="color:#b4770a;font-weight:800">・2周目</small>':'');$('ppbar').style.width=(curTask==='goku'?(FCLAP/FCGOAL*100):(_pn/_pt*100))+'%';var _gm=$('goalmk');if(_gm){_gm.textContent=curTask==='goku'?(FCGOAL+'問'):'';_gm.style.display=curTask==='goku'?'':'none';}var _pp=$('ppct');if(_pp)_pp.textContent=Math.round(_pn/_pt*100)+'%';paintImp(d);setTags();tintCard();pbtns.innerHTML='';paintLamps();hideCoach();if(coachTimer)clearTimeout(coachTimer);if(coaching&&idx===0)coachTimer=setTimeout(function(){showCoach('imagine');},1200);if(PLAT==='web'&&state.wimg!=='オフ'){try{var _pf9=(d.img||WIMG[d.w]);if(_pf9){var _pi9=new Image();_pi9.src=_pf9;}}catch(e){}}/* Web: 出題中に答え画像を先読みして、開いた瞬間に出す（2026-08-31） */}
+  /* 答えの意味は1義1行。「、」で分けるが、括弧内の列挙は同じ行に保つ。 */
   function fmtMean(m){/* 1義1行（2026-08-14 ユーザー指定）。括弧内の読点では割らない */
     if(!m)return m;var t=String(m),out=[],cur='',dep=0,i,c;
     for(i=0;i<t.length;i++){c=t.charAt(i);
@@ -2438,12 +2468,13 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
       if(c==='、'&&dep===0){if(cur)out.push(cur);cur='';}else cur+=c;}
     if(cur)out.push(cur);
     return out.join('\n');}
-  function reveal(c){window._qdt=(!chainMode&&window._qT0)?(Date.now()-window._qT0):null;/* 解答時間＝表示完了→最初のスワイプ（2026-08-13） */conf=c;phase='a';if(coaching&&idx===0&&!chainMode)swipeLock=true;/* 「答え合わせです」のコーチとデモが終わるまでスワイプ不可（2026-08-14）。解除はdemoAns末尾 */card.classList.add('revealed');ansb.classList.add('show');if(coachTimer)clearTimeout(coachTimer);hideCoach();card.classList.add('snap');card.style.transform='';card.style.background='';card.style.borderColor='';setTimeout(function(){card.classList.remove('snap');},220);var d=chainMode?chainData:queue[idx];var _wp=$('wipa');if(_wp){var _ip9=(window.IPA||{})[(d.w||'').toLowerCase()]||'';/* 発音記号（2026-08-16）。熟語はデータなし＝非表示が正 */_wp.textContent=_ip9;/* スラッシュなし（2026-08-20 ユーザー指定） */_wp.style.display=_ip9?'':'none';}var ai=$('ansImg'),ab=$('aimgbox');if(ai&&ab){ab.classList.remove('on');card.classList.remove('imgmode');var ip=state.wimg==='オフ'?null:(chainMode&&chainData&&chainData.kind==='alt')?(WIMG[d.w]?WIMG[d.w].replace(/\.(webp|jpg)$/,'_2.$1'):null):(d.img||WIMG[d.w]);/* 難訳は専用の_2画像（2026-08-05）。設定で画像オフ可 *//* 難訳（②の意味）は別概念なので画像を出さない（2026-08-03 FB）。派生チェインは対象 */if(ip){ai._alt=0;ai.onload=function(){ab.classList.add('on');card.classList.add('imgmode');if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);/* 画像は非同期に載るので、載った後で入るかを測り直す。これが無いと縮小判定が画像の読み込み順に左右される（2026-08-31） */};ai.onerror=function(){/* webp↔jpg を1回だけ入れ替えて再試行（2026-08-26） */var _s=ai.src;if(!ai._alt){ai._alt=1;if(_s.slice(-5)==='.webp'){ai.src=_s.slice(0,-5)+'.jpg';return;}if(_s.slice(-4)==='.jpg'){ai.src=_s.slice(0,-4)+'.webp';return;}if(_s.slice(-4)==='.png'){ai.src=_s.slice(0,-4)+'.jpg';return;}}ab.classList.remove('on');card.classList.remove('imgmode');if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);};ai.src=ip;}}var _pl=d.kind==='alt'?'':(function(){var _p9=(window.POSD||{})[(d.w||'').toLowerCase()];if(_p9)return '（'+_p9+'）';return d.pos?'（'+d.pos+'）':'';})();/* 品詞マーク（2026-08-16）：見出しはPOSD、派生は従来のpos */var _mBody=d.m;var _um=USERMEAN[d.w];if(_um)_mBody+='、'+_um;_mBody=fmtMean(_mBody);memSetup((d.w||'').toLowerCase());var _am=$('ansM');if(_am){var _ml=Math.max.apply(null,_mBody.split('\n').map(function(s){return s.length;}));_am.classList.toggle('long',_ml>11);}var _ib=$('ansImp');if(_ib){var _tx='';if(!chainMode){var _bk2=BOOKS[CURBOOK]&&BOOKS[CURBOOK].id;if(d&&d.cnt!=null&&(_bk2==='waseda'||_bk2==='keio')){var _un=(_bk2==='waseda'?'早稲田':'慶応');
+  function sizeAnswerText(body){var el=$('ansM');if(!el)return;var lines=String(body||'').split('\n'),max=Math.max.apply(null,lines.map(function(s){return s.length;})),total=lines.join('').length;el.classList.toggle('long',max>11||total>22||lines.length>=4);el.classList.toggle('dense',max>18||total>38||lines.length>=6);}
+  function reveal(c){window._qdt=(!chainMode&&window._qT0)?(Date.now()-window._qT0):null;/* 解答時間＝表示完了→最初のスワイプ（2026-08-13） */conf=c;phase='a';if(coaching&&idx===0&&!chainMode)swipeLock=true;/* 「答え合わせです」のコーチとデモが終わるまでスワイプ不可（2026-08-14）。解除はdemoAns末尾 */card.classList.add('revealed');ansb.classList.add('show');if(coachTimer)clearTimeout(coachTimer);hideCoach();card.classList.add('snap');card.style.transform='';card.style.background='';card.style.borderColor='';setTimeout(function(){card.classList.remove('snap');},220);var d=chainMode?chainData:queue[idx];var _wr9=$('wipaRow');if(_wr9)_wr9.style.display='none';/* 発音記号と再生ボタンは問題側だけに出す（2026-09-02 ユーザー指定・答えには出さない） */var ai=$('ansImg'),ab=$('aimgbox');if(ai&&ab){ab.classList.remove('on');card.classList.remove('imgmode');var ip=state.wimg==='オフ'?null:(chainMode&&chainData&&chainData.kind==='alt')?(WIMG[d.w]?WIMG[d.w].replace(/\.(webp|jpg)$/,'_2.$1'):null):(d.img||WIMG[d.w]);/* 難訳は専用の_2画像（2026-08-05）。設定で画像オフ可 *//* 難訳（②の意味）は別概念なので画像を出さない（2026-08-03 FB）。派生チェインは対象 */if(ip){ai._alt=0;ai.onload=function(){ab.classList.add('on');card.classList.add('imgmode');if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);/* 画像は非同期に載るので、載った後で入るかを測り直す。これが無いと縮小判定が画像の読み込み順に左右される（2026-08-31） */};ai.onerror=function(){/* webp↔jpg を1回だけ入れ替えて再試行（2026-08-26） */var _s=ai.src;if(!ai._alt){ai._alt=1;if(_s.slice(-5)==='.webp'){ai.src=_s.slice(0,-5)+'.jpg';return;}if(_s.slice(-4)==='.jpg'){ai.src=_s.slice(0,-4)+'.webp';return;}if(_s.slice(-4)==='.png'){ai.src=_s.slice(0,-4)+'.jpg';return;}}ab.classList.remove('on');card.classList.remove('imgmode');if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);};ai.src=ip;}}var _pl=d.kind==='alt'?'':(function(){var _p9=(window.POSD||{})[(d.w||'').toLowerCase()];if(_p9)return '（'+_p9+'）';return d.pos?'（'+d.pos+'）':'';})();/* 品詞マーク（2026-08-16）：見出しはPOSD、派生は従来のpos */var _mBody=d.m;var _um=USERMEAN[d.w];if(_um)_mBody+='、'+_um;_mBody=fmtMean(_mBody);memSetup((d.w||'').toLowerCase());var _am=$('ansM');if(_am){var _ml=Math.max.apply(null,_mBody.split('\n').map(function(s){return s.length;}));_am.classList.toggle('long',_ml>11);}var _ib=$('ansImp');if(_ib){var _tx='';if(!chainMode){var _bk2=BOOKS[CURBOOK]&&BOOKS[CURBOOK].id;if(d&&d.cnt!=null&&(_bk2==='waseda'||_bk2==='keio')){var _un=(_bk2==='waseda'?'早稲田':'慶応');
         /* セクション＝学部なので、その学部での回数を主に出す。大学全体の計も併記する。
            従来は全セクションで大学全体の計だけを出していて、学部の実数と最大32倍ずれていた（2026-08-30） */
         _tx=(d.fc!=null&&d.g)?(d.g+'で'+d.fc+'回 ／ '+_un+'全体'+d.cnt+'回'):(_un+'全体で'+d.cnt+'回');}else if(d&&d.cnt!=null&&_bk2==='idioms')_tx=idmLvl(d.g)+'で出題 '+d.cnt+'回';else{var _v2=impPct(d);if(_v2!=null)_tx=state.level+'レベル重要度 '+_v2+'%';}}else if(chainData&&chainData.kind==='idiom'&&chainData.cnt!=null)_tx=idmLvl(chainData.g)+'で出題 '+chainData.cnt+'回';_ib.textContent=_tx;_ib.style.display=_tx?'':'none';ansb.classList.toggle('hasimp',!!_tx);/* 重要度ピルは絶対配置なので、出るときは必ず上に余白を確保する。画像オフや読み込み前でも重ならないように（2026-08-27 実機報告 principal/issue/adopt） */}
     /* 答えはタイプ演出なしの一発表示（2026-08-20 ユーザー指定。ズレて見える問題も根絶） */
-    finalizeMean(d,_pl,_mBody);setExample(d);
+    sizeAnswerText(_mBody);finalizeMean(d,_pl,_mBody);setExample(d);
     if(coaching&&idx===0&&!chainMode)setTimeout(function(){showCoach('result');},600);
     paintConfuse(d);haptic(6);setTags();pbtns.innerHTML='';}
   /* ===== 意味の絞り込み（2026-08-09・古典版から移植） =====
@@ -2821,9 +2852,11 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
      .app が overflow:hidden なので、はみ出した分はスクロールもできずに切れてしまう。
      いったん tight を外して素の高さで測り直してから判定する（2026-08-27） */
   function fitCard(){var c=$('card');if(!c||!c.classList.contains('revealed'))return;
-    c.classList.remove('tight');c.classList.remove('noimg');
-    if(c.getBoundingClientRect().bottom>window.innerHeight-4){c.classList.add('tight');
-      if(c.getBoundingClientRect().bottom>window.innerHeight-4)c.classList.add('noimg');/* 縮めても入らない：切れた写真を出すより隠す（2026-08-31） */}}
+    var lim=Math.min(window.innerHeight,document.documentElement.clientHeight||window.innerHeight)-4;
+    c.classList.remove('anscompact','tight','noimg');
+    if(c.getBoundingClientRect().bottom>lim)c.classList.add('anscompact');/* まず意味・例文・余白を詰める */
+    if(c.getBoundingClientRect().bottom>lim)c.classList.add('tight');/* 次に画像を全体表示のまま縮める */
+    if(c.getBoundingClientRect().bottom>lim)c.classList.add('noimg');/* 極端に低い画面だけの最終手段 */}
   window.addEventListener('resize',function(){if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);});/* 回転・キーボードで測り直す（2026-08-31） */
   function memSetup(w){window._memW=w;var b=$('memBtn'),t=$('memTxt');if(!b)return;var n=NOTES[w]||'';
     b.textContent=n?'メモ':'＋ メモ';b.classList.toggle('has',!!n);
