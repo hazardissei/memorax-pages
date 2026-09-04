@@ -2387,6 +2387,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     if(flyLock)return;/* スワイプアニメ中の戻るは無視（2026-08-14 固まり対策） */
     if(phase==='a'){if(chainMode){chainDrop();}else{renderCard();}return;}
     var h=HIST.pop();if(!h)return;
+    if(h.t==='b')try{adUntick();}catch(e){}/* 通常問題を1問戻したぶんだけ広告カウンタも戻す（2026-09-04） */
     if(h.l!==lapNo){HIST.push(h);return;}
     recs.pop();
     if(h.t==='b'){
@@ -3039,7 +3040,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     for(i=0;i<DECKDATA.length&&a.length<lim;i++){var dd=DECKDATA[i];
       if(dd.st===st&&!dd.drv&&!_sqSeen[dd.w]&&!(t==='skim'&&dd.tut)&&!(t==='skim'&&dd.ad===dayKey(new Date()))){_sqSeen[dd.w]=1;a.push(dd);}}
     return a;}
-  window.startPractice=function(){fromHome=$('sc-home').classList.contains('on')&&!$('modal').classList.contains('on');idx=0;recs=[];SKIMMISS=[];chainCount=0;chainKinds={deriv:0,alt:0,idiom:0};chainMode=false;chainData=null;queue=curTask?taskQueue(curTask):(function(){var a=[],i;for(i=0;i<DECKDATA.length&&a.length<10;i++){if(!DECKDATA[i].drv)a.push(DECKDATA[i]);}var _hasCf=a.some(function(x){return CFMAP[x.w.toLowerCase()];});if(!_hasCf){for(i=0;i<DECKDATA.length;i++){var _cw=DECKDATA[i];if(!_cw.drv&&CFMAP[_cw.w.toLowerCase()]){a[a.length-1]=_cw;break;}}}/* 混同しやすい単語のデモ：最後の1問を一番手前の混同持ちにすり替え（2026-08-14） */for(i=0;i<a.length;i++)a[i].tut=1;/* チュートリアル出題語はスキミングに出さない */return a.length?a:DATA.slice();})();/* チュートリアル=セクション1の先頭10問 */lapNo=1;lapRes=[];last5=[];HIST=[];window._finSnap=null;skimPick=null;skimMode='cont';/* 範囲はその都度選ぶ（2026-08-09） */coaching=!state.cards;/* 操作チュートリアルは1日の問題数を決める前だけ。
+  window.startPractice=function(){fromHome=$('sc-home').classList.contains('on')&&!$('modal').classList.contains('on');idx=0;recs=[];SKIMMISS=[];chainCount=0;chainKinds={deriv:0,alt:0,idiom:0};chainMode=false;chainData=null;queue=curTask?taskQueue(curTask):(function(){var a=[],i;for(i=0;i<DECKDATA.length&&a.length<10;i++){if(!DECKDATA[i].drv)a.push(DECKDATA[i]);}var _hasCf=a.some(function(x){return CFMAP[x.w.toLowerCase()];});if(!_hasCf){for(i=0;i<DECKDATA.length;i++){var _cw=DECKDATA[i];if(!_cw.drv&&CFMAP[_cw.w.toLowerCase()]){a[a.length-1]=_cw;break;}}}/* 混同しやすい単語のデモ：最後の1問を一番手前の混同持ちにすり替え（2026-08-14） */for(i=0;i<a.length;i++)a[i].tut=1;/* チュートリアル出題語はスキミングに出さない */return a.length?a:DATA.slice();})();/* チュートリアル=セクション1の先頭10問 */lapNo=1;lapRes=[];last5=[];HIST=[];SESSQ=0;window._finSnap=null;skimPick=null;skimMode='cont';/* 開始直後の3問は広告なし、を毎セット効かせる（2026-09-04 バグ調査） *//* 範囲はその都度選ぶ（2026-08-09） */coaching=!state.cards;/* 操作チュートリアルは1日の問題数を決める前だけ。
      !fromHome のままだと範囲選択画面から開始するたびにコーチが出る（2026-08-09） */$('sc-practice').style.setProperty('--pac','#2261f5');/* 青統一（2026-07-30） */var pq=$('pquit');if(pq)pq.style.display=state.cards?'':'none';ensureAudio();go('sc-practice');renderCard();};
   window.startTask=function(t){
     /* ライブラリからは範囲を選んでから開始する（2026-08-09）。ライブラリと同じ一覧をそのまま使う */
@@ -4642,6 +4643,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function adMob(){try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.AdMob)return C.Plugins.AdMob;}catch(e){}return null;}
   function adsEnabled(){if(!ADS.unit)return false;/* そのOSのユニットIDが未採番なら出さない（2026-08-29） */if(ENT.noads)return false;if(!state.cards||coaching)return false;if(SOLVED<ADS.minSolved)return false;if(adFail>=ADS.maxFail)return false;/* 在庫なし・オフライン等が続いたらこのセッションは出さない（2026-08-26） */if(!adCapOK())return false;/* 回数・間隔の上限（2026-09-03） */return !!adMob()||location.hash==='#ads';}
   function adCountSave(){try{localStorage.setItem('mx2_adq',''+ADQ);}catch(e){}}
+  function adUntick(){if(ADQ>0)ADQ--;if(SESSQ>0)SESSQ--;if(ADQ<ADS.every)adPending=false;adCountSave();}/* 「1問戻る」の巻き戻し。これが無いと戻して解き直すたびに二重計上され、体感より早く広告が出る（2026-09-04 バグ調査） */
   /* 表示回数の上限（2026-09-03）。1日ぶんは端末に保存、セッションぶんと最短間隔はメモリ */
   var ADSESS=0,_adLast=0,_adDayMem=null;
   function adDay(){var tk=dayKey(new Date());
@@ -4663,14 +4665,16 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     adCountSave();}
   function nextCardA(){if(adPending&&SESSQ>=3)showAdCard(nextCard);else nextCard();}/* セット最終問でも出す。ただし持ち越し分があっても開いた直後の1〜2問目では出さない（2026-09-02） */
   function adImpression(){ADQ=0;adPending=false;ADSESS++;_adLast=Date.now();adDayBump();adCountSave();}/* 実際に画面へ出た時だけ問題数と回数を消費する */
+  var _adAttempt=false;/* 表示を1回試みている最中か。イベントとpromiseの二重計上を防ぐ（2026-09-04） */
+  function adShowFailed(){if(!_adAttempt)return;_adAttempt=false;adReady=false;adFail++;adFallback();adRetrySoon();}/* どちらの経路で来ても1回だけ数え、在庫の状態も正しく戻す */
   function adRetrySoon(){if(adRetryTimer||adReady||ENT.noads||adFail>=ADS.maxFail)return;adRetryTimer=setTimeout(function(){adRetryTimer=null;adPrepare();},20000);}
   function adsBoot(){if(!ADS.unit)return;/* そのOSのユニットIDが未採番ならSDKごと動かさない（2026-08-30） */
     var am=adMob();if(!am||adInit)return;adInit=true;am.initialize({initializeForTesting:ADS.test}).catch(function(){});
     try{
       am.addListener('interstitialAdLoaded',function(){adReady=true;adLoading=false;adFail=0;if(adRetryTimer){clearTimeout(adRetryTimer);adRetryTimer=null;}});
       am.addListener('interstitialAdFailedToLoad',function(){adReady=false;adLoading=false;adFail++;if(adOn)adFallback();adRetrySoon();/* 在庫切れ等は少し置いて取り直す（2026-09-02） */});
-      am.addListener('interstitialAdShowed',function(){if(adTimer){clearTimeout(adTimer);adTimer=null;}adImpression();});/* 実表示を確認してから問題カウントを戻す */
-      am.addListener('interstitialAdFailedToShow',function(){adReady=false;adFail++;adFallback();});
+      am.addListener('interstitialAdShowed',function(){_adAttempt=false;if(adTimer){clearTimeout(adTimer);adTimer=null;}adImpression();});/* 実表示を確認してから問題カウントを戻す */
+      am.addListener('interstitialAdFailedToShow',function(){adShowFailed();});
       am.addListener('interstitialAdDismissed',function(){adReady=false;adDone();adPrepare();/* 閉じたら次の分を仕込む */});
     }catch(e){}
     attBoot(function(){adPrepare();});}
@@ -4709,8 +4713,9 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       if(!adReady){adPrepare();cb();return;}
       adOn=true;window._adCb=cb;
       if(adTimer)clearTimeout(adTimer);
-      adTimer=setTimeout(function(){if(adOn)adFallback();},ADS.waitMs);/* 表示イベントが来ない異常時の保険。interstitialAdShowed が来たら解除される */
-      am.showInterstitial().catch(function(){adFallback();/* 失敗カウントはFailedToShowイベント側だけで数える。promiseとイベントの両方で数えると1回の失敗で+2になる（2026-08-31検証） */});
+      adTimer=setTimeout(function(){if(adOn){adShowFailed();}},ADS.waitMs);/* 表示イベントが来ない異常時の保険。interstitialAdShowed が来たら解除される */
+      _adAttempt=true;
+      am.showInterstitial().catch(adShowFailed);/* 在庫なし・rootVC無しはイベントが出ずrejectだけなので、ここで状態を戻さないと毎問リトライし続ける（2026-09-04 バグ調査） */;
       return;}
     /* Web検証（#ads）：現在は到達不能（Webは ADS.unit が空で adsEnabled が先に弾く）。見た目検証を復活させるなら ADS.unit 分岐より先に #ads を通すこと（2026-08-31検証メモ） */
     adOn=true;window._adCb=cb;ac.style.display='';ac.style.transform='';ac.style.opacity='1';
