@@ -13,7 +13,7 @@
   function safeJson(text){try{return JSON.parse(text);}catch(_){return null;}}
   function nowSeconds(now){return Math.floor(now()/1000);}
   function messageFor(error){return error&&error.message?String(error.message):'権利を確認できませんでした';}
-  function normalizeInviteCode(value){var code=String(value||'').trim().toUpperCase().replace(/[^A-Z0-9-]/g,'');if(!code)return '';if(!/^MX-[0-9A-F]{20}$/.test(code))throw new Error('紹介コードの形式を確認してください');return code;}
+
   function validSession(value){return !!(value&&typeof value==='object'&&typeof value.access_token==='string'&&value.access_token&&typeof value.refresh_token==='string'&&value.refresh_token);}
   function normalizeSession(value,now){
     if(!validSession(value))return null;
@@ -113,10 +113,10 @@
       this.writeSession(session);this.emit({auth:'signed_in',user:this.session.user,error:null});await this.sync();return this.snapshot();
     }catch(error){this.writeSession(null);this.emit({auth:'signed_out',entitlement:'unknown',granted:false,user:null,product:null,content:null,error:messageFor(error)});throw error;}
   };
-  Client.prototype.signUp=async function(email,password,inviteCode){
+  Client.prototype.signUp=async function(email,password){
     email=String(email||'').trim();password=String(password||'');
     if(!email||password.length<8)throw new Error('メールアドレスと8文字以上のパスワードを入力してください');
-    var code=normalizeInviteCode(inviteCode),signupBody={email:email,password:password};if(code)signupBody.data={mx_eitan_invite_code:code};
+    var signupBody={email:email,password:password};
     this.emit({auth:'loading',entitlement:'unknown',granted:false,content:null,error:null});
     try{
       var result=await this.authRequest('signup',signupBody);
@@ -161,10 +161,11 @@
     var payload=await this.functionRequest('eitan-portal',{method:'POST',body:{entitlementKey:this.config.entitlementKey}});
     var url=safeUrl(payload&&payload.url);if(!url)throw new Error('購入管理ページを開けませんでした');return url.href;
   };
-  Client.prototype.referralStatus=function(){return this.functionRequest('eitan-social');};
+  function socialUnavailable(){return Promise.reject(new Error('この機能は現在利用できません'));}
+  Client.prototype.referralStatus=socialUnavailable;
   Client.prototype.redeemCode=function(code){code=String(code||'').trim().toUpperCase();if(!/^MXI-[A-Z0-9]{16}$/.test(code))return Promise.reject(new Error('コードの形式を確認してください'));return this.functionRequest('eitan-redeem',{method:'POST',body:{code:code}});};
-  Client.prototype.updateSocialProfile=function(displayName,sharing){return this.functionRequest('eitan-social',{method:'POST',body:{action:'profile',displayName:String(displayName||'').trim(),sharing:String(sharing||'private')}});};
-  Client.prototype.syncActivity=function(date,answers,uniqueWords){return this.functionRequest('eitan-social',{method:'POST',body:{action:'activity',date:String(date||''),answers:Number(answers),uniqueWords:Number(uniqueWords)}});};
+  Client.prototype.updateSocialProfile=socialUnavailable;
+  Client.prototype.syncActivity=socialUnavailable;
 
-  return {create:function(config,deps){return new Client(config,deps);},Client:Client,SESSION_KEY:SESSION_KEY,ENTITLEMENT_KEY:DEFAULT_KEY,normalizeInviteCode:normalizeInviteCode};
+  return {create:function(config,deps){return new Client(config,deps);},Client:Client,SESSION_KEY:SESSION_KEY,ENTITLEMENT_KEY:DEFAULT_KEY};
 });

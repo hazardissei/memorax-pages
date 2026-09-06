@@ -1,11 +1,13 @@
 {
   "application": "Memora X 大学受験英単語 Web",
-  "release": "2026-09-07-calendar-wallet",
-  "sourceCommit": "3d988a34d0178838d26e6d5dde259ee8163ae65a",
-  "baseInternalBuild": "1.0.5 (127)",
+  "release": "2026-09-07-referrals-retired",
+  "sourceCommit": "6dba00d85f181188e97cd1abfa48a5b7ead24c4e",
+  "baseInternalBuild": "1.0.5 (129)",
   "webLayout": "compact-height-scroll-v1",
   "calendar": "daily-metric-rings-and-incorrect-words-v2",
   "wallet": "eitan-persisted-answer-events-v2",
   "idioms": "locked-not-launched",
-  "webPaymentsConfigured": false
+  "webPaymentsConfigured": false,
+  "referrals": "disabled-existing-earned-rights-preserved",
+  "homeTotalProgressShortcut": "removed"
 }
