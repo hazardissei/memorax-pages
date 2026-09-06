@@ -10,6 +10,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@200;300&display=swap" rel="stylesheet">
 <style>
   :root{--bg:#fbfbfd;--ink:#15171c;--sub:#8b909b;--line:#ebedf1;--ok:#12b76a;--okbg:#e7f8ef;--ng:#f04438;--ngbg:#fdecea;--mid:#f79009;--midbg:#fff4e6}
+  .mx-update-gate{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:24px;background:#f7f8fb;color:#15171c;font-family:"Zen Kaku Gothic New",system-ui,sans-serif}
+  .mx-update-card{width:min(100%,390px);padding:30px 24px;background:#fff;border:1px solid #e6e8ed;border-radius:24px;box-shadow:0 24px 70px rgba(20,24,34,.16);text-align:center}
+  .mx-update-card h1{margin:0 0 12px;font-size:23px}.mx-update-card p{margin:0;color:#5f6673;line-height:1.8}.mx-update-card .mx-update-versions{margin-top:12px;font-size:12px;color:#8a909b}.mx-update-card button{width:100%;margin-top:22px;padding:15px;border:0;border-radius:14px;background:#15171c;color:#fff;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Zen Kaku Gothic New",-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;font-weight:500;-webkit-font-smoothing:antialiased}
   .app{max-width:460px;margin:0 auto;min-height:100vh;position:relative;overflow:hidden}
@@ -124,7 +127,7 @@
   .phead2{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
   .pcpill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:800;box-shadow:0 2px 8px rgba(20,22,30,.06);font-variant-numeric:tabular-nums;letter-spacing:.02em}
   .pcpill small{color:#b6bac1;font-weight:600;font-size:11px;margin-left:2px}
-  .ppct{font-size:11.5px;font-weight:700;color:#b6bac1;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+  .ppct{font-size:10.5px;font-weight:700;color:#8f96a3;font-variant-numeric:tabular-nums;letter-spacing:.01em;white-space:nowrap}
   .pquit,.pundo{width:26px;height:26px;border:none;background:#f1f2f5;border-radius:50%;color:#8b909b;font-size:14px;font-weight:800;cursor:pointer;line-height:1;font-family:inherit}
   .pbar{height:6px;background:#eef0f3;border-radius:999px;margin-bottom:16px;overflow:visible}
   .pbar>i{display:block;height:100%;width:0;background:var(--pac,var(--ok));border-radius:999px;transition:width .35s cubic-bezier(.2,.7,.3,1);box-shadow:0 0 10px color-mix(in srgb,var(--pac,#12b76a) 55%,transparent)}
@@ -243,6 +246,9 @@
   .btns button{flex:1;border:1px solid var(--line);background:#fff;border-radius:14px;padding:13px 6px;font-size:15px;font-weight:800;cursor:pointer;color:var(--ink)}
   .btns .b-ok{border-color:#bbe8cc;color:var(--ok);background:var(--okbg)}.btns .b-ng{border-color:#f4c4c4;color:var(--ng);background:var(--ngbg)}.btns .b-mid{border-color:#f3ddb0;color:#b4770a;background:var(--midbg)}
   .btns small{display:block;font-weight:700;color:var(--sub);font-size:11px;margin-top:3px}
+  .practice-noads-row{display:none;flex:0 0 auto;justify-content:flex-end;margin-top:8px;min-height:44px}
+  .practice-noads{min-height:44px;min-width:104px;padding:8px 12px;border:1px solid #d9dce2;background:#fff;color:#747b87;border-radius:999px;font:700 12px/1.2 inherit;letter-spacing:.02em;cursor:pointer;touch-action:manipulation}
+  .practice-noads:focus-visible{outline:3px solid #2261f5;outline-offset:2px}
   .coach{position:absolute;inset:0;z-index:26;display:none;align-items:center;justify-content:center;padding:30px;background:rgba(250,250,253,.42);backdrop-filter:blur(13px);-webkit-backdrop-filter:blur(13px)}
   .coach.on{display:flex}
   .csheet{width:100%;max-width:400px;background:transparent;box-shadow:none;padding:0;animation:up .3s ease}
@@ -1135,6 +1141,41 @@
   #sc-calendar .mcell.today{box-shadow:inset 0 0 0 2px #15171c !important}
   #sc-calendar .mcell.today.done{box-shadow:none !important}
   #sc-calendar .note{background:#fff;border:1px solid #ececef;border-radius:14px;padding:12px 14px;color:#7d828c;font-size:12px;line-height:1.8}
+  /* 月別学習量（N011）：回答は目標比、件数指標は月内最大との相対量。旧履歴の欠測を0に見せない。 */
+  #sc-calendar .calmetrics{display:flex;gap:7px;overflow-x:auto;margin:12px -2px 14px;padding:2px 2px 5px;scrollbar-width:none}
+  #sc-calendar .calmetrics::-webkit-scrollbar{display:none}
+  #sc-calendar .cmchip{flex:0 0 auto;min-height:40px;border:1px solid #dfe4ec;border-radius:999px;background:#fff;color:#596274;padding:8px 13px;font:700 12px/1.2 inherit;cursor:pointer}
+  #sc-calendar .cmchip.on{background:var(--h2b);border-color:var(--h2b);color:#fff}
+  #sc-calendar .cmchip:focus-visible,#sc-calendar .mcell:focus-visible{outline:3px solid rgba(34,97,245,.28);outline-offset:2px}
+  #sc-calendar .mcalgrid{gap:8px 3px}
+  #sc-calendar .mcell{appearance:none;padding:0;cursor:pointer;min-width:0;background:none !important}
+  #sc-calendar .mcell .mring{width:100%;aspect-ratio:1;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--h2b) calc(var(--p,0)*1%),#e7ebf2 0)}
+  #sc-calendar .mcell .mring::before{content:"";position:absolute;inset:4px;border-radius:50%;background:#fff}
+  #sc-calendar .mcell .dn{position:relative;z-index:1;font-size:13px;font-weight:800;color:#303744}
+  #sc-calendar .mcell.zero .mring{background:#e7ebf2}
+  #sc-calendar .mcell.missing .mring{background:#fff;border:1.5px dashed #c8ced8}
+  #sc-calendar .mcell.missing .mring::before,#sc-calendar .mcell.fut .mring::before{display:none}
+  #sc-calendar .mcell.fut{cursor:default}
+  #sc-calendar .mcell.fut .mring{background:#f4f5f8}
+  #sc-calendar .mcell.fut .dn{color:#c1c6cf}
+  #sc-calendar .mcell.today{box-shadow:none !important}
+  #sc-calendar .mcell.today .dn::after{content:"";position:absolute;width:4px;height:4px;border-radius:50%;background:var(--h2b);left:50%;top:calc(100% + 2px);transform:translateX(-50%)}
+  #sc-calendar .mcell.selected .mring{box-shadow:0 0 0 3px #fff,0 0 0 5px #1b2433}
+  #sc-calendar .callegend{display:flex;gap:8px;align-items:flex-start;margin:12px 2px 0;color:#737b89;font-size:11.5px;font-weight:600;line-height:1.55}
+  #sc-calendar .callegend::before{content:"i";flex:0 0 auto;width:17px;height:17px;border-radius:50%;background:#e9eefb;color:var(--h2b);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;margin-top:1px}
+  #sc-calendar .caldetail{margin-top:14px;background:#fff;border:1px solid #e4e8ef;border-radius:18px;padding:15px;box-shadow:0 1px 3px rgba(20,22,30,.04)}
+  #sc-calendar .cdhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+  #sc-calendar .cdtitle{font-size:15px;font-weight:900;color:#182132}
+  #sc-calendar .cdstate{font-size:11px;font-weight:800;color:#78808e;background:#f1f3f7;border-radius:999px;padding:5px 9px}
+  #sc-calendar .cdstate.has{color:var(--h2b);background:#edf3ff}
+  #sc-calendar .cdgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #sc-calendar .cdmetric{background:#f6f8fb;border-radius:12px;padding:10px 11px;min-width:0}
+  #sc-calendar .cdmetric.wide{grid-column:1/-1}
+  #sc-calendar .cdmetric .k{display:block;color:#7d8593;font-size:10.5px;font-weight:700;margin-bottom:3px}
+  #sc-calendar .cdmetric .v{display:block;color:#182132;font-size:18px;font-weight:900;font-variant-numeric:tabular-nums}
+  #sc-calendar .cdmetric .v small{font-size:11px;color:#707887;font-weight:700;margin-left:4px}
+  #sc-calendar .cdempty{color:#7d8593;font-size:12px;line-height:1.7;padding:4px 1px}
+  @media(max-height:700px){#sc-calendar .caldetail{padding:12px;margin-top:10px}#sc-calendar .cdmetric{padding:8px 10px}#sc-calendar .calmetrics{margin-bottom:9px}}
   .calstreak2{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #ececef;border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:800;color:#15171c}
   /* 名言：2〜3行に収まるサイズ（起動あいさつのみ） */
   #helloNarr .line{font-size:20px !important;line-height:2.15 !important;letter-spacing:.02em !important;font-weight:700 !important}
@@ -1415,6 +1456,7 @@
   .hxstat b{color:var(--h2ink);font-weight:900;font-size:14px}
   .hxstat i{font-style:normal;margin:0 1px}
   .hxstat .dotsep{margin:0 7px;color:#aab3c2}
+  /* v1.0.6 のキャラクターホーム試作は previews/v1.0.6 に隔離し、v1.0.5 本体へは読み込まない。 */
   /* ===== 苦手システム（2026-08-13）：瞬発力不足＝青 ===== */
   .d5 i.slow{background:#2261f5;box-shadow:0 0 7px rgba(34,97,245,.45)}
   .mdots i.b{background:#2261f5 !important}
@@ -1628,8 +1670,15 @@
     background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 14px 10px;
     max-height:calc(100% - 24px);overflow-y:auto;box-shadow:0 -8px 30px rgba(20,20,30,.12)}
   .mpick .mpq{font-size:13px;font-weight:800;color:var(--sub);margin-bottom:10px}
-  .mpick .mpb{display:block;width:100%;margin-bottom:8px;padding:11px 14px;border:1.5px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;text-align:left}
-  .mpick .mpb.on{border-color:var(--ink);background:var(--ink);color:#fff}
+  .mpick .mpb{display:block;width:100%;min-height:48px;margin-bottom:8px;padding:11px 46px 11px 14px;border:2px solid #c9ced8;border-radius:10px;background:#fff;color:var(--ink);font-size:clamp(15px,3.8vw,18px);line-height:1.5;font-weight:750;font-family:inherit;cursor:pointer;text-align:left;position:relative;overflow-wrap:anywhere}
+  .mpick .mpb[data-i]::after{content:'✓';position:absolute;right:13px;top:50%;width:25px;height:25px;transform:translateY(-50%) scale(.75);display:flex;align-items:center;justify-content:center;border:2px solid #7c8492;border-radius:50%;color:transparent;font-size:16px;font-weight:900;transition:.12s}
+  .mpick .mpb.on{border-color:#111;background:#111;color:#fff}
+  .mpick .mpb.on::after{border-color:#fff;background:#fff;color:#111;transform:translateY(-50%) scale(1)}
+  .mpick .mpb:focus-visible{outline:3px solid #2878ff;outline-offset:3px;box-shadow:0 0 0 6px rgba(40,120,255,.22)!important}
+  .mpick .mpdone{padding-right:14px;text-align:center;border-color:#111}
+  .mpick .mperr{min-height:20px;margin:-1px 2px 8px;color:#c5221f;font-size:13px;font-weight:800;line-height:1.5}
+  .meanline{display:block;min-height:1.55em}
+  .gramk{display:inline-flex;align-items:center;vertical-align:.16em;margin:0 7px 2px 0;padding:2px 6px;border:1.5px solid currentColor;border-radius:999px;color:#596171;font-size:11px;font-weight:900;line-height:1.25;letter-spacing:.02em;white-space:nowrap}
   .mpick.shake{animation:mpshake .42s cubic-bezier(.36,.07,.19,.97)}
   @keyframes mpshake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
   /* ダブルタップズーム封じ（2026-08-16 実機FB）。touch-actionは先祖との積で効くのでhtmlに置けば全域に効く。
@@ -1726,6 +1775,10 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
 .aimgbox{height:auto;aspect-ratio:800/533;background:#f3f5f8}
 .aimgbox img{object-fit:contain;object-position:center top}
 @media(max-height:740px){.card.tight .aimgbox.on{display:block}}
+/* 縦が短い画面でも画像を隠さず、答え面だけ内部スクロールで本文・操作まで到達できるようにする。 */
+#sc-practice{height:100vh;height:100dvh;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#sc-practice .card{flex:0 0 auto}
+#sc-practice .card.revealed{touch-action:pan-y}
 /* 長い単語・熟語は意味のない途中切れを避け、行全体を均等に折り返す */
 .word{max-width:100%;overflow-wrap:anywhere;word-break:normal;text-wrap:balance}
 .word.long{font-size:36px;line-height:1.32}
@@ -1757,6 +1810,9 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
 #hdrPts.pop{animation:ptpop .35s ease}
 @keyframes ptpop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
 </style>
+<link rel="stylesheet" href="mx_analysis_calendar_v2.css">
+<script src="mx_analysis_calendar_v2.js"></script>
+<link rel="stylesheet" href="mx_web_layout.css">
 </head>
 <body>
 <!-- 起動スプラッシュ S5「X-FIRST」（2026-07-18採用・無音）：Xが決まってからMemoraが滑り込み、全体がフェードアウト -->
@@ -1929,6 +1985,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
       </div>
     </div>
     <div class="btns" id="pbtns"></div>
+    <div class="practice-noads-row" id="practiceNoadsRow"><button class="practice-noads" id="practiceNoads" type="button">広告を消す</button></div>
     <div class="coach" id="coach"><div class="csheet"><div class="ct" id="coachTxt"></div><div class="chint" id="coachHint">⌄</div></div></div>
   </section>
 
@@ -1967,7 +2024,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
           <div class="hxrow" id="hxR2"><span class="no">02</span><b class="t">スキミング</b><span class="n" id="hxN2">続き</span></div>
           <div class="hxrow" id="hxR3"><span class="no">03</span><b class="t">苦手な単語</b><span class="n" id="hxN3">0語</span></div>
         </div>
-        <div class="hxstat" id="hxStat">今日 <b id="hmN">0</b><i>語</i></div>
+        <div class="hxstat" id="hxStat">今日 <b id="hmN">0</b><i>回答</i><span class="dotsep">・</span><b id="hmU">0</b><i>語</i></div>
       </div>
       <div style="height:0"></div>
       <div class="h2-card h2-today" style="display:none">
@@ -2119,24 +2176,24 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
         <i class="sddiv"></i>
         <div class="sd" id="idmcutBox"><div class="sec-t">英熟語カットイン</div><div class="chips2" data-k="idmcut"></div></div>
       </div>
-      <div class="sec-t" style="margin-top:30px">学習リマインダー</div>
-      <div class="remset" id="remindSet">
-        <div class="chips2" data-k="remind"></div>
-        <label class="remtime" id="remindTimeBox">時刻<input id="remindTime" type="time" value="18:00" step="300" aria-label="リマインダー時刻"></label>
-      </div>
-      <div class="pnote" id="remindHelp" style="margin-top:8px">設定時刻までに30問解いていない日に通知します。</div>
       <div class="sec-t" style="margin-top:30px">試験日</div>
       <button class="dbtn" id="examSetBtn" style="background:#fff;color:#111;border:1.5px solid #111">試験日を設定する</button>
+
+      <div class="sec-t" style="margin-top:30px">暗記力</div>
+      <div class="dbtn" style="background:#fff;color:#111;border:1.5px solid #111;text-align:left;cursor:default"><strong id="setMem">計測中</strong><small style="display:block;margin-top:5px;font-weight:600;color:#8a8f99">復習記録をもとに測定しています</small></div>
 
       <div class="sec-t" style="margin-top:30px">データ</div>
       <!-- 機種変更や再インストールに備えた退避。AndroidにはiCloud自動バックアップが無いので必須（2026-08-30） -->
       <button class="dbtn" id="expBtn" style="background:#fff;color:#111;border:1.5px solid #111">学習データを書き出す</button>
       <button class="dbtn" id="impBtn" style="background:#fff;color:#111;border:1.5px solid #111;margin-top:10px">書き出したデータを読み込む</button>
-      <!-- 広告の節：月額の広告非表示のみ。広告が出る環境＆App Storeに商品がある時だけJSが表示する。リワード動画は2026-08-31にユーザー指示で完全撤去 -->
+      <!-- 広告の節：買い切りの広告非表示のみ。広告が出る環境＆App Storeに商品がある時だけJSが表示する。リワード動画は2026-08-31にユーザー指示で完全撤去 -->
       <div id="adSetBox" style="display:none"><div class="sec-t" style="margin-top:30px">広告</div>
-      <div id="noadsBox"><button class="plink" id="noadsBtn" type="button" style="margin-top:6px">広告を完全削除する（買い切り1,200円）</button></div></div>
-      <div class="sec-t" style="margin-top:30px">友達招待・コード入力</div>
-      <button class="dbtn" id="invBtn" style="background:#fff;color:#111;border:1.5px solid #111">招待とコード入力<small style="display:block;font-weight:600;color:#8a8f99">3人招待で英熟語帳がずっと無料</small></button><!-- 2026-09-03 ユーザー要望 -->
+      <div id="noadsBox"><button class="plink" id="noadsBtn" type="button" style="margin-top:6px">広告を完全削除する</button></div>
+      <button class="plink" id="adPrivacyBtn" type="button" style="display:none;margin-top:12px">広告プライバシー設定を変更</button>
+      <div class="pnote" id="adPrivacyMsg" aria-live="polite" style="display:none;margin-top:8px"></div></div>
+      <div class="sec-t" style="margin-top:30px">友達紹介</div>
+      <button class="dbtn" id="invBtn" style="background:#fff;color:#111;border:1.5px solid #111">紹介コードを確認<small style="display:block;font-weight:600;color:#8a8f99">確認済みの新規登録3人で英熟語を永久解放</small></button>
+      <button class="dbtn" id="redeemBtn" style="display:none;background:#fff;color:#111;border:1.5px solid #111;margin-top:10px">英熟語コードを入力<small style="display:block;font-weight:600;color:#8a8f99">Webアカウントへ一度だけ引き換えます</small></button>
       <div class="pnote" style="margin-top:10px">機種変更やアプリを入れ直す前に書き出しておくと、新しい端末で続きから学習できます。</div>
       <button class="dbtn" id="resetBtn" style="background:#fff;color:#111;border:1.5px solid #111;margin-top:22px">学習データをリセット</button>
       <div id="resetConf" style="display:none">
@@ -2155,6 +2212,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
         <!-- 「これまでの報告 N件 まとめて出す」は削除（2026-08-30 ユーザー指定）。repSave自体は残す＝報告はメール送信が主経路 -->
   <div class="pnote">「熟語帳＋熟語カットイン」は月額300円の自動更新サブスクリプションです。期間終了の24時間前までに解約しない限り自動更新され、同額が請求されます。iPhoneの「設定」→ Apple ID →「サブスクリプション」からいつでも解約できます。<br><a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener">利用規約</a>・<a href="https://hazardissei.github.io/memorax-pages/privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a></div>
       </div>
+      <div id="kobunPromoBox" style="display:none"><div class="sec-t" style="margin-top:30px">次の学習</div><button class="dbtn" id="kobunPromoBtn" type="button" style="background:#fff;color:#111;border:1.5px solid #111">Memora X 古典をApp Storeで見る<small style="display:block;font-weight:600;color:#8a8f99">公式ストア掲載を確認できた場合だけ表示します</small></button></div>
     </div>
   </section>
 
@@ -2187,29 +2245,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   </section>
 
   <section class="screen" id="sc-analysis">
-    <!-- 画像忠実・分析（2026-07-22 添付4枚目）。ヘッダはホームと共通デザイン -->
-    <div class="mh">
-      <div class="h2-head a2-head">
-        <div class="h2-title"><div class="t">Memora X</div><div class="s a2bk" onclick="showBookMenu()"><span id="anBook">英単語</span><i class="tri">▼</i></div></div>
-        <div class="h2-acts">
-          <div class="h2-act" onclick="go('sc-home')"><span class="h2-ring"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#dfe5ee" stroke-width="4"/><circle id="a2Arc" cx="20" cy="20" r="17" fill="none" stroke="#2261f5" stroke-width="4" stroke-linecap="round" stroke-dasharray="0 106.8" transform="rotate(-90 20 20)"/></svg><i id="anPctPill">0%</i></span><span class="lb">全体進捗</span></div>
-          <div class="h2-act" onclick="go('sc-dict')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v8M8 12h8"/></svg></span><span class="lb">単語追加</span></div>
-          <div class="h2-act" onclick="go('sc-settings')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L14.2 3h-4l-.4 2.5a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2l.4 2.5h4l.4-2.5a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z"/></svg></span><span class="lb">設定</span></div>
-        </div>
-      </div>
-      <!-- 分析v2（2026-08-13）：グラフを先頭・大きめ、その下に長棒リスト -->
-      <div class="an3-card an3-week">
-        <div class="an3-top"><span class="k">今週の学習量</span><span class="k" id="anLw"></span></div>
-        <svg id="wkSvg" viewBox="0 0 340 132" xmlns="http://www.w3.org/2000/svg"></svg>
-      </div>
-      <div class="anlist">
-        <div class="anrow"><span class="t">単語帳<b id="anBookNm">—</b>　進捗</span><span class="v"><b id="anPct">0%</b></span><div class="anbar"><i id="anPctBar"></i></div></div>
-        <div class="anrow"><span class="t">覚えた単語</span><span class="v"><small id="anWkInc">今週 +0語</small><b id="anLearn">0</b>語</span></div>
-        <div class="anrow"><span class="t">苦手な単語</span><span class="v"><small id="anWkFix">今週克服 0語</small><b id="anWeak">0</b>語</span></div>
-        <div class="anrow"><span class="t">未学習単語</span><span class="v"><b id="anNew">0</b>語</span></div>
-        <div class="anrow"><span class="t">暗記力</span><span class="v" id="anMem">計測中</span></div>
-      </div>
-    </div>
+    <div class="mh" id="analysisCalendar"></div>
     <div class="mh-nav">
       <div class="it" onclick="go('sc-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.6 12 3.2l9 7.4V21h-6v-6H9v6H3z"/></svg>ホーム</div>
       <div class="it" onclick="go('sc-deck')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="4.6" height="15" rx="1.6"/><rect x="9.7" y="4.5" width="4.6" height="15" rx="1.6"/><rect x="15.9" y="4.5" width="4.6" height="15" rx="1.6"/></svg>ライブラリ</div>
@@ -2218,7 +2254,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   </section>
 
   <section class="screen" id="sc-calendar">
-    <div class="phead"><h2>カレンダー</h2><span class="cnt" id="calStreak"></span></div>
+    <div class="phead"><h2>学習カレンダー</h2><span class="cnt" id="calStreak"></span></div>
     <div class="mcal">
       <div class="calhead">
         <button class="calnav" data-mnav="-1" aria-label="前の月">‹</button>
@@ -2228,7 +2264,15 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
       <div class="caldow"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div>
       <div class="mcalgrid" id="mcalGrid"></div>
     </div>
-    <div class="note" style="margin-top:22px;max-width:none">あなたが指定した1日に解く問題数を達成した日はスタンプがつきます。</div>
+    <div class="calmetrics" id="calMetrics" role="group" aria-label="カレンダーの指標">
+      <button class="cmchip on" data-cmetric="answers" aria-pressed="true">回答数</button>
+      <button class="cmchip" data-cmetric="studied" aria-pressed="false">学習単語</button>
+      <button class="cmchip" data-cmetric="learned" aria-pressed="false">覚えた</button>
+      <button class="cmchip" data-cmetric="weak" aria-pressed="false">苦手</button>
+      <button class="cmchip" data-cmetric="overcome" aria-pressed="false">克服</button>
+    </div>
+    <div class="callegend" id="calLegend"></div>
+    <div class="caldetail" id="calDetail" aria-live="polite"></div>
     <div style="flex:1"></div>
     <div class="mh-nav">
       <div class="it" onclick="go('sc-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.6 12 3.2l9 7.4V21h-6v-6H9v6H3z"/></svg>ホーム</div>
@@ -2258,18 +2302,29 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
 </div>
 
 <script src="eitan_data_v2.js" charset="utf-8"></script>
+<script src="eitan_sokei_images_v1.js" charset="utf-8"></script>
+<script src="eitan_soukei_patch_v1.js" charset="utf-8"></script><!-- v1.0.5 #9: stable IDs and source-backed incremental Soukei additions -->
 <script src="eitan_confuse_v1.js" charset="utf-8"></script>
 <script src="eitan_ipa_v1.js" charset="utf-8"></script>
+<script src="eitan_pronunciation_patch_v1.js" charset="utf-8"></script><!-- MX-N003: meaning-specific IPA/TTS corrections -->
 <script src="eitan_pos_v1.js" charset="utf-8"></script>
 <script src="eitan_ex_v1.js" charset="utf-8"></script>
 <script src="eitan_ex_fun_v2.js" charset="utf-8"></script><!-- 例文「面白版」No.801以降（2026-08-26）。無くても動く -->
+<script src="eitan_content_patch_v1.js" charset="utf-8"></script><!-- MX-N001: verified word/meaning/example corrections -->
+<script src="eitan_sokei_stories_v1.js" charset="utf-8"></script><!-- 早慶だけに適用するキャラクター例文 -->
+<script src="eitan_sokei_story_images_v1.js" charset="utf-8"></script><!-- 新例文と照合済みの画像 -->
+<script src="eitan_grammar_v1.js" charset="utf-8"></script><!-- MX-N018: meaning-level C/U and transitivity metadata -->
 <script src="mx_web_config.js" charset="utf-8"></script>
 <script src="mx_web_entitlement_v1.js" charset="utf-8"></script>
+<script src="mx_update_gate_v1.js" charset="utf-8"></script><!-- MX-N021: default-off, fail-open native update gate -->
+<script src="mx_effort_wallet_v1.js" charset="utf-8"></script><!-- v1.0.5 #37: eitan-scoped, event-ledger wallet -->
+<script src="mx_kobun_promo_v1.js" charset="utf-8"></script><!-- v1.0.5 #17: official-App-Store-only classical cross-promo -->
 <script src="mx_native_idiom_loader.js" charset="utf-8"></script><!-- ネイティブだけ熟語を同梱。Webは認証APIから権利確認後に取得する -->
 <script>
 (function(){
   var state={grade:null,level:null,exam:null,mode:null,q1:null,q2:null,daysLeft:180,_perDay:20,_min:15};
   var PLAT=(function(){try{var C=window.Capacitor;return (C&&C.getPlatform)?C.getPlatform():'web';}catch(e){return 'web';}})();
+  (function(){if(!window.MXUpdateGate)return;window.MXUpdateGate.boot({policyUrl:String(window.MX_UPDATE_POLICY_URL||''),platform:PLAT,fetch:window.fetch&&window.fetch.bind(window),getCurrentVersion:function(){var p=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App;if(!p||!p.getInfo)return Promise.reject(new Error('version unavailable'));return p.getInfo().then(function(info){return info&&info.version;});},openStore:function(url){window.open(url,'_system');}});})();/* URL未設定なら通信せず起動。本番の最低版・公開版・ストアURLはここへ直書きしない。 */
   var DECK=4337,GRAD=0;
   var LEVELDECK={'早慶':4337,'最上位国立':3600,'MARCH':3100,'地方国立':2800,'日東駒専':2300,'共通テスト':1900};
   function planDeck(){return (BOOKS&&BOOKS[CURBOOK])?BOOKS[CURBOOK].hw:DECK;}/* 進捗は冊ごと（2026-07-19） */
@@ -2331,6 +2386,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   function haptic(m){if(!nativeHaptic((m||6)>=18?'MEDIUM':'LIGHT')){try{if(navigator.vibrate)navigator.vibrate(m||6);}catch(e){}}}
   var _voice=null;
   function pickVoice(){try{var vs=window.speechSynthesis.getVoices()||[];if(!vs.length)return null;var pref=[/Google US English/i,/Google UK English.*Female/i,/Natural/i,/Online/i,/Samantha/i,/Ava/i,/Aria/i,/Jenny/i,/Serena/i,/Daniel/i,/Zira/i];for(var p=0;p<pref.length;p++)for(var i=0;i<vs.length;i++){if(pref[p].test(vs[i].name)&&/en/i.test(vs[i].lang))return vs[i];}for(var j=0;j<vs.length;j++)if(/en[-_]US/i.test(vs[j].lang)&&!/eSpeak/i.test(vs[j].name))return vs[j];for(var k=0;k<vs.length;k++)if(/^en/i.test(vs[k].lang))return vs[k];return vs[0];}catch(e){return null;}}
+  function speechText(t){var raw=String(t||''),key=raw.trim().toLowerCase(),map=window.EITAN_TTS_OVERRIDES||{};return map[key]||raw;}
   if('speechSynthesis'in window){_voice=pickVoice();window.speechSynthesis.onvoiceschanged=function(){_voice=pickVoice();};}
   /* 2026-08-16 実機FB「固まる」対策：iOSのWKWebViewはcancel→speakの高速連打で
      読み上げ機構ごと詰まることがあるため、180msデバウンスして連打を1発にまとめる。
@@ -2340,7 +2396,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     if(_spkT)clearTimeout(_spkT);
     _spkT=setTimeout(function(){_spkT=null;try{
       if(document.hidden)return;
-      window.speechSynthesis.cancel();if(!_voice)_voice=pickVoice();var u=new SpeechSynthesisUtterance(t);if(_voice){u.voice=_voice;u.lang=_voice.lang;}else u.lang='en-US';u.rate=.9;u.pitch=1;window.speechSynthesis.speak(u);}catch(e){}},180);
+      window.speechSynthesis.cancel();if(!_voice)_voice=pickVoice();var u=new SpeechSynthesisUtterance(speechText(t));if(_voice){u.voice=_voice;u.lang=_voice.lang;}else u.lang='en-US';u.rate=.9;u.pitch=1;window.speechSynthesis.speak(u);}catch(e){}},180);
   }catch(e){}}
   function showWipa(w){var r=$('wipaRow'),p=$('wipa');if(!r||!p)return;window._curW=w||'';
     var ip=(window.IPA||{})[(w||'').toLowerCase()]||'';
@@ -2381,18 +2437,21 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   window.examBack=function(){go(state.cards?'sc-settings':'sc-level');};
   window.timeBack=function(){go(state.cards?'sc-home':'sc-mode');};/* オンボ中は最後の質問へ戻る、設定変更で来た時はホームへ */
   window.pQuit=function(){if(state.cards)go('sc-home');};
-  window.pressStamp=function(){var k=dayKey(new Date());if(DONEDAYS[k])return;if(TODAYN<(state.cards||1))return;/* 合算ノルマ達成でのみ押せる（2026-07-19） */DONEDAYS[k]=(TODO.goku?'gold':true);JUSTST=true;haptic(20);saveAll();paintHome();};
+  window.pressStamp=function(){ensureStudyDay();var k=dayKey(new Date());if(DONEDAYS[k])return;if(TODAYN<(state.cards||1))return;/* 当日の有効回答イベントがノルマ達成した時だけ押せる */DONEDAYS[k]=(TODO.goku?'gold':true);JUSTST=true;haptic(20);saveAll();paintHome();};
   /* 1問戻る（誤スワイプ対策）。答え表示中=リビール取り消し、次の問題中=直前の解答を巻き戻し */
   window.undoQ=function(){
     if(flyLock)return;/* スワイプアニメ中の戻るは無視（2026-08-14 固まり対策） */
     if(phase==='a'){if(chainMode){chainDrop();}else{renderCard();}return;}
     var h=HIST.pop();if(!h)return;
-    if(h.t==='b')try{adUntick();}catch(e){}/* 通常問題を1問戻したぶんだけ広告カウンタも戻す（2026-09-04） */
     if(h.l!==lapNo){HIST.push(h);return;}
+    var _upr=h.pt||(h.snap&&h.snap.pt);if(_upr)try{ptUndo(_upr);}catch(e){}/* その解答receiptだけを戻し、残高と完成報酬を二重化しない。 */
+    if(h.t==='b')try{adUntick();}catch(e){}/* 同じ周の通常問題を実際に1問戻したぶんだけ広告カウンタも戻す（2026-09-06） */
+    if(h.wrong)undoDailyWrong(h.wrong);
     recs.pop();
     if(h.t==='b'){
-      lapRes.pop();var a=WHIST[h.w];if(a)a.pop();addSolved(-1);
+      lapRes.pop();var a=WHIST[h.w];if(a)a.pop();addSolved(-1,h.w,'word');
       if(h.snap){/* FC・苦手リスト・暗記力計測・今週克服・stを解答前へ戻す（2026-08-14） */
+        if(h.snap.daily){['learned','weak','overcome'].forEach(function(_dt){if(h.snap.daily[_dt])dailyTransition(_dt,h.snap.daily.id,-1,h.snap.daily.day);});}
         if(h.snap.fc)FC[h.w]=h.snap.fc;else delete FC[h.w];
         for(var _u=0;_u<MISSLOG.length;_u++)if(MISSLOG[_u].w===h.w){MISSLOG.splice(_u,1);break;}
         if(h.snap.me)MISSLOG.splice(Math.min(h.snap.mi<0?0:h.snap.mi,MISSLOG.length),0,h.snap.me);
@@ -2408,7 +2467,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
       if(curTask==='goku'&&h.ok===false){for(var j=idx+1;j<queue.length;j++){if(queue[j]===queue[idx]){queue.splice(j,1);break;}}}
       renderCard();
     }else{
-      var a2=WHIST[h.d.w];if(a2)a2.pop();addSolved(-1);
+      var a2=WHIST[h.d.w];if(a2)a2.pop();addSolved(-1,h.d.w,h.d.kind||'chain');
       idx=h.i;chainMode=true;chainData=h.d;chainDrop();
     }
   };
@@ -2438,8 +2497,40 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   var GOKUTUT=false;/* 徹底暗記モードの初回説明を出したか */
   /* 通算解答数（非表示・永続）。将来の塾ゲームのポイント原資。undoで減算し整合を保つ */
   var SOLVED=0;try{SOLVED=parseInt(localStorage.getItem('mx2_solved')||'0',10)||0;}catch(e){}
-  var TODAYN=0;/* 今日の合算解答数（全冊共通）。決めた問数に達するとスタンプ解禁（2026-07-19） */
-  function addSolved(n){SOLVED=Math.max(0,SOLVED+n);TODAYN=Math.max(0,TODAYN+n);var _dw=new Date().getDay();WEEKDATA[_dw]=Math.max(0,(WEEKDATA[_dw]||0)+n);/* 週グラフは解答ごとに加算（2026-08-24 実機FB「今週の学習量が反映されない」＝従来はセッション完了時のみで、×中断や忘却曲線モードが漏れていた） */try{localStorage.setItem('mx2_solved',''+SOLVED);}catch(e){}}
+  var TODAYN=0;/* 今日の有効回答イベント数（通常問題とチェインを含む）。語数とは区別する。 */
+  var TODAYWORDS={},ACTIVE_DAY=dayKey(new Date()),DAILYSTATS=jsonLoad('mx2_daily',{}),DAYROLLING=false;
+  function studyCountBump(map,key,n){if(!map||!key||!n)return;var v=Math.max(0,(parseInt(map[key]||0,10)||0)+n);if(v)map[key]=v;else delete map[key];}
+  function studyUnique(map){var n=0,k;for(k in map)if((parseInt(map[k]||0,10)||0)>0)n++;return n;}
+  function studyAnswerId(w,kind){return (BOOKS[CURBOOK]?BOOKS[CURBOOK].id:'base')+'|'+(kind||'word')+'|'+String(w||'').toLowerCase();}
+  function studyWordsFromLog(log){var out={},k,p;for(k in (log||{})){p=k.indexOf('|');out[(p<0?'base':k.slice(0,p))+'|word|'+(p<0?k:k.slice(p+1)).toLowerCase()]=1;}return out;}
+  function startDailyTransitionTracking(k){var e=DAILYSTATS[k]||{},prior=parseInt(e.answers==null?TODAYN:e.answers,10)||0;if(!Object.prototype.hasOwnProperty.call(e,'transitionComplete'))e.transitionComplete=prior===0;if(!e.transitions||typeof e.transitions!=='object'||Array.isArray(e.transitions))e.transitions={};['learned','weak','overcome'].forEach(function(t){if(!e.transitions[t]||typeof e.transitions[t]!=='object'||Array.isArray(e.transitions[t]))e.transitions[t]={};});DAILYSTATS[k]=e;return e.transitionComplete;}
+  function dailyTransition(kind,id,n,k){k=k||ACTIVE_DAY;if(['learned','weak','overcome'].indexOf(kind)<0||!id||!n||!k)return;startDailyTransitionTracking(k);studyCountBump(DAILYSTATS[k].transitions[kind],id,n);try{localStorage.setItem('mx2_daily',JSON.stringify(DAILYSTATS));}catch(e){}}
+  /* 日付から開く誤答一覧。現在の苦手リストとは独立し、後の正解では消さない。 */
+  function startDailyWrongTracking(k){
+    var e=DAILYSTATS[k]||{},prior=parseInt(e.answers==null?TODAYN:e.answers,10)||0;
+    if(!Object.prototype.hasOwnProperty.call(e,'wrongComplete'))e.wrongComplete=prior===0;
+    if(!e.wrongWords||typeof e.wrongWords!=='object'||Array.isArray(e.wrongWords))e.wrongWords={};
+    DAILYSTATS[k]=e;return e;
+  }
+  function recordDailyAnswer(item,ok,kind){
+    if(!state.cards||!item||!item.w||item.tut)return null;
+    ensureStudyDay();var e=startDailyWrongTracking(ACTIVE_DAY);
+    if(ok!==false)return null;
+    var id=studyAnswerId(item.w,kind),book=BOOKS[CURBOOK]||{},row=e.wrongWords[id];
+    if(!row||typeof row!=='object'||Array.isArray(row))row={w:String(item.w),m:Array.isArray(item.m)?item.m.filter(function(x){return typeof x==='string';}).join('、'):(typeof item.m==='string'?item.m:''),book:book.sub||book.id||'英単語',kind:kind||'word',count:0};
+    row.count=Math.max(0,parseInt(row.count,10)||0)+1;e.wrongWords[id]=row;
+    try{localStorage.setItem('mx2_daily',JSON.stringify(DAILYSTATS));}catch(err){}
+    return {day:ACTIVE_DAY,id:id};
+  }
+  function undoDailyWrong(receipt){
+    if(!receipt)return;var e=DAILYSTATS[receipt.day],row=e&&e.wrongWords&&e.wrongWords[receipt.id];
+    if(!row)return;var n=Math.max(0,(parseInt(row.count,10)||0)-1);
+    if(n)row.count=n;else delete e.wrongWords[receipt.id];
+    try{localStorage.setItem('mx2_daily',JSON.stringify(DAILYSTATS));}catch(err){}
+  }
+  function syncDailyStats(){if(!ACTIVE_DAY)return;var e=DAILYSTATS[ACTIVE_DAY]||{};e.answers=TODAYN;e.wordCounts=JSON.parse(JSON.stringify(TODAYWORDS));e.goal=parseInt(state.cards||0,10)||0;DAILYSTATS[ACTIVE_DAY]=e;if(TODAYN===0)startDailyWrongTracking(ACTIVE_DAY);if(TODAYN===0&&!Object.prototype.hasOwnProperty.call(e,'transitionComplete'))startDailyTransitionTracking(ACTIVE_DAY);}
+  function ensureStudyDay(){var k=dayKey(new Date());if(ACTIVE_DAY===k)return;syncDailyStats();DAYROLLING=true;rollover({d:ACTIVE_DAY,log:TODAYLOG});ACTIVE_DAY=k;DAYROLLING=false;saveAll();}
+  function addSolved(n,w,kind){ensureStudyDay();if(n>0)startDailyTransitionTracking(ACTIVE_DAY);SOLVED=Math.max(0,SOLVED+n);TODAYN=Math.max(0,TODAYN+n);if(w)studyCountBump(TODAYWORDS,studyAnswerId(w,kind),n);syncDailyStats();var _dw=new Date().getDay();WEEKDATA[_dw]=Math.max(0,(WEEKDATA[_dw]||0)+n);/* 週グラフは回答イベントごとに加算。undoで同じIDの回数も戻す。 */try{localStorage.setItem('mx2_solved',''+SOLVED);localStorage.setItem('mx2_daily',JSON.stringify(DAILYSTATS));}catch(e){}}
   var TODAYLOG={};/* 今日の単語別成績 {bookid|w:{task,ok:最終正誤,first:一発自信正解}} 日替わり処理の材料 */
   var WSTREAK={};/* 苦手の連続正解日数 {bookid|w:{n}} 2日連続で卒業 */
   var WHIST={};/* 単語ごとの解答履歴（過去5回の正誤点灯用・現在の冊のぶん） */
@@ -2480,10 +2571,11 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     if(phase==='a'&&dir==='l'&&pct>0){var a2=Math.min(.09,pct*.09);card.style.background='rgba(220,38,38,'+a2+')';card.style.borderColor='rgba(220,38,38,'+Math.min(.45,pct*.5)+')';swGlowSet(0);return;}
     card.style.background='';card.style.borderColor='';swGlowSet(0);}
   function chainOK(){if(!state.cards)return true;/* チュートリアル中は全員チェイン解禁（機能紹介） */if(state.cutin==='オフ')return false;/* 設定でOFF可（2026-07-27） */return (['早慶','旧帝大以上','上位国立大学','MARCH'].indexOf(state.level)>-1)||LAP>=2;}
+  function paintPracticeCounts(extra){var pc=$('pcount'),pp=$('ppct');if(pc)pc.innerHTML='セッション '+fmtN(recs.length+1)+' <small>問目</small>'+(extra||'');if(pp)pp.textContent='今日 '+fmtN(TODAYN)+'回答 ・ '+fmtN(studyUnique(TODAYWORDS))+'語';adPracticePaint();}
   function chainDrop(){
     paintImp(null);/* チェイン中は重要度バッジ非表示 */
     var isAlt=chainData.kind==='alt',isIdm=chainData.kind==='idiom';if(isIdm)IDM_SHOWN[chainData.w]=1;
-    phase='q';conf=null;swipeLock=true;
+    phase='q';conf=null;swipeLock=true;_ptAttempt=ptAttemptStart('chain',chainData&&chainData.w);
     card.classList.remove('revealed','anscompact','ansdense','tight','noimg','qcompact','qtight');card.style.transition='none';card.style.transform='translateY(-130%) rotate(-5deg)';card.style.opacity=1;card.style.background='';card.style.borderColor='';
     $('sc-practice').classList.add(isIdm?'dmi':isAlt?'dmo':'dmp');card.classList.add(isIdm?'dci':isAlt?'dco':'dcp');
     $('cbdg').innerHTML=isIdm?'<span class="cpill i">熟語</span><span class="cparent">'+chainData.parent+' を含む熟語</span>':isAlt
@@ -2495,7 +2587,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
          難訳チェインは同じ語なので paintMHint で出し直し、派生・熟語チェインは別語なので消す */
       var _mhC=$('mhint');if(_mhC){if(isAlt){paintMHint(chainData);}else{_mhC.style.display='none';_mhC.textContent='';}}
     ansb.classList.remove('show');$('ansM').textContent='';$('ansEx').textContent='';var _mp=$('mpick');if(_mp){_mp.style.display='none';_mp.innerHTML='';}mpickOpen=false;var _ai2=$('ansImg'),_ab2=$('aimgbox');if(_ai2)_ai2.removeAttribute('src');if(_ab2)_ab2.classList.remove('on');card.classList.remove('imgmode');var _cf2=$('cfbox');if(_cf2)_cf2.classList.remove('on','open');card.classList.remove('cfopen');
-    $('pcount').innerHTML=(curTask==='goku'?(fmtN(FCTOTAL)+' <small>問</small>'):((idx+1)+' <small>/ '+queue.length+' 問</small>'))+' <small style="color:'+(isIdm?'#8a6a00':isAlt?'#b4770a':'#7c5cff')+';font-weight:800">＋チェイン</small>';
+    paintPracticeCounts(' <small style="color:'+(isIdm?'#8a6a00':isAlt?'#b4770a':'#7c5cff')+';font-weight:800">＋チェイン</small>');
     var f=$('pflash');f.className='pflash '+(isIdm?'i':isAlt?'o':'p')+' on';setTimeout(function(){f.classList.remove('on');},170);
     var cb=$('chainb');cb.classList.toggle('o',isAlt);cb.classList.toggle('i',isIdm);$('chainbT').textContent=isIdm?'熟語チェイン':isAlt?'難訳チェイン':'派生チェイン';cb.classList.remove('pop');void cb.offsetWidth;cb.classList.add('pop');setTimeout(function(){cb.classList.remove('pop');},1500);
     sizeQuestionWord(chainData.w);typeInto($('word'),chainData.w,null,false,22,true);showWipa(chainData.w);if(!isAlt)speakWord(chainData.w);
@@ -2507,10 +2599,10 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   }
   /* 問題側の長い英単語・熟語を文字数で2段階縮小。空白のない長語もCSSで安全に折る */
   function sizeQuestionWord(w){var el=$('word');if(!el)return;var n=Array.from(String(w||'')).length;el.classList.toggle('long',n>15);el.classList.toggle('xlong',n>22);requestCardFit();}
-  function renderCard(){var d=queue[idx];if(!d){finishPractice();return;}/* 範囲外なら固まらず終了（2026-08-14） */phase='q';conf=null;swipeLock=(coaching&&idx===0);chainMode=false;card.classList.remove('revealed','dcp','dco','dci','anscompact','ansdense','tight','noimg','qcompact','qtight');/* dci(熟語の黄色)が抜けていて、カットインの後の普通のカードまで黄色いままだった（2026-08-27） */$('cbdg').innerHTML='';$('cknown').style.display='none';$('csub').textContent='';var _wp0=$('wipa');if(_wp0){_wp0.textContent='';_wp0.style.display='none';}
+  function renderCard(){var d=queue[idx];if(!d){finishPractice();return;}/* 範囲外なら固まらず終了（2026-08-14） */phase='q';conf=null;swipeLock=(coaching&&idx===0);chainMode=false;_ptAttempt=ptAttemptStart('word',d.w);card.classList.remove('revealed','dcp','dco','dci','anscompact','ansdense','tight','noimg','qcompact','qtight');/* dci(熟語の黄色)が抜けていて、カットインの後の普通のカードまで黄色いままだった（2026-08-27） */$('cbdg').innerHTML='';$('cknown').style.display='none';$('csub').textContent='';var _wp0=$('wipa');if(_wp0){_wp0.textContent='';_wp0.style.display='none';}
     paintMHint(d);window._qalt=(function(){var _mh=$('mhint');return _mh&&_mh.style.display!=='none';})();/* 「〜以外の意味は？」は読むのに時間がかかるので秒数判定を免除（2026-08-14） */paintFCurve(d);$('sc-practice').classList.remove('dmp','dmo','dmi');
     $('sc-practice').classList.toggle('bkidm',(BOOKS[CURBOOK]||{}).id==='idioms');/* 英熟語帳を回している間は黄色を薄く敷く（2026-08-27） */
-    card.style.transition='';card.style.transform='';card.style.opacity=1;card.style.background='';card.style.borderColor='';window._qT0=null;window._qdt=null;sizeQuestionWord(d.w);typeInto($('word'),d.w,function(){window._qT0=Date.now();/* 表示完了から計測（2026-08-13） */},false,coaching?55:22,true);speakWord(d.w);showWipa(d.w);ansb.classList.remove('show');$('ansM').textContent='';$('ansEx').textContent='';var _ai=$('ansImg'),_ab=$('aimgbox');if(_ai)_ai.removeAttribute('src');if(_ab)_ab.classList.remove('on');card.classList.remove('imgmode');var _cf=$('cfbox');if(_cf)_cf.classList.remove('on','open');card.classList.remove('cfopen');var _si=(curTask==='skim'&&lapNo===1)?secInfoOf(d):null;/* スキミング1周目はセクション内位置（2026-08-03 FB・途中開始は途中スタート） */var _pn=_si?_si.pos:(idx+1),_pt=_si?_si.total:queue.length;$('pcount').innerHTML=(curTask==='goku'?(fmtN(FCTOTAL)+' <small>問</small>'):(_pn+' <small>/ '+_pt+' 問</small>'))+(lapNo===2?' <small style="color:#b4770a;font-weight:800">・2周目</small>':'');$('ppbar').style.width=(curTask==='goku'?(FCLAP/FCGOAL*100):(_pn/_pt*100))+'%';var _gm=$('goalmk');if(_gm){_gm.textContent=curTask==='goku'?(FCGOAL+'問'):'';_gm.style.display=curTask==='goku'?'':'none';}var _pp=$('ppct');if(_pp)_pp.textContent=Math.round(_pn/_pt*100)+'%';paintImp(d);setTags();tintCard();pbtns.innerHTML='';paintLamps();hideCoach();if(coachTimer)clearTimeout(coachTimer);if(coaching&&idx===0)coachTimer=setTimeout(function(){showCoach('imagine');},1200);if(PLAT==='web'&&state.wimg!=='オフ'){try{var _pf9=(d.img||WIMG[d.w]);if(_pf9){var _pi9=new Image();_pi9.src=_pf9;}}catch(e){}}/* Web: 出題中に答え画像を先読みして、開いた瞬間に出す（2026-08-31） */}
+    card.style.transition='';card.style.transform='';card.style.opacity=1;card.style.background='';card.style.borderColor='';window._qT0=null;window._qdt=null;sizeQuestionWord(d.w);typeInto($('word'),d.w,function(){window._qT0=Date.now();/* 表示完了から計測（2026-08-13） */},false,coaching?55:22,true);speakWord(d.w);showWipa(d.w);ansb.classList.remove('show');$('ansM').textContent='';$('ansEx').textContent='';var _ai=$('ansImg'),_ab=$('aimgbox');if(_ai)_ai.removeAttribute('src');if(_ab)_ab.classList.remove('on');card.classList.remove('imgmode');var _cf=$('cfbox');if(_cf)_cf.classList.remove('on','open');card.classList.remove('cfopen');var _si=(curTask==='skim'&&lapNo===1)?secInfoOf(d):null;/* 進捗バーだけは範囲内位置を維持。上部の数値はセッション通算に固定する。 */var _pn=_si?_si.pos:(idx+1),_pt=_si?_si.total:queue.length;paintPracticeCounts(lapNo===2?' <small style="color:#b4770a;font-weight:800">・2周目</small>':'');$('ppbar').style.width=(curTask==='goku'?(FCLAP/FCGOAL*100):(_pn/_pt*100))+'%';var _gm=$('goalmk');if(_gm){_gm.textContent=curTask==='goku'?(FCGOAL+'問'):'';_gm.style.display=curTask==='goku'?'':'none';}paintImp(d);setTags();tintCard();pbtns.innerHTML='';paintLamps();hideCoach();if(coachTimer)clearTimeout(coachTimer);if(coaching&&idx===0)coachTimer=setTimeout(function(){showCoach('imagine');},1200);if(PLAT==='web'&&state.wimg!=='オフ'){try{var _pf9=exampleImageOf(d);if(_pf9){var _pi9=new Image();_pi9.src=_pf9;}}catch(e){}}/* Web: 出題中に答え画像を先読みして、開いた瞬間に出す（2026-08-31） */}
   /* 答えの意味は1義1行。「、」で分けるが、括弧内の列挙は同じ行に保つ。 */
   function fmtMean(m){/* 1義1行（2026-08-14 ユーザー指定）。括弧内の読点では割らない */
     if(!m)return m;var t=String(m),out=[],cur='',dep=0,i,c;
@@ -2520,10 +2612,10 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     if(cur)out.push(cur);
     return out.join('\n');}
   function sizeAnswerText(body){var el=$('ansM');if(!el)return;var lines=String(body||'').split('\n'),max=Math.max.apply(null,lines.map(function(s){return s.length;})),total=lines.join('').length;el.classList.toggle('long',max>11||total>22||lines.length>=4);el.classList.toggle('dense',max>18||total>38||lines.length>=6);requestCardFit();}
-  function reveal(c){window._qdt=(!chainMode&&window._qT0)?(Date.now()-window._qT0):null;/* 解答時間＝表示完了→最初のスワイプ（2026-08-13） */conf=c;phase='a';if(coaching&&idx===0&&!chainMode)swipeLock=true;/* 「答え合わせです」のコーチとデモが終わるまでスワイプ不可（2026-08-14）。解除はdemoAns末尾 */card.classList.add('revealed');ansb.classList.add('show');if(coachTimer)clearTimeout(coachTimer);hideCoach();card.classList.add('snap');card.style.transform='';card.style.background='';card.style.borderColor='';setTimeout(function(){card.classList.remove('snap');},220);var d=chainMode?chainData:queue[idx];var _wr9=$('wipaRow');if(_wr9)_wr9.style.display='none';/* 発音記号と再生ボタンは問題側だけに出す（2026-09-02 ユーザー指定・答えには出さない） */var ai=$('ansImg'),ab=$('aimgbox');if(ai&&ab){ab.classList.remove('on');card.classList.remove('imgmode');var ip=state.wimg==='オフ'?null:(chainMode&&chainData&&chainData.kind==='alt')?(WIMG[d.w]?WIMG[d.w].replace(/\.(webp|jpg)$/,'_2.$1'):null):(d.img||WIMG[d.w]);/* 難訳は専用の_2画像（2026-08-05）。設定で画像オフ可 *//* 難訳（②の意味）は別概念なので画像を出さない（2026-08-03 FB）。派生チェインは対象 */if(ip){ai._alt=0;ai.onload=function(){ab.classList.add('on');card.classList.add('imgmode');if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);/* 画像は非同期に載るので、載った後で入るかを測り直す。これが無いと縮小判定が画像の読み込み順に左右される（2026-08-31） */};ai.onerror=function(){/* webp↔jpg を1回だけ入れ替えて再試行（2026-08-26） */var _s=ai.src;if(!ai._alt){ai._alt=1;if(_s.slice(-5)==='.webp'){ai.src=_s.slice(0,-5)+'.jpg';return;}if(_s.slice(-4)==='.jpg'){ai.src=_s.slice(0,-4)+'.webp';return;}if(_s.slice(-4)==='.png'){ai.src=_s.slice(0,-4)+'.jpg';return;}}ab.classList.remove('on');card.classList.remove('imgmode');if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);};ai.src=ip;}}var _pl=d.kind==='alt'?'':(function(){var _p9=(window.POSD||{})[(d.w||'').toLowerCase()];if(_p9)return '（'+_p9+'）';return d.pos?'（'+d.pos+'）':'';})();/* 品詞マーク（2026-08-16）：見出しはPOSD、派生は従来のpos */var _mBody=d.m;var _um=USERMEAN[d.w];if(_um)_mBody+='、'+_um;_mBody=fmtMean(_mBody);memSetup((d.w||'').toLowerCase());var _am=$('ansM');if(_am){var _ml=Math.max.apply(null,_mBody.split('\n').map(function(s){return s.length;}));_am.classList.toggle('long',_ml>11);}var _ib=$('ansImp');if(_ib){var _tx='';if(!chainMode){var _bk2=BOOKS[CURBOOK]&&BOOKS[CURBOOK].id;if(d&&d.cnt!=null&&(_bk2==='waseda'||_bk2==='keio')){var _un=(_bk2==='waseda'?'早稲田':'慶応');
+  function reveal(c){window._qdt=(!chainMode&&window._qT0)?(Date.now()-window._qT0):null;/* 解答時間＝表示完了→最初のスワイプ（2026-08-13） */conf=c;phase='a';if(coaching&&idx===0&&!chainMode)swipeLock=true;/* 「答え合わせです」のコーチとデモが終わるまでスワイプ不可（2026-08-14）。解除はdemoAns末尾 */card.classList.add('revealed');ansb.classList.add('show');if(coachTimer)clearTimeout(coachTimer);hideCoach();card.classList.add('snap');card.style.transform='';card.style.background='';card.style.borderColor='';setTimeout(function(){card.classList.remove('snap');},220);var d=chainMode?chainData:queue[idx];var _wr9=$('wipaRow');if(_wr9)_wr9.style.display='none';/* 発音記号と再生ボタンは問題側だけに出す（2026-09-02 ユーザー指定・答えには出さない） */var ai=$('ansImg'),ab=$('aimgbox');if(ai&&ab){ab.classList.remove('on');card.classList.remove('imgmode');var ip=state.wimg==='オフ'?null:(chainMode&&chainData&&chainData.kind==='alt')?(WIMG[d.w]?WIMG[d.w].replace(/\.(webp|jpg)$/,'_2.$1'):null):exampleImageOf(d);/* 難訳は専用の_2画像（2026-08-05）。設定で画像オフ可 *//* 難訳（②の意味）は別概念なので画像を出さない（2026-08-03 FB）。派生チェインは対象 */if(ip){ai._alt=0;ai.onload=function(){ab.classList.add('on');card.classList.add('imgmode');if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);/* 画像は非同期に載るので、載った後で入るかを測り直す。これが無いと縮小判定が画像の読み込み順に左右される（2026-08-31） */};ai.onerror=function(){/* webp↔jpg を1回だけ入れ替えて再試行（2026-08-26） */var _s=ai.src;if(!ai._alt){ai._alt=1;if(_s.slice(-5)==='.webp'){ai.src=_s.slice(0,-5)+'.jpg';return;}if(_s.slice(-4)==='.jpg'){ai.src=_s.slice(0,-4)+'.webp';return;}if(_s.slice(-4)==='.png'){ai.src=_s.slice(0,-4)+'.jpg';return;}}ab.classList.remove('on');card.classList.remove('imgmode');if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);};ai.src=ip;}}var _pl=d.kind==='alt'?'':(function(){var _p9=(window.POSD||{})[(d.w||'').toLowerCase()];if(_p9)return '（'+_p9+'）';return d.pos?'（'+d.pos+'）':'';})();/* 品詞マーク（2026-08-16）：見出しはPOSD、派生は従来のpos */var _mBody=d.m;var _um=USERMEAN[d.w];if(_um)_mBody+='、'+_um;_mBody=fmtMean(_mBody);memSetup((d.w||'').toLowerCase());var _am=$('ansM');if(_am){var _ml=Math.max.apply(null,_mBody.split('\n').map(function(s){return s.length;}));_am.classList.toggle('long',_ml>11);}var _ib=$('ansImp');if(_ib){var _tx='';if(!chainMode){var _bk2=BOOKS[CURBOOK]&&BOOKS[CURBOOK].id;if(d&&d.cnt!=null&&(_bk2==='waseda'||_bk2==='keio')){var _un=(_bk2==='waseda'?'早稲田':'慶応');
         /* セクション＝学部なので、その学部での回数を主に出す。大学全体の計も併記する。
            従来は全セクションで大学全体の計だけを出していて、学部の実数と最大32倍ずれていた（2026-08-30） */
-        _tx=(d.fc!=null&&d.g)?(d.g+'で'+d.fc+'回 ／ '+_un+'全体'+d.cnt+'回'):(_un+'全体で'+d.cnt+'回');}else if(d&&d.cnt!=null&&_bk2==='idioms')_tx=idmLvl(d.g)+'で出題 '+d.cnt+'回';else{var _v2=impPct(d);if(_v2!=null)_tx=state.level+'レベル重要度 '+_v2+'%';}}else if(chainData&&chainData.kind==='idiom'&&chainData.cnt!=null)_tx=idmLvl(chainData.g)+'で出題 '+chainData.cnt+'回';_ib.textContent=_tx;_ib.style.display=_tx?'':'none';ansb.classList.toggle('hasimp',!!_tx);/* 重要度ピルは絶対配置なので、出るときは必ず上に余白を確保する。画像オフや読み込み前でも重ならないように（2026-08-27 実機報告 principal/issue/adopt） */}
+        _tx=d.cntLabel||((d.fc!=null&&d.g)?(d.g+'で'+d.fc+'回 ／ '+_un+'全体'+d.cnt+'回'):(_un+'全体で'+d.cnt+'回'));}else if(d&&d.cnt!=null&&_bk2==='idioms')_tx=idmLvl(d.g)+'で出題 '+d.cnt+'回';else{var _v2=impPct(d);if(_v2!=null)_tx=state.level+'レベル重要度 '+_v2+'%';}}else if(chainData&&chainData.kind==='idiom'&&chainData.cnt!=null)_tx=idmLvl(chainData.g)+'で出題 '+chainData.cnt+'回';_ib.textContent=_tx;_ib.style.display=_tx?'':'none';ansb.classList.toggle('hasimp',!!_tx);/* 重要度ピルは絶対配置なので、出るときは必ず上に余白を確保する。画像オフや読み込み前でも重ならないように（2026-08-27 実機報告 principal/issue/adopt） */}
     /* 答えはタイプ演出なしの一発表示（2026-08-20 ユーザー指定。ズレて見える問題も根絶） */
     sizeAnswerText(_mBody);finalizeMean(d,_pl,_mBody);setExample(d);
     if(coaching&&idx===0&&!chainMode)setTimeout(function(){showCoach('result');},600);
@@ -2683,26 +2775,35 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   /* 難訳マーク（2026-08-11）：難訳をふつうの意味に統合したので、どれが難訳かを札で示す */
   function markHard(d){var el=$('ansM');if(!el||!d||d.hi==null||!d.ms)return;
     el.innerHTML=d.ms.map(function(m,i){return (i?'<br>':'')+(i>=d.hi?'<span class="hardmk">'+m+'</span>':m);}).join('');}/* 難訳はグレーマーカー（2026-08-14。中央揃えを崩さない） */
+  function gramSpec(d){var all=(window.EITAN_GRAMMAR||{}).words||{};return d&&all[String(d.w||'').toLowerCase()]||null;}
+  function grammarLabels(d,meaning){var spec=gramSpec(d),a=spec&&spec[meaning];return Array.isArray(a)?a:[];}
+  function escHTML(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function grammarMeanHtml(d,body){var senses=d&&d.ms&&d.ms.length?d.ms:msSplit(String(body||'')),any=false,complete=!!senses.length;
+    var rows=senses.map(function(m,i){var labels=grammarLabels(d,m);if(labels.length)any=true;else complete=false;var tx=escHTML(m);if(d&&d.hi!=null&&i>=d.hi)tx='<span class="hardmk">'+tx+'</span>';return '<span class="meanline">'+labels.map(function(label){return '<span class="gramk">'+escHTML(label)+'</span>';}).join('')+tx+'</span>';});
+    return any?{html:rows.join(''),complete:complete}:null;}
   /* 意味の最終表示（2026-08-16）：タイプ完了後に品詞マークを小さく＋難訳マーカーを一括で組む */
-  function finalizeMean(d,pl,body){var el=$('ansM');if(!el)return;var h;
-    if(d&&d.hi!=null&&d.ms){h=d.ms.map(function(m,i){return (i?'<br>':'')+(i>=d.hi?'<span class="hardmk">'+m+'</span>':m);}).join('');}
+  function finalizeMean(d,pl,body){var el=$('ansM');if(!el)return;var h,gh=grammarMeanHtml(d,body);
+    if(gh)h=gh.html;
+    else if(d&&d.hi!=null&&d.ms){h=d.ms.map(function(m,i){return (i?'<br>':'')+(i>=d.hi?'<span class="hardmk">'+m+'</span>':m);}).join('');}
     else{h=String(body).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
-    el.innerHTML=(d&&d.kind==='alt'?'② ':'')+(pl?'<span class="posk">'+pl+'</span>':'')+h;}
+    el.innerHTML=(d&&d.kind==='alt'?'② ':'')+(pl&&!(gh&&gh.complete)?'<span class="posk">'+pl+'</span>':'')+h;}
   /* 例文の表示（2026-08-16 B案）：配列 [英文(対象語を*で囲む), 和訳] は2行のリッチ表示、
      文字列（旧SEC1EX・チュートリアル）は従来の1行のまま */
+  function exampleImageOf(d){if(!d)return null;if(d.sokeiStoryId)return window.SOKEI_STORIES?window.SOKEI_STORIES.imageFor(d):null;return d.img||WIMG[d.w]||null;}
   function setExample(d){var el=$('ansEx');if(!el)return;var ex=d&&d.ex;
     if(!ex){el.innerHTML='';return;}
     if(Array.isArray(ex)){
       var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
       var en=esc(ex[0]).replace(/\*([^*]+)\*/g,'<b class="exw">$1</b>');
-      el.innerHTML='<span class="exen">例) '+en+'</span><span class="exjp">'+phrasify(esc(ex[1]||''))+'</span>';
+      el.innerHTML='<span class="exen">例) '+en+'</span><span class="exjp">'+phrasify(esc(ex[1]||''))+'</span>'+(d.exampleNote?'<span class="exjp">'+phrasify(esc(d.exampleNote))+'</span>':'');
     }else el.textContent='例) '+ex;}
   function askMPick(d,done){
     var box=$('mpick');if(!box||!d.ms||d.ms.length<2){done();return;}
     var cur=MUNK[d.w]||[];
-    box.innerHTML='<div class="mpq">どの意味を間違えた？（複数可）</div>'+
-      d.ms.map(function(m,i){return '<button class="mpb'+(cur.indexOf(i)>-1?' on':'')+'" data-i="'+i+'">'+((d.hi!=null&&i>=d.hi)?'<span class="hardmk">'+m+'</span>':m)+'</button>';}).join('')+
-      '<button class="mpb mpdone" id="mpDone">次へ</button>';
+    box.setAttribute('role','group');box.setAttribute('aria-labelledby','mpQuestion');
+    box.innerHTML='<div class="mpq" id="mpQuestion">どの意味を間違えた？（複数選べます）</div>'+
+      d.ms.map(function(m,i){var on=cur.indexOf(i)>-1;return '<button class="mpb'+(on?' on':'')+'" type="button" data-i="'+i+'" aria-pressed="'+(on?'true':'false')+'">'+((d.hi!=null&&i>=d.hi)?'<span class="hardmk">'+m+'</span>':m)+'</button>';}).join('')+
+      '<div class="mperr" id="mpErr" role="alert" aria-live="assertive"></div><button class="mpb mpdone" id="mpDone" type="button">次へ</button>';
     box.style.display='';mpickOpen=true;
     box.querySelectorAll('.mpb[data-i]').forEach(function(b){
       b.onclick=function(e){e.stopPropagation();
@@ -2711,10 +2812,11 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
         var k=a.indexOf(i);
         if(k>-1)a.splice(k,1);else a.push(i);
         if(!a.length)delete MUNK[d.w];
-        b.classList.toggle('on');haptic(6);saveAll();};
+        var on=k<0;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');var er=$('mpErr');if(er)er.textContent='';haptic(6);saveAll();};
     });
     $('mpDone').onclick=function(e){e.stopPropagation();
       if(!(MUNK[d.w]||[]).length){/* 未選択では進ませない */
+        var er=$('mpErr');if(er)er.textContent='意味を1つ以上選んでください。';
         box.classList.remove('shake');void box.offsetWidth;box.classList.add('shake');
         haptic(30);nativeHaptic('HEAVY');return;}
       mpickOpen=false;box.classList.remove('shake');
@@ -2730,9 +2832,9 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     finishPractice();
   }
   function result(ok){
-    if(chainMode){recs.push({conf:conf,ok:ok,chain:true});HIST.push({t:'c',i:idx,l:lapNo,d:chainData});var cw=chainData?chainData.w:null;if(cw){var _whC=(WHIST[cw]=WHIST[cw]||[]);_whC.push(ok);if(_whC.length>10)_whC.splice(0,_whC.length-10);}if(state.cards)addSolved(1);if(ok)try{swPulse();}catch(e){}try{ptOnGrade(ok,cw,null);}catch(e){}saveAll();chainMode=false;chainData=null;fly(ok?1:-1,nextCard);return;}/* カットイン直後には広告を出さない。持ち越し分は次の通常問題で出る（2026-09-03） */
+    if(chainMode){var cw=chainData?chainData.w:null,_ptc=null;try{_ptc=ptOnGrade(ok,cw,null,_ptAttempt);}catch(e){}recs.push({conf:conf,ok:ok,chain:true});HIST.push({t:'c',i:idx,l:lapNo,d:chainData,pt:_ptc,wrong:recordDailyAnswer(chainData,ok,chainData&&chainData.kind||'chain')});if(cw){var _whC=(WHIST[cw]=WHIST[cw]||[]);_whC.push(ok);if(_whC.length>10)_whC.splice(0,_whC.length-10);}if(state.cards)addSolved(1,cw,chainData&&chainData.kind||'chain');if(ok)try{swPulse();}catch(e){}saveAll();chainMode=false;chainData=null;fly(ok?1:-1,nextCard);return;}/* カットイン直後には広告を出さない。持ち越し分は次の通常問題で出る（2026-09-03） */
     recs.push({conf:conf,ok:ok});adTick();/* 広告カウント＝答えを開いた1問（カットインは数えない・2026-08-21） */if(Object.keys(TODAYLOG).length===30)try{remindDone();}catch(e){}/* 今日30問に到達＝18時のリマインダーは不要（2026-09-02） */
-    try{ptOnGrade(ok,queue[idx].w,queue[idx]);}catch(e){}/* 努力ダイヤ：スワイプ+1・連続ボーナス・完成チェック（2026-09-03） */
+    var _ptReceipt=null;try{_ptReceipt=ptOnGrade(ok,queue[idx].w,queue[idx],_ptAttempt,ok&&conf!=='none');}catch(e){}/* 保存済みattempt IDにつき一度だけ付与 */
     (function(){var _w0=queue[idx].w,_mi0=-1,_me0=null,_i0;
       for(_i0=0;_i0<MISSLOG.length;_i0++)if(MISSLOG[_i0].w===_w0){_mi0=_i0;_me0=JSON.parse(JSON.stringify(MISSLOG[_i0]));break;}
       HIST.push({t:'b',i:idx,l:lapNo,w:_w0,ok:ok,snap:{
@@ -2741,11 +2843,12 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
         pn:PSTAT.ev.length,
         bid:BOOKS[CURBOOK]?BOOKS[CURBOOK].id:'base',
         wkg:(state._wkg&&BOOKS[CURBOOK]&&state._wkg[BOOKS[CURBOOK].id]!=null)?state._wkg[BOOKS[CURBOOK].id]:null,
-        ftot:FCTOTAL,flap:FCLAP}});})();/* 1問戻る用の完全スナップショット（2026-08-14） */
+        ftot:FCTOTAL,flap:FCLAP,pt:_ptReceipt}});})();/* 1問戻る用の完全スナップショット（2026-08-14） */
     lapRes.push({it:queue[idx],ok:ok,conf:conf});
     var _slow=ok&&!window._qalt&&window._qdt!=null&&window._qdt>2000&&window._qdt<=30000;/* 正解でも2秒超＝瞬発力不足。30秒超は放置扱いで判定外（2026-08-13） */
     var _wh0=(WHIST[queue[idx].w]=WHIST[queue[idx].w]||[]);_wh0.push(ok?(_slow?2:true):false);if(_wh0.length>10)_wh0.splice(0,_wh0.length-10);/* 3値：true=速い正解/2=遅い正解(青)/false=誤答。使うのは直近5件なので10件でトリム（2026-08-16 肥大対策） */
-    if(state.cards)addSolved(1);/* チュートリアル（1日の問題数を決める前）は数えない（2026-08-10） */
+    HIST[HIST.length-1].wrong=recordDailyAnswer(queue[idx],ok,'word');
+    if(state.cards)addSolved(1,queue[idx].w,'word');/* チュートリアル（1日の問題数を決める前）は数えない（2026-08-10） */
     if(state.cards&&curTask&&!window._revp){window._revp=1;try{if(!localStorage.getItem('mx2_revreq'))localStorage.setItem('mx2_revpend','1');}catch(e){}}/* チュートリアル以外のモードを1回解いた印＝次のホームでレビュー依頼（2026-08-16） */
     var _wn=queue[idx].w,_lk=(BOOKS[CURBOOK]?BOOKS[CURBOOK].id:'base')+'|'+_wn,_le=TODAYLOG[_lk];
     if(!_le){TODAYLOG[_lk]={task:curTask||'skim',ok:ok,first:(ok&&conf!=='none')};}else{_le.ok=ok;}
@@ -2778,6 +2881,8 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
         }else MISSLOG.splice(_mk,0,_me);/* 並び順は保つ */}
     }
     if(curTask==='miss'&&_me){_me.md=dayKey(new Date());_me.lp=1;/* 同じ日に二度は出さない・この周ぶんは消化 */}
+    /* 日別指標は、推定した最終状態ではなくこの回答で実際に起きたID単位の遷移だけを記録する。 */
+    if(state.cards){var _hs=HIST[HIST.length-1].snap,_did=(BOOKS[CURBOOK]?BOOKS[CURBOOK].id:'base')+'|'+String(_wn2).toLowerCase();var _dd={day:ACTIVE_DAY,id:_did,learned:_hs.st!=='learned'&&queue[idx].st==='learned',weak:!_hs.me&&!!_me,overcome:!!_hs.me&&!_me};if(_dd.learned)dailyTransition('learned',_did,1,_dd.day);if(_dd.weak)dailyTransition('weak',_did,1,_dd.day);if(_dd.overcome)dailyTransition('overcome',_did,1,_dd.day);_hs.daily=_dd;}
     /* 早稲田/慶応帳は同じ語が複数の学部セクションに重複して入るため、st を全インスタンスに同期（2026-08-13） */
     if(!queue[idx].drv)for(var _si2=0;_si2<DECKDATA.length;_si2++){var _sx=DECKDATA[_si2];if(_sx!==queue[idx]&&!_sx.drv&&_sx.w===_wn2)_sx.st=queue[idx].st;}
     if(curTask==='skim')skimMark(queue[idx].w);/* 周回カウント */
@@ -2823,7 +2928,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     /* チェイン上限：チュートリアル=派生1+難訳1を種類別保証／スキミング=8問に1回ペース（派生・難訳の主な消化経路）／他タスク=合計2回 */
     var chainCap=9999;/* セッション上限なし（2026-08-20 ユーザー指定。1語につき1枚・正解×自信あり時のみは変わらず） */
     var allowChain=d&&chainOK()&&(!state.cards?(!chainKinds[d.kind]&&idx>0):chainCount<chainCap);/* チュートリアルの1問目はコーチ中のためチェインなし→派生はtry→trialで初登場 */
-    if(ok&&conf!=='none'&&allowChain){chainCount++;chainKinds[d.kind]=1;chainMode=true;chainData=d;var _fv9=$('fcv');if(_fv9){_fv9.style.display='none';_fv9.innerHTML='';}/* カットイン中は前の語の「前回◯日前」を残さない（2026-08-14） */fly(1,function(){chainDrop();});return;}
+    if(ok&&conf!=='none'&&allowChain){chainCount++;chainKinds[d.kind]=1;chainMode=true;chainData=d;var _fv9=$('fcv');if(_fv9){_fv9.style.display='none';_fv9.innerHTML='';}/* カットイン中は前の語の「前回◯日前」を残さない（2026-08-14） */fly(1,nextChainA);return;}
     /* 複数の意味を持つ語を間違えたときだけ、どの意味かを聞く（2026-08-09）。
        答えのスワイプを終えてから出す。カードは指で動いた位置から戻す */
     var _d=queue[idx];
@@ -2862,7 +2967,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
      中断されたAudioContextを起こし直す。退場時は読み上げを止める（復帰後に詰まる既知の癖） */
   document.addEventListener('visibilitychange',function(){try{
     if(document.hidden){if(window.speechSynthesis)window.speechSynthesis.cancel();}
-    else{_wdFl=0;_wdSl=0;ensureAudio();}
+    else{_wdFl=0;_wdSl=0;ensureAudio();remindSync(false);}
   }catch(e){}});
   /* ダブルタップズーム封じの保険（viewport/touch-actionが本命） */
   document.addEventListener('dblclick',function(e){e.preventDefault();},{passive:false});
@@ -2917,8 +3022,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     }
     if(c.getBoundingClientRect().bottom>lim)c.classList.add('anscompact');/* まず意味・例文・余白を詰める */
     if(c.getBoundingClientRect().bottom>lim)c.classList.add('tight');/* 次に画像を全体表示のまま縮める */
-    if(c.getBoundingClientRect().bottom>lim)c.classList.add('noimg');/* 画像を隠して本文を守る */
-    if(c.getBoundingClientRect().bottom>lim)c.classList.add('ansdense');/* 最後に長文だけをもう一段詰める */}
+    if(c.getBoundingClientRect().bottom>lim)c.classList.add('ansdense');/* 最後に長文をもう一段詰め、まだ長い場合は画像を消さず画面をスクロール */}
   window.addEventListener('resize',requestCardFit);if(window.visualViewport)window.visualViewport.addEventListener('resize',requestCardFit);window.addEventListener('orientationchange',requestCardFit);/* 回転・キーボード・表示領域変更で測り直す */
   try{if(document.fonts&&document.fonts.ready)document.fonts.ready.then(requestCardFit);}catch(e){}
   function memSetup(w){window._memW=w;var b=$('memBtn'),t=$('memTxt');if(!b)return;var n=NOTES[w]||'';
@@ -3140,7 +3244,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       go('sc-home');
     };}
   $('sc-hello').addEventListener('click',function(){if($('helloNarr')._advance)$('helloNarr')._advance();});
-  function paintHome(){var _ln=stCount('learned');var pctv=_ln/planDeck()*100;/* 進捗＝覚えた語数ベース（2026-07-21） */var pEl=$('mhPct');if(pEl)pEl.textContent=pctv.toFixed(1)+'%';var arc=$('mhArc');if(arc)arc.setAttribute('stroke-dasharray',(56.55*Math.min(100,pctv)/100).toFixed(2)+' 56.55');var fo=$('mhFore');if(fo){var stN=Object.keys(DONEDAYS).length;if(stN<7){fo.innerHTML='';}else{var pc=Math.max(1,Math.round(_ln/Math.max(1,stN)));var rem=Math.max(0,planDeck()-_ln);var fd=new Date();fd.setDate(fd.getDate()+Math.ceil(rem/pc));fo.innerHTML='このペースなら <b>'+(fd.getMonth()+1)+'月'+fd.getDate()+'日</b> に全単語を一巡';}}
+  function paintHome(){ensureStudyDay();var _ln=stCount('learned');var pctv=_ln/planDeck()*100;/* 進捗＝覚えた語数ベース（2026-07-21） */var pEl=$('mhPct');if(pEl)pEl.textContent=pctv.toFixed(1)+'%';var arc=$('mhArc');if(arc)arc.setAttribute('stroke-dasharray',(56.55*Math.min(100,pctv)/100).toFixed(2)+' 56.55');var fo=$('mhFore');if(fo){var stN=Object.keys(DONEDAYS).length;if(stN<7){fo.innerHTML='';}else{var pc=Math.max(1,Math.round(_ln/Math.max(1,stN)));var rem=Math.max(0,planDeck()-_ln);var fd=new Date();fd.setDate(fd.getDate()+Math.ceil(rem/pc));fo.innerHTML='このペースなら <b>'+(fd.getMonth()+1)+'月'+fd.getDate()+'日</b> に全単語を一巡';}}
     /* スタンプが4日連続で途切れたら、量の見直しを提案（テスト表示: URL末尾に #sug） */
     var sg=$('mhSug');if(sg){var tgt=state.cards||0,miss=0,k2;for(k2=1;k2<=4;k2++){var dd2=new Date();dd2.setDate(dd2.getDate()-k2);if(!DONEDAYS[dayKey(dd2)])miss++;}
       var everSt=Object.keys(DONEDAYS).length>0;/* 一度も押してない人に「途切れた」は出さない */
@@ -3368,7 +3472,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var st=$('nhStart');if(st)st.classList.toggle('off',!!reason);
     /* ホーム v12（2026-08-10）：円周ゲージ・解いた数・連続達成。
        目標に届いても止めない。TODAYN は目標を超えて増え続け、ゲージだけ100%で止まる。 */
-    var _hn=$('hmN');if(_hn)_hn.textContent=fmtN(TODAYN);
+    var _hn=$('hmN');if(_hn)_hn.textContent=fmtN(TODAYN);var _hu=$('hmU');if(_hu)_hu.textContent=fmtN(studyUnique(TODAYWORDS));
     var _ht=$('hmT');if(_ht)_ht.textContent=tgt?fmtN(tgt):'—';
     var _hs=$('hmStkN');if(_hs)_hs.textContent='連続 '+stk+'日';
     missTag=null;/* ホーム表示は全部数える */
@@ -3478,8 +3582,8 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       return;}
     if(d&&d.cnt!=null&&(bkid==='waseda'||bkid==='keio')){/* 早稲田/慶応帳は重要度%でなく出題回数（2026-08-13） */
       var un=bkid==='waseda'?'早稲田':'慶応',ex=bkid==='waseda'?116:143;
-      if(tip)tip.textContent=phrasify('出題回数は、'+un+'の全学部の過去問'+ex+'試験を調査し、その単語が出た試験の数です。');
-      b.style.display='';b.innerHTML='<span>'+un+'出題回数 '+d.cnt+'回</span><span class="q" id="impQ">?</span>';
+      if(tip)tip.textContent=phrasify(d.cntLabel?'この追加語は公式公開資料で確認できた回数だけを表示し、未確認年度を推定していません。':('出題回数は、'+un+'の全学部の過去問'+ex+'試験を調査し、その単語が出た試験の数です。'));
+      b.style.display='';b.innerHTML='<span>'+(d.cntLabel||un+'出題回数 '+d.cnt+'回')+'</span><span class="q" id="impQ">?</span>';
       var q0=$('impQ');if(q0)q0.onclick=function(e){e.stopPropagation();var t=$('impTip');if(t)t.style.display=t.style.display==='none'?'':'none';};
       return;}
     if(tip)tip.textContent=phrasify('重要度は、大学過去問の出題率調査に基づくものです。');
@@ -3493,36 +3597,39 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   document.querySelectorAll('.mh-info').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();var t=b.getAttribute('data-t'),tip=$('tip-'+t);if(!tip)return;var was=tip.classList.contains('on');document.querySelectorAll('.mh-tipb.on').forEach(function(x){x.classList.remove('on');});if(!was){tip.innerHTML=TIPS[t]||'';tip.classList.add('on');}});});
   document.addEventListener('click',function(e){if(!e.target.closest('.mh-info'))document.querySelectorAll('.mh-tipb.on').forEach(function(x){x.classList.remove('on');});});
   /* 設定画面（学年・レベル・1日の問数） */
-  var SETOPTS={grade:['中3','高1','高2','高3','浪人'],level:['共通テスト','上位国立大学','旧帝大以上','日東駒専','MARCH','早慶'],cards:['100','150','200','300'],cutin:['オン','オフ'],wimg:['オン','オフ'],idmcut:['オン','オフ'],dark:['ライト','ダーク'],remind:['オン','オフ']};
+  var SETOPTS={grade:['中3','高1','高2','高3','浪人'],level:['共通テスト','上位国立大学','旧帝大以上','日東駒専','MARCH','早慶'],cards:['100','150','200','300'],cutin:['オン','オフ'],wimg:['オン','オフ'],idmcut:['オン','オフ'],dark:['ライト','ダーク']};
   function applyDark(){document.documentElement.classList.toggle('dark',state.dark==='ダーク');}/* 画面の色（2026-08-31 ユーザー要望）。既定はライト */
-  /* ---- リマインダー通知（1.0.4・2026-09-02 ユーザー要望） ----
-     毎日決まった時刻のローカル通知。スケジュールはOSが保持するので起動ごとの再登録は不要。
-     許可が取れなければオフに戻して案内する */
+  /* 自動リマインダー。許可はOSで管理し、拒否時は静かに停止する。 */
   function lnPlugin(){try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.LocalNotifications)return C.Plugins.LocalNotifications;}catch(e){}return null;}
-  /* 毎日、ユーザーが選んだ時刻に、その日30問未満なら届くリマインダー。
-     既存ユーザーは従来互換でオン・18:00。オフ時も登録済み7件を確実に取り消す。
+  /* 毎日18:00、その日30問未満なら通知。時刻・条件は運営側で固定する。
+     旧remind/remindTimeは保存互換のため残すが、通知の条件には使わない。
      通知は端末側で発火するので、アプリを開かない日も7日分までは届き続ける */
   var RM_MSG='「頑張れない日の10問だけ」ほど価値が高いものはありません';
   function remindParts(v){var m=String(v||'18:00').match(/^(\d{1,2}):(\d{2})$/),h=m?parseInt(m[1],10):18,n=m?parseInt(m[2],10):0;if(h<0||h>23||n<0||n>59){h=18;n=0;}return {h:h,m:n,text:String(h).padStart(2,'0')+':'+String(n).padStart(2,'0')};}
-  function remindPlan(now){var out=[],p=remindParts(state.remindTime);if(state.remind==='オフ'||!state.cards)return out;now=now||new Date();
+  function remindPlan(now){var out=[],p=remindParts('18:00');if(!state.cards)return out;now=now||new Date();
     for(var i=0;i<7;i++){var d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,p.h,p.m,0,0);
       if(i===0&&(now.getTime()>=d.getTime()||Object.keys(TODAYLOG).length>=30))continue;
       out.push({id:711+i,title:'Memora X',body:RM_MSG,schedule:{at:d,allowWhileIdle:true}});}return out;}
-  function remindSync(feedback){var ln=lnPlugin(),ids=[],i;for(i=0;i<7;i++)ids.push({id:711+i});
-    if(!ln){if(feedback)toastMsg('通知の設定はアプリ版で反映されます');return;}
-    ln.cancel({notifications:ids}).catch(function(){}).then(function(){
-      if(state.remind==='オフ'||!state.cards){if(feedback)toastMsg('リマインダーをオフにしました');return;}
-      return ln.requestPermissions().then(function(r){if(!r||r.display!=='granted'){
-          state.remind='オフ';saveAll();if($('sc-settings').classList.contains('on'))renderSettings();toastMsg('通知が許可されていないためオフにしました');return;}
-        var list=remindPlan(new Date());return (list.length?ln.schedule({notifications:list}):Promise.resolve()).then(function(){if(feedback)toastMsg('毎日 '+remindParts(state.remindTime).text+' に通知します');});
-      });
-    }).catch(function(){if(feedback)toastMsg('通知を設定できませんでした');});}
-  function remindDone(){var ln=lnPlugin();if(!ln)return;ln.cancel({notifications:[{id:711}]}).catch(function(){});}/* 今日のぶんだけ取り消す */
-  function renderSettings(){document.querySelectorAll('#sc-settings .chips2').forEach(function(box){var k=box.getAttribute('data-k');box.innerHTML=SETOPTS[k].map(function(v){var sel=String(state[k]||(k==='cutin'||k==='wimg'||k==='idmcut'||k==='remind'?'オン':(k==='dark'?'ライト':'')))===v;return '<button class="c2'+(sel?' sel':'')+'" data-v="'+v+'">'+v+(k==='cards'?'問':'')+'</button>';}).join('');});
+  var rmTask=Promise.resolve(),rmPermissionAsked=false;
+  function remindSync(askPermission){
+    rmTask=rmTask.catch(function(){}).then(async function(){
+      var ln=lnPlugin(),ids=[];if(!ln||!state.cards)return;
+      for(var i=0;i<7;i++)ids.push({id:711+i});
+      var r=await ln.checkPermissions();
+      if(r&&(r.display==='prompt'||r.display==='prompt-with-rationale')&&askPermission!==false&&!rmPermissionAsked){
+        rmPermissionAsked=true;r=await ln.requestPermissions();
+      }
+      await ln.cancel({notifications:ids});
+      if(!r||r.display!=='granted')return;
+      var list=remindPlan(new Date());if(list.length)await ln.schedule({notifications:list});
+    }).catch(function(){});return rmTask;
+  }
+  function remindDone(){return remindSync(false);}/* 30問到達時は当日を除外して再予約。日付変更後も正しいIDを取り消す。 */
+  function renderSettings(){document.querySelectorAll('#sc-settings .chips2').forEach(function(box){var k=box.getAttribute('data-k');box.innerHTML=SETOPTS[k].map(function(v){var sel=String(state[k]||(k==='cutin'||k==='wimg'||k==='idmcut'?'オン':(k==='dark'?'ライト':'')))===v;return '<button class="c2'+(sel?' sel':'')+'" data-v="'+v+'">'+v+(k==='cards'?'問':'')+'</button>';}).join('');});
+    var sm=$('setMem');if(sm)sm.innerHTML=memTierText();
     var ib=$('idmcutBox');if(ib)ib.classList.toggle('locked',!ENT.idioms);/* 熟語帳を買うまでは触れない（2026-08-27） */
-    var rt=$('remindTime'),rb=$('remindTimeBox'),rp=remindParts(state.remindTime);if(rt){rt.value=rp.text;rt.disabled=state.remind==='オフ';rt.onchange=function(){var p=remindParts(rt.value);state.remindTime=p.text;saveAll();renderSettings();remindSync(true);};}if(rb)rb.classList.toggle('off',state.remind==='オフ');
     var rc=$('resetConf');if(rc)rc.style.display='none';/* 画面を開き直したら確認は閉じる */}
-  document.querySelectorAll('#sc-settings .chips2').forEach(function(box){box.addEventListener('click',function(e){var b=e.target.closest('.c2');if(!b)return;var k=box.getAttribute('data-k'),v=b.getAttribute('data-v');if(k==='cards')state.cards=parseInt(v,10);else state[k]=v;if(k==='grade')setExamFromGrade();if(k==='dark')applyDark();computePlan();renderSettings();saveAll();if(k==='remind')remindSync(true);/* 変えた時点で保存する。通知は変更直後に再登録する */});});
+  document.querySelectorAll('#sc-settings .chips2').forEach(function(box){box.addEventListener('click',function(e){var b=e.target.closest('.c2');if(!b)return;var k=box.getAttribute('data-k'),v=b.getAttribute('data-v');if(k==='cards')state.cards=parseInt(v,10);else state[k]=v;if(k==='grade')setExamFromGrade();if(k==='dark')applyDark();computePlan();renderSettings();saveAll();/* 変えた時点で保存する */});});
   /* 学習データリセット（設定画面・はい/いいえ×2段階確認。#resetが使えない環境＝実機/プレビュー用） */
   (function(){var rb=$('resetBtn'),box=$('resetConf'),q=$('resetQ'),y=$('rcYes'),n=$('rcNo'),step=0;if(!rb||!box)return;
     function close(){step=0;box.style.display='none';}
@@ -3744,7 +3851,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var arr=[],i,n;
     (def.words||[]).forEach(function(x){
       var it={w:x.w,m:(x.m||[]).join('、'),st:'new',lv:x.lv};
-      if(x.cnt!=null)it.cnt=x.cnt;if(x.g)it.g=x.g;if(x.fc!=null)it.fc=x.fc;/* 早稲田20年/慶応20年：出題回数(大学全体)と学部、fc=その学部での回数（2026-08-30） */
+      if(x.id)it.id=x.id;if(x.cnt!=null)it.cnt=x.cnt;if(x.g)it.g=x.g;if(x.fc!=null)it.fc=x.fc;if(x.cntLabel)it.cntLabel=x.cntLabel;if(x.sourceEvidence)it.sourceEvidence=x.sourceEvidence;/* 早稲田20年/慶応20年：出題回数(大学全体)と学部、fc=その学部での回数（2026-08-30） */
       /* 意味の絞り込み用に配列化（2026-08-09）。括弧内の読点では割らない
          例「(義務、願望など)を果たす、(必要など)を満たす」→ 2つ */
       it.ms=msSplit(it.m);
@@ -3771,7 +3878,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var hw=0,_hwSeen={};for(i=0;i<arr.length;i++)if(!arr[i].drv&&!_hwSeen[arr[i].w]){_hwSeen[arr[i].w]=1;hw++;}/* 学部重複はユニークで数える（2026-08-13） */
     return {id:def.id,sub:def.sub||'',deck:arr,sections:secs,hw:hw,grad:0,rev:[],whist:{}};
   }
-  function hydrateBookExamples(bk){bk.deck.forEach(function(it){if(!it.ex){var w=it.w||'',lower=w.toLowerCase();var ex=(window.WEXF||{})[w]||(window.WEXF||{})[lower]||(window.WEXA||{})[lower]||(window.WEXI||{})[lower];if(ex)it.ex=ex;}});}
+  function hydrateBookExamples(bk){if(window.SOKEI_STORIES)window.SOKEI_STORIES.applyBook(bk);bk.deck.forEach(function(it){if(!it.ex){var w=it.w||'',lower=w.toLowerCase();var ex=(window.WEXF||{})[w]||(window.WEXF||{})[lower]||(window.WEXA||{})[lower]||(window.WEXI||{})[lower];if(ex)it.ex=ex;}});}
   function loadBookState(b){
     b.grad=parseInt(localStorage.getItem('mx2_grad_'+b.id)||'0',10)||0;
     b.rev=jsonLoad('mx2_rev_'+b.id,[])||[];b.whist=jsonLoad('mx2_whist_'+b.id,{})||{};
@@ -3862,6 +3969,8 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     /* 画像パス（基礎帳のみ。無い画像は表示しないだけなので安全） */
     function imageFileStem(word){return String(word||'').split(/[\/?]/)[0].trim();}
     BOOKS[0].deck.forEach(function(it,i2){var _ext=(i2<800)?'.jpg':'.webp';/* No.800以下は既存847枚のjpg、801以降はwebp 800×533。ズレてもonerrorで拡張子を入れ替えて再試行する（2026-08-26） */var fp='word_img/sec'+('0'+(Math.floor(i2/300)+1)).slice(-2)+'/'+imageFileStem(it.w)+_ext;it.img=fp;if(!WIMG[it.w])WIMG[it.w]=fp;});/* 実画像は3:2。既存はjpg、新規はwebp 800×533。読めない端末用にonerrorで他方へフォールバック */
+    /* 早慶専用画像：冊・学部・単語で照合し、完成済みだけを答え面に割り当てる。 */
+    BOOKS.forEach(function(b){if(b.id!=='waseda'&&b.id!=='keio')return;var bm=(window.SOKEI_IMAGES||{})[b.id]||{};b.deck.forEach(function(it){var fp=(bm[it.g]||{})[it.w];if(fp)it.img=fp;});});
     /* カバー率画面の語数＝全冊合算（早稲田/慶応帳は同語が両方に入るためユニーク数で数える・2026-08-13） */
     recalcBookMetrics();
     setBook(0,true);
@@ -4039,7 +4148,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function stCount(st,arr){/* 冊全体の集計は語のユニーク数（学部重複帳対策・2026-08-13）。セクション内は重複がないので影響なし */
     var n=0,seen={};(arr||DECKDATA).forEach(function(d){if(d.st===st&&!seen[d.w]){seen[d.w]=1;n++;}});return n;}
   /* 間違えた単語の画面（2026-08-11）：単語・何日前に間違えたか・直近の正誤3点。
-     3回連続で正解すると一覧から卒業する */
+     2回連続・2秒以内で正解すると一覧から卒業する */
   function renderMiss(){
     /* 苦手な単語（2026-08-14 v3）：セクション詳細と同じ形式。
        チップ切替＝すべて/間違えた/瞬発力不足、行＝単語・意味・何日前・直近5回ドット */
@@ -4167,45 +4276,14 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
        S到達には約8週連続で正答率90%超が必要＝最高ランクの重みとして妥当 */
     var t=D>=5.5?'S':D>=4.5?'A':D>=3.5?'B':D>=2.5?'C':'D';
     return '<b>'+t+'</b><small>平均'+D.toFixed(1)+'日で忘れる</small>';}
-  /* 分析 AN2採用（2026-07-18）：進捗ヒーロー＋内訳ゲージ＋週の折れ線＋統計行 */
+  /* 2026-09-07：分析は固定集計＋縦スクロールの月別カレンダー。保存形式・出題は変えない。 */
   function renderAnalysis(){
-    /* 画像忠実・分析（2026-07-22 添付4枚目）。進捗＝覚えた語数ベース・0%スタートは維持 */
-    var total=DECKDATA.length,learned=stCount('learned'),weak=stCount('weak');
-    var pctv=Math.min(100,learned/planDeck()*100);
-    var bEl=$('anBook'),bl=$('bookLabel');if(bEl&&bl)bEl.textContent=bl.textContent;
-    var pp=$('anPctPill');if(pp)pp.textContent=(pctv<10?pctv.toFixed(1):Math.round(pctv))+'%';
-    var aa=$('a2Arc');if(aa)aa.setAttribute('stroke-dasharray',(Math.min(100,Math.max(pctv,1.5))/100*106.8).toFixed(1)+' 106.8');
-    $('anPct').textContent=(pctv<10?pctv.toFixed(1):Math.round(pctv))+'%';
-    var pb=$('anPctBar');if(pb)pb.style.width=Math.min(100,pctv)+'%';
-    var bn=$('anBookNm');if(bn&&BOOKS[CURBOOK])bn.textContent=BOOKS[CURBOOK].sub;
-    $('anLearn').textContent=fmtN(learned);
-    /* 今週+N＝週頭（日曜0時）時点の覚えた数との差分。冊ごとにスナップショット */
-    var ws=new Date();ws.setHours(0,0,0,0);ws.setDate(ws.getDate()-ws.getDay());var wkk=dayKey(ws);
-    if(state._wkk!==wkk){state._wkk=wkk;state._wkb={};state._wkg={};/* 今週克服も週次リセット */}
-    state._wkb=state._wkb||{};
-    var bid=BOOKS[CURBOOK]?BOOKS[CURBOOK].id:'base';
-    if(state._wkb[bid]==null){state._wkb[bid]=learned;saveAll();}
-    var wi=$('anWkInc');if(wi)wi.textContent='今週 +'+fmtN(Math.max(0,learned-state._wkb[bid]))+'語';
-    $('anWeak').textContent=fmtN(MISSLOG.length);/* 苦手＝リストの語数（2026-08-13） */
-    var wf=$('anWkFix');if(wf)wf.textContent='今週克服 '+fmtN((state._wkg&&state._wkg[bid])||0)+'語';
-    $('anNew').textContent=fmtN(Math.max(0,total-learned-weak));
-    var am=$('anMem');if(am)am.innerHTML=memTierText();
-    /* 暗記力より下のカードは削除（2026-08-14 ユーザー指定） */
-    var wsum=WEEKDATA.reduce(function(a,b){return a+b;},0),lw=$('anLw');
-    if(lw)lw.innerHTML='合計 <b>'+fmtN(wsum)+'問</b>';
-    /* 週の折れ線（なめらかなベジェ＋薄い面＋各日の点） */
-    var svg=$('wkSvg');
-    if(svg){
-      var names=['日','月','火','水','木','金','土'],dow=new Date().getDay(),mx=Math.max.apply(null,WEEKDATA)||1;
-      var xs=[],ys=[],i;
-      for(i=0;i<7;i++){xs.push(14+i*(312/6));ys.push(108-(WEEKDATA[i]/mx)*88);}
-      var d='M'+xs[0]+','+ys[0];
-      for(i=1;i<7;i++){var cx=((xs[i-1]+xs[i])/2).toFixed(1);d+=' C'+cx+','+ys[i-1].toFixed(1)+' '+cx+','+ys[i].toFixed(1)+' '+xs[i].toFixed(1)+','+ys[i].toFixed(1);}
-      var area=d+' L'+xs[6].toFixed(1)+',108 L'+xs[0]+',108 Z';
-      var dots='';for(i=0;i<7;i++)dots+='<circle cx="'+xs[i].toFixed(1)+'" cy="'+ys[i].toFixed(1)+'" r="'+(i===dow?4.2:3)+'" fill="'+(i===dow?'#2261f5':'#c2c8d2')+'"/>';
-      var lbl='';for(i=0;i<7;i++)lbl+='<text x="'+xs[i].toFixed(1)+'" y="126" text-anchor="middle" font-size="9.5" font-weight="'+(i===dow?'900':'700')+'" fill="'+(i===dow?'#2261f5':'#9aa2b1')+'">'+names[i]+'</text>';
-      svg.innerHTML='<line x1="6" y1="108" x2="334" y2="108" stroke="rgba(15,23,42,.08)" stroke-width="1"/><path d="'+area+'" fill="rgba(34,97,245,.07)"/><path d="'+d+'" fill="none" stroke="#2261f5" stroke-width="2" stroke-linecap="round"/>'+dots+lbl;
-    }
+    ensureStudyDay();syncDailyStats();
+    if(!window.MemoraAnalysis)return;
+    window.MemoraAnalysis.mount($('analysisCalendar'),{
+      now:new Date(),daily:DAILYSTATS,
+      totals:window.MemoraAnalysis.totals(BOOKS,CURBOOK,MISSLOG,SOLVED)
+    });
   }
 
   var COVICON={target:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>',grad:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-4 10 4-10 4z"/><path d="M6 11v5c0 1.2 2.7 3 6 3s6-1.8 6-3v-5"/></svg>',bank:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6"/><path d="M5 10v9M9.5 10v9M14.5 10v9M19 10v9M3 21h18"/></svg>'};
@@ -4215,12 +4293,15 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   /* 旧startIntro（忘却の解説）はホーム到着後のガイドツアーへ移動（2026-08-03） */
   function animateCurve(){var w=$('curveWrap');if(w){w.classList.remove('in');setTimeout(function(){w.classList.add('in');},80);}}
 
-    var mcalView=null,DONEDAYS={};
+    var mcalView=null,mcalMetric='answers',mcalSelected=null,DONEDAYS={};
   function dayKey(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
   /* デモ用の過去3日スタンプ・週間実績も #seed のときだけ（初日にスタンプ済みは矛盾のため） */
   (function(){if(location.hash!=='#seed'&&location.hash!=='#focus')return;var t=new Date();for(var k=1;k<=3;k++){var d=new Date(t);d.setDate(t.getDate()-k);DONEDAYS[dayKey(d)]=true;WEEKDATA[(t.getDay()-k+7)%7]=200;}GRAD=3*(state._perDay||67);})();
-  function renderMenuCal(){if(!mcalView){mcalView=new Date();mcalView.setDate(1);}var y=mcalView.getFullYear(),m=mcalView.getMonth();$('mcalTitle').textContent=y+'年 '+(m+1)+'月';var first=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate();var now=new Date();now.setHours(0,0,0,0);var g=$('mcalGrid');g.innerHTML='';var CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';var i;for(i=0;i<first;i++){var mt=document.createElement('div');mt.className='mcell mut';g.appendChild(mt);}for(var d=1;d<=dim;d++){var cur=new Date(y,m,d);var dv=DONEDAYS[dayKey(cur)],done=!!dv;var cls='mcell'+(done?' done':'')+(dv==='gold'?' gold':'')+(cur.getTime()===now.getTime()?' today':'')+(cur.getTime()>now.getTime()?' fut':'');var cell=document.createElement('div');cell.className=cls;cell.innerHTML='<span class="dn">'+d+'</span><span class="st">'+CHK+'</span>';g.appendChild(cell);}var streak=0,c=new Date(now);while(DONEDAYS[dayKey(c)]){streak++;c.setDate(c.getDate()-1);}$('calStreak').textContent='連続 '+streak+'日';}
-  $('sc-calendar').addEventListener('click',function(e){var b=e.target.closest('.calnav');if(!b)return;mcalView=new Date(mcalView.getFullYear(),mcalView.getMonth()+parseInt(b.getAttribute('data-mnav'),10),1);renderMenuCal();});
+  function dailyMetricValue(e,metric){if(!e)return null;if(metric==='answers')return e.answers==null?null:Math.max(0,parseInt(e.answers,10)||0);if(metric==='studied')return e.wordCounts&&typeof e.wordCounts==='object'&&!Array.isArray(e.wordCounts)?studyUnique(e.wordCounts):null;if(['learned','weak','overcome'].indexOf(metric)>=0){if(e.transitionComplete!==true||!e.transitions||!e.transitions[metric])return null;return studyUnique(e.transitions[metric]);}return null;}
+  function calMetricName(metric){return{answers:'回答数',studied:'学習単語',learned:'覚えた',weak:'苦手入り',overcome:'苦手を克服'}[metric]||'回答数';}
+  function renderCalDetail(k,future){var box=$('calDetail');if(!box)return;var p=String(k||'').split('-'),title=p.length===3?(parseInt(p[1],10)+'月'+parseInt(p[2],10)+'日'):'選択日',e=DAILYSTATS[k];if(future){box.innerHTML='<div class="cdhead"><span class="cdtitle">'+title+'</span><span class="cdstate">未来</span></div><div class="cdempty">未来日の学習記録はまだありません。</div>';return;}if(!e){box.innerHTML='<div class="cdhead"><span class="cdtitle">'+title+'</span><span class="cdstate">記録なし</span></div><div class="cdempty">この日は保存された学習記録がありません。過去の状態から件数を推定していません。</div>';return;}var av=dailyMetricValue(e,'answers'),sv=dailyMetricValue(e,'studied'),lv=dailyMetricValue(e,'learned'),wv=dailyMetricValue(e,'weak'),ov=dailyMetricValue(e,'overcome'),goal=parseInt(e.goal||0,10)||0;function val(v,u){return v==null?'—<small>記録なし</small>':fmtN(v)+'<small>'+u+'</small>';}box.innerHTML='<div class="cdhead"><span class="cdtitle">'+title+'</span><span class="cdstate has">'+((av||0)>0?'学習あり':'学習 0')+'</span></div><div class="cdgrid"><div class="cdmetric wide"><span class="k">回答数 / 当日の目標</span><span class="v">'+(av==null?'—<small>記録なし</small>':fmtN(av)+(goal?' <small>/ '+fmtN(goal)+'問</small>':' <small>問・目標未設定</small>'))+'</span></div><div class="cdmetric"><span class="k">学習単語</span><span class="v">'+val(sv,'語')+'</span></div><div class="cdmetric"><span class="k">覚えた</span><span class="v">'+val(lv,'語')+'</span></div><div class="cdmetric"><span class="k">苦手入り</span><span class="v">'+val(wv,'語')+'</span></div><div class="cdmetric"><span class="k">苦手を克服</span><span class="v">'+val(ov,'語')+'</span></div></div>';}
+  function renderMenuCal(){ensureStudyDay();syncDailyStats();if(!mcalView){mcalView=new Date();mcalView.setDate(1);}var y=mcalView.getFullYear(),m=mcalView.getMonth();$('mcalTitle').textContent=y+'年 '+(m+1)+'月';var first=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate();var now=new Date();now.setHours(0,0,0,0);var nowKey=dayKey(now);if(!mcalSelected||mcalSelected.split('-')[0]!=y||parseInt(mcalSelected.split('-')[1],10)!==m+1)mcalSelected=(y===now.getFullYear()&&m===now.getMonth())?nowKey:dayKey(new Date(y,m,1));var max=0,d,e,v;for(d=1;d<=dim;d++){e=DAILYSTATS[dayKey(new Date(y,m,d))];v=dailyMetricValue(e,mcalMetric);if(v!=null)max=Math.max(max,v);}var g=$('mcalGrid');g.innerHTML='';for(var i=0;i<first;i++){var mt=document.createElement('div');mt.className='mcell mut';g.appendChild(mt);}for(d=1;d<=dim;d++){var cur=new Date(y,m,d),k=dayKey(cur),future=cur.getTime()>now.getTime();e=DAILYSTATS[k];v=future?null:dailyMetricValue(e,mcalMetric);var pct=null;if(v!=null){if(mcalMetric==='answers'){var goal=parseInt((e&&e.goal)||0,10)||0;if(goal)pct=Math.min(100,v/goal*100);}else pct=max?Math.min(100,v/max*100):0;}var cell=document.createElement('button');cell.type='button';cell.setAttribute('data-day',k);cell.setAttribute('aria-label',k+' '+(future?'未来':(v==null?'記録なし':calMetricName(mcalMetric)+' '+v)));cell.className='mcell'+(cur.getTime()===now.getTime()?' today':'')+(future?' fut':(v==null?' missing':(v===0?' zero':'')))+(k===mcalSelected?' selected':'');if(future)cell.disabled=true;cell.innerHTML='<span class="mring"'+(pct==null?'':' style="--p:'+pct.toFixed(2)+'"')+'><span class="dn">'+d+'</span></span>';g.appendChild(cell);}var chips=$('calMetrics').querySelectorAll('.cmchip');for(i=0;i<chips.length;i++){var on=chips[i].getAttribute('data-cmetric')===mcalMetric;chips[i].classList.toggle('on',on);chips[i].setAttribute('aria-pressed',on?'true':'false');}$('calLegend').textContent=mcalMetric==='answers'?'リングは当日の回答数÷その日の目標（100%で一周）。目標未設定は実数だけ表示します。':'リングはこの月の最大値に対する相対量です。目標達成率ではありません。';var streak=0,c=new Date(now);while(DONEDAYS[dayKey(c)]){streak++;c.setDate(c.getDate()-1);}$('calStreak').textContent='連続 '+streak+'日';renderCalDetail(mcalSelected,new Date(y,m,parseInt(mcalSelected.split('-')[2],10)).getTime()>now.getTime());}
+  $('sc-calendar').addEventListener('click',function(e){var b=e.target.closest('.calnav');if(b){mcalView=new Date(mcalView.getFullYear(),mcalView.getMonth()+parseInt(b.getAttribute('data-mnav'),10),1);renderMenuCal();return;}var chip=e.target.closest('.cmchip');if(chip){mcalMetric=chip.getAttribute('data-cmetric');renderMenuCal();return;}var day=e.target.closest('.mcell[data-day]');if(day&&!day.disabled){mcalSelected=day.getAttribute('data-day');renderMenuCal();}});
   $('sc-intro').addEventListener('click',function(){if($('introNarr')._advance)$('introNarr')._advance();});
   $('sc-curve').addEventListener('click',function(){ensureAudio();if(window._tourNext)window._tourNext();});/* 曲線画面はツアー専用（2026-08-03） */
   /* カバー率画面は⌄なし・画面のどこをタップしても次へ（戻るボタンは除外） */
@@ -4229,11 +4310,12 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   phrasifyDom(document);
 
   /* ===== 永続化 v2（2026-07-19 3冊化）。キーは mx2_*。#reset は進捗のみ初期化 ===== */
-  function saveAll(){if(!state.cards)return;try{
+  function saveAll(){if(!state.cards)return;if(!DAYROLLING)ensureStudyDay();try{
     if(BOOKS[CURBOOK]){BOOKS[CURBOOK].grad=GRAD;BOOKS[CURBOOK].rev=REVPOOL;BOOKS[CURBOOK].whist=WHIST;}
     localStorage.setItem('mx2_state',JSON.stringify(state));
     localStorage.setItem('mx2_done',JSON.stringify(DONEDAYS));
-    localStorage.setItem('mx2_day',JSON.stringify({d:dayKey(new Date()),todo:TODO,n:TODAYN,gt:GOKUTUT,week:WEEKDATA,log:TODAYLOG,streak:WSTREAK}));
+    syncDailyStats();localStorage.setItem('mx2_daily',JSON.stringify(DAILYSTATS));
+    localStorage.setItem('mx2_day',JSON.stringify({d:ACTIVE_DAY,todo:TODO,n:TODAYN,gt:GOKUTUT,week:WEEKDATA,log:TODAYLOG,words:TODAYWORDS,streak:WSTREAK}));
     var b=BOOKS[CURBOOK];if(b){
       localStorage.setItem('mx2_whist_'+b.id,JSON.stringify(WHIST));
       localStorage.setItem('mx2_grad_'+b.id,''+GRAD);
@@ -4268,16 +4350,14 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       else if(e.task==='rev'){/* 前回の復習は即時反映済み */}
       else{if(e.first)it.st='learned';}
     }
-    TODO={rev:false,weak:false,skim:false,goku:false};TODAYN=0;TODAYLOG={};
+    TODO={rev:false,weak:false,skim:false,goku:false};TODAYN=0;TODAYLOG={};TODAYWORDS={};
     var tk=dayKey(new Date());
     if(weekStartK(day.d)!==weekStartK(tk)){state._lwk=WEEKDATA.reduce(function(a,b){return a+b;},0);/* 先週比用 */WEEKDATA=[0,0,0,0,0,0,0];}else WEEKDATA[new Date().getDay()]=0;
   }
   function loadAll(){try{
     var s=JSON.parse(localStorage.getItem('mx2_state')||'null');if(!s||!s.cards)return false;
     state=s;
-    /* リマインダー設定の追加型移行。旧版は常時18:00だったため同じ挙動を既定にする */
-    if(state.remind!=='オン'&&state.remind!=='オフ')state.remind='オン';
-    state.remindTime=remindParts(state.remindTime).text;
+    /* 旧リマインダー設定は保存互換用に保持。現在の固定18時スケジュールには使わない。 */
     /* レベル改定の移行（2026-08-02）：旧名称を近いレベルへ */
     if(state.level==='地方国立')state.level='MARCH';
     else if(state.level==='最上位国立')state.level='早慶';
@@ -4288,13 +4368,14 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var bi=0,j;for(j=0;j<BOOKS.length;j++)if(BOOKS[j].id===state.book)bi=j;
     if(PLAT==='web'&&state.book==='idioms'&&!ENT.idioms){WEB_WANTED_BOOK='idioms';bi=0;}
     setBook(bi,true);
-    var day=JSON.parse(localStorage.getItem('mx2_day')||'null'),tk=dayKey(new Date());
+    DAILYSTATS=jsonLoad('mx2_daily',{});var day=JSON.parse(localStorage.getItem('mx2_day')||'null'),tk=dayKey(new Date());
     if(day){
       if(day.week&&day.week.length===7)WEEKDATA=day.week;
       WSTREAK=day.streak||{};GOKUTUT=!!day.gt;
-      if(day.d===tk){TODO=day.todo||TODO;TODAYN=day.n||0;TODAYLOG=day.log||{};}
-      else rollover(day);
+      if(day.d===tk){TODO=day.todo||TODO;TODAYN=day.n||0;TODAYLOG=day.log||{};TODAYWORDS=(day.words&&typeof day.words==='object'&&!Array.isArray(day.words))?day.words:{};if(!Object.keys(TODAYWORDS).length)TODAYWORDS=studyWordsFromLog(TODAYLOG);}
+      else{var _old7=DAILYSTATS[day.d]||{};_old7.answers=parseInt(day.n||0,10)||0;_old7.wordCounts=(day.words&&typeof day.words==='object'&&!Array.isArray(day.words))?day.words:studyWordsFromLog(day.log||{});if(!Object.prototype.hasOwnProperty.call(_old7,'goal'))_old7.goal=null;DAILYSTATS[day.d]=_old7;rollover(day);}
     }
+    ACTIVE_DAY=tk;syncDailyStats();try{localStorage.setItem('mx2_daily',JSON.stringify(DAILYSTATS));}catch(e){}
     /* 残り日数は試験日から毎回再計算 */
     if(state.exam){var ex=new Date(state.exam);if(!isNaN(ex)){var now=new Date();now.setHours(0,0,0,0);ex.setHours(0,0,0,0);state.daysLeft=Math.max(0,Math.round((ex-now)/86400000));}}
     return true;
@@ -4321,7 +4402,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
        バックアップから復元して再読込（自己復旧）
      ③それでも読めない時だけオンボーディングへ（mx2dmg_が残るので後から救出できる）
      ※リセット（wipeData）は進捗のみを消し、設定・wallet・権利・バックアップは保持する */
-  function dataKeys(){var ks=['mx2_state','mx2_done','mx2_day','mx2_pstat','mx2_solved'],i;
+  function dataKeys(){var ks=['mx2_state','mx2_done','mx2_day','mx2_daily','mx2_pstat','mx2_solved'],i;
     for(i=0;i<BOOKS.length;i++){var id=BOOKS[i].id;['wst','fc','miss','whist','grad','rev','munk','skim','fctotal','fclap','lap1'].forEach(function(p){ks.push('mx2_'+p+'_'+id);});}
     return ks;}
   function bakSave(){try{var tk=dayKey(new Date());if(localStorage.getItem('mx2_bakd')===tk)return;
@@ -4374,7 +4455,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
      ・課金はidiomsの1本：熟語帳＋熟語カットイン（月300円）。noads=広告削除は作らないと決めた（2026-08-27）
      ・ENT.noadsの判定と広告非表示の処理はコードに残してある。商品を作れば復活する
      ・権利の真実はStoreKit（getEntitlements）。localStorage mx2_ent は起動直後の表示用キャッシュ
-     ・広告は「答えを開いた問題」15問に1枚のカード。チュートリアル中・累計30問未満・noads購入者には出さない
+     ・広告は採点済みの通常問題12問ごと。チュートリアル中・累計30問まで・noads購入者には出さない
      ・WebはlocalStorageやURLハッシュを権利に使わず、サーバー確認後にだけ熟語データを取得する */
   var PRODUCTS={noads:'com.issei.eitan.noads',idioms:'com.issei.eitan.idioms'};
   var ENT={noads:false,idioms:false},PRICES={};
@@ -4382,111 +4463,61 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function entLoad(){if(PLAT==='web'){ENT.noads=false;ENT.idioms=false;return;}var o=jsonLoad('mx2_ent',{});ENT.noads=!!o.noads;ENT.idioms=!!o.idioms;
     var h=location.hash;if(h==='#premium'){ENT.noads=true;ENT.idioms=true;}else if(h==='#noads')ENT.noads=true;else if(h==='#idioms')ENT.idioms=true;}
   function entSave(){if(PLAT==='web')return;try{localStorage.setItem('mx2_ent',JSON.stringify({noads:ENT.noads,idioms:ENT.idioms,t:Date.now()}));}catch(e){}}
-  function entApply(ids){if(PLAT==='web')return;ids=ids||[];ENT.noads=ids.indexOf(PRODUCTS.noads)>-1;ENT.idioms=ids.indexOf(PRODUCTS.idioms)>-1;if(state.entInvite||state.entGift||state.entWeb)ENT.idioms=true;/* Nativeの既存権利は維持 */entSave();renderPremium();if(ENT.noads&&adOn)adHide(true);if(!ENT.noads)adPrepare();}
+  function entApply(ids){if(PLAT==='web')return;ids=ids||[];ENT.noads=ids.indexOf(PRODUCTS.noads)>-1;ENT.idioms=ids.indexOf(PRODUCTS.idioms)>-1;if(state.entInvite||state.entGift||state.entWeb)ENT.idioms=true;/* Nativeの既存権利は維持 */entSave();renderPremium();if(ENT.noads)adStopForNoAds();else{adsBoot();adPrepare();}}
   function skPlugin(){try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.StoreKit2)return C.Plugins.StoreKit2;}catch(e){}return null;}
   function toastMsg(t){var el=$('toast');if(!el)return;el.textContent=t;el.classList.add('on');clearTimeout(window._tt);window._tt=setTimeout(function(){el.classList.remove('on');},Math.min(6000,2200+t.length*60));}
-  function openMSheet(){var m=$('modal'),ms=$('msheet');if(!m)return;if(!m.classList.contains('on'))window._modalReturnFocus=document.activeElement;m.classList.add('on');setTimeout(function(){try{if(ms)ms.focus({preventScroll:true});}catch(e){}},0);}
+  function openMSheet(){var m=$('modal'),ms=$('msheet');if(!m)return;if(!m.classList.contains('on'))window._modalReturnFocus=document.activeElement;if(ms)ms.scrollTop=0;m.classList.add('on');setTimeout(function(){try{if(ms){ms.scrollTop=0;ms.focus({preventScroll:true});}}catch(e){}},0);}
   function closeMSheet(){var m=$('modal'),ms=$('msheet'),back=window._modalReturnFocus;window._modalReturnFocus=null;if(m){m.classList.remove('on');m.classList.remove('plain');}if(ms){ms.innerHTML='';delete ms.dataset.webent;}setTimeout(function(){try{if(back&&document.contains(back))back.focus({preventScroll:true});}catch(e){}},0);}
   document.addEventListener('keydown',function(e){if(e.key!=='Escape'||!$('modal').classList.contains('on'))return;var home=!!$('fcGoalOk');closeMSheet();if(home)go('sc-home');});
-  /* ===== 努力ダイヤ（2026-09-03 ユーザー要望・世界史v115のルールを移植） =====
-     スワイプ1問=+1（わからないでも付く）／正解は直前の連続正解数で +3/5/10/15/30（5連続以上=習得済みは0）
-     0.4秒未満×5連打からは無効／セクション完成+50・単語帳マスター+500（各一度きり）
-     ログインボーナス=週サイクル200、7日目1000（自動付与）／保存は端末のみ（mx2_wallet） */
-  var WALLET={pt:0,awarded:{}},PTSESS=0,_ptLast=0,_ptFast=0;
+  /* ===== 努力ダイヤ v1.0.5 #37 =====
+     既存の付与率は維持するが、付与元はチュートリアル外の採点完了イベントだけに限定する。
+     eitan専用キー、永続attempt連番、直近イベント台帳、receipt単位undoで再読込・二重callback・importによる水増しを防ぐ。
+     ログイン・広告・購入・招待・過去実績換算では増やさず、外部同期と塾連携は今回行わない。 */
+  var WALLET={schemaVersion:2,appScope:'eitan',pt:0,seq:0,awarded:{},events:{},eventOrder:[]},WCLIENT=null,PTSESS=0,_ptLast=0,_ptFast=0,_ptAttempt=null;
   var PTB={0:3,1:5,2:10,3:15,4:30};
-  function wLoad(){var w=jsonLoad('mx2_wallet',null);if(w&&typeof w.pt==='number')WALLET=w;if(!WALLET.awarded||typeof WALLET.awarded!=='object')WALLET.awarded={};}
-  function wSave(){try{localStorage.setItem('mx2_wallet',JSON.stringify(WALLET));}catch(e){}}
+  function wLoad(){try{if(window.MXEffortWallet){WCLIENT=window.MXEffortWallet.create({storage:localStorage});WALLET=WCLIENT.load();return;}}catch(e){WCLIENT=null;}var w=jsonLoad('mx2_wallet',null);if(w&&typeof w.pt==='number')WALLET.pt=Math.max(0,Math.floor(w.pt));}
+  function ptAttemptStart(kind,subject){if(!state.cards||!WCLIENT)return null;try{var id=WCLIENT.startAttempt(kind,subject);WALLET=WCLIENT.snapshot();return id;}catch(e){return null;}}
   function _fmtP(n){n=n||0;if(n>=100000){var v=Math.round(n/1000)/10;return (v%1?v.toFixed(1):String(Math.round(v)))+'万';}return n.toLocaleString('ja-JP');}
   function ptBadgeRefresh(){var el=$('hdrPts');if(el){el.textContent='💎'+_fmtP(WALLET.pt);el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}}
-  function ptGain(n){if(!n||n<=0)return;WALLET.pt+=n;PTSESS+=n;wSave();ptBadgeRefresh();}
-  function ptOnGrade(ok,w,d){var now=Date.now(),iv=_ptLast?now-_ptLast:0;_ptLast=now;
+  function ptMilestones(d){var out=[];try{
+    var si=secInfoOf(d);if(!si||si.name==='あなたの追加単語')return out;
+    var bk9=BOOKS[CURBOOK]?BOOKS[CURBOOK].id:'b',k='s|'+bk9+'|'+si.name,A=SECTIONS[si.sec].arr,i,complete=true;
+    if(!WCLIENT.hasMilestone(k)){for(i=0;i<A.length;i++)if(!A[i].drv&&A[i]!==d&&A[i].st!=='learned'){complete=false;break;}if(complete)out.push({key:k,amount:50});}
+    var kb='b|'+bk9,bookComplete=true,s2,j2;if(!WCLIENT.hasMilestone(kb)){for(s2=0;s2<SECTIONS.length&&bookComplete;s2++){if(SECTIONS[s2].name==='あなたの追加単語')continue;var B=SECTIONS[s2].arr;for(j2=0;j2<B.length;j2++)if(!B[j2].drv&&B[j2]!==d&&B[j2].st!=='learned'){bookComplete=false;break;}}if(bookComplete)out.push({key:kb,amount:500});}
+  }catch(e){}return out;}
+  function ptOnGrade(ok,w,d,eventId,progressEligible){if(!state.cards||!WCLIENT||!eventId||!w)return null;var now=Date.now(),iv=_ptLast?now-_ptLast:0;_ptLast=now;
     if(iv>0&&iv<400)_ptFast++;else _ptFast=0;
-    if(_ptFast>=5)return;/* 機械的な連打だけ無効。単発の速答はセーフ */
-    var earn=1;
-    if(ok){var prev=(w&&FC[w]&&FC[w].n)||0;if(prev<5)earn+=(PTB[prev]||0);}
-    ptGain(earn);
-    if(ok&&d)ptCompletion(d);}
-  function ptCompletion(d){try{
-    var si=secInfoOf(d);if(!si||si.name==='あなたの追加単語')return;
-    var bk9=BOOKS[CURBOOK]?BOOKS[CURBOOK].id:'b';
-    var k='s|'+bk9+'|'+si.name;
-    if(WALLET.awarded[k])return;
-    var A=SECTIONS[si.sec].arr,i;for(i=0;i<A.length;i++){if(!A[i].drv&&A[i].st!=='learned')return;}
-    WALLET.awarded[k]=1;ptGain(50);wSave();toastMsg('🏅 セクション完成！ +50💎');haptic(12);
-    var kb='b|'+bk9;if(WALLET.awarded[kb])return;
-    var s2,j2;for(s2=0;s2<SECTIONS.length;s2++){if(SECTIONS[s2].name==='あなたの追加単語')continue;var B=SECTIONS[s2].arr;for(j2=0;j2<B.length;j2++){if(!B[j2].drv&&B[j2].st!=='learned')return;}}
-    WALLET.awarded[kb]=1;ptGain(500);wSave();setTimeout(function(){toastMsg('🏆 単語帳マスター！！ +500💎');},1000);
-  }catch(e){}}
-  function loginBonusTick(){try{if(!state.cards)return;var tk=dayKey(new Date());if(state.lastLogin===tk)return;
-    var cont=state.lastLoginMs&&(Date.now()-state.lastLoginMs)<48*3600*1000;
-    state.loginStreak=cont?(state.loginStreak||0)+1:1;state.lastLogin=tk;state.lastLoginMs=Date.now();
-    var st9=state.loginStreak;
-    if(state.loginClaimed!==st9){var wk=((st9-1)%7)+1,amt=(wk===7)?1000:200;state.loginClaimed=st9;ptGain(amt);toastMsg('🎁 ログインボーナス +'+amt+'💎（🔥'+st9+'日目）');}
-    saveAll();}catch(e){}}
+    var earn=_ptFast>=5?0:1;/* 機械的な連打だけ0。イベント自体は記録し、同じcallbackの再付与を防ぐ。 */
+    if(ok&&_ptFast<5){var prev=(w&&FC[w]&&FC[w].n)||0;if(prev<5)earn+=(PTB[prev]||0);}
+    var receipt=WCLIENT.award(eventId,earn,progressEligible&&d?ptMilestones(d):[]);if(!receipt)return null;WALLET=WCLIENT.snapshot();PTSESS+=receipt.amount;ptBadgeRefresh();
+    receipt.milestoneKeys.forEach(function(k){if(k.indexOf('s|')===0){toastMsg('🏅 セクション完成！ +50💎');haptic(12);}else if(k.indexOf('b|')===0)setTimeout(function(){toastMsg('🏆 単語帳マスター！！ +500💎');},1000);});return receipt;}
+  function ptUndo(receipt){if(!WCLIENT||!receipt)return;var undone=WCLIENT.undo(receipt);if(!undone)return;WALLET=WCLIENT.snapshot();PTSESS=Math.max(0,PTSESS-undone.amount);ptBadgeRefresh();}
   function openPoints(){var ms=$('msheet');if(!ms)return;haptic(6);
     function paint(){
-      var ls=0;try{var bi,seen,dk,x,it;for(bi=0;bi<BOOKS.length;bi++){seen={};dk=BOOKS[bi].deck;for(x=0;x<dk.length;x++){it=dk[x];if(!it.drv&&it.st==='learned'&&!seen[it.w]){seen[it.w]=1;ls++;}}}}catch(e){}
-      var mig=(!state._ptMig&&SOLVED>0),gain=SOLVED+ls*30;
       ms.innerHTML='<div class="pthero"><div class="l">努力ダイヤ</div><div class="v">'+_fmtP(WALLET.pt)+'<span>💎</span></div><div class="s2">ダイヤを集めると、今後いいことがあるかも……。</div></div>'
-        +(mig?'<button class="opt" id="ptMig" type="button" style="width:100%;margin-top:14px">これまでの学習をダイヤに反映する<small>解答'+fmtN(SOLVED)+'問＋覚えた'+fmtN(ls)+'語 → +'+_fmtP(gain)+'💎</small></button>':'')
-        +'<div class="pnote" style="text-align:center;margin-top:12px">努力ダイヤはこの端末に保存されています</div>'
+        +'<div class="pnote" style="text-align:center;margin-top:12px">このセッション +'+_fmtP(PTSESS)+'💎<br>有効な問題の採点完了だけで加算し、大学英単語専用としてこの端末に保存します。</div>'
         +'<div class="pwl"><button class="plink" id="ptClose" type="button">とじる</button></div>';
-      $('ptClose').onclick=closeMSheet;
-      var mb=$('ptMig');if(mb)mb.onclick=function(){state._ptMig=1;ptGain(gain);saveAll();haptic(12);toastMsg('💎 +'+_fmtP(gain)+' を反映しました！');paint();};}
+      $('ptClose').onclick=closeMSheet;}
     paint();openMSheet();}
   window.openPoints=openPoints;
-  /* ===== 友達招待＆コード入力（2026-09-03 ユーザー要望・世界史v115と同じ暫定クライアント判定） =====
-     ・自分のフレンドコードを共有→友達がインストールすると友達側にもコードが発行される→それを入力して1人カウント
-     ・3人で英熟語帳が永久解放（state.entInvite）。入力1人ごとに+1000💎（3人まで）
-     ・同じ入力欄で GIFT-（プレゼントキャンペーン）と WEB-（Web版買い切りのキー）も受ける。
-       検証はハッシュ照合（_h32）。発行は tools/gen_gift_codes.js */
-  function invCode(){if(!state.friendCode||!/^[A-HJKMNP-Z2-9]{4}-[A-HJKMNP-Z2-9]{4}$/.test(state.friendCode)||_h32('mxfr1|'+state.friendCode.slice(0,4))!==state.friendCode.slice(5)){var B='ABCDEFGHJKMNPQRSTUVWXYZ23456789',t='',i;for(i=0;i<4;i++)t+=B[(Math.random()*B.length)|0];state.friendCode=t+'-'+_h32('mxfr1|'+t);saveAll();}return state.friendCode;}/* 後半はチェックサム。旧形式（検証なし時代）のコードは作り直す（2026-09-03 セキュリティ監査） */
-  function _h32(str){var h=5381,i;for(i=0;i<str.length;i++){h=((h<<5)+h+str.charCodeAt(i))|0;}h=Math.abs(h);var B='ABCDEFGHJKMNPQRSTUVWXYZ23456789',o='',j;for(j=0;j<4;j++){o+=B[h%31];h=(h/31)|0;}return o;}
+  /* 新規の友達紹介はWeb認証とDBトリガーだけで成立させる。端末に残る既得entInviteは移行のため維持する。 */
   function entMergeLocal(){if(PLAT==='web')return;if((state.entInvite||state.entGift||state.entWeb)&&!ENT.idioms){ENT.idioms=true;try{entSave();}catch(e){}try{renderPremium();}catch(e){}}}
-  function applyAnyCode(raw,msgEl,repaint){
-    var v=String(raw||'').trim().toUpperCase().replace(/[^A-Z0-9-]/g,'');
-    function say(t,err){var m=document.getElementById('invMsg')||msgEl;if(m){m.textContent=t;m.className='dmsg'+(err?' err':' ok');}}
-    if(PLAT==='web'){say('Web版の購入権利はログイン後にサーバーから確認します',true);return;}
-    if(PLAT==='ios'&&/^(GIFT|WEB)-/.test(v)){say('このコードはWeb版・Android版でご利用いただけます',true);return;}/* App Store 3.1.1：ライセンスキーによる解放は不可（2026-09-03 規約調査） */
-    var mG=v.match(/^GIFT-([A-HJKMNP-Z2-9]{5})-([A-HJKMNP-Z2-9]{4})$/);/* 発行側と同じ31文字集合に限定（2026-09-03） */
-    if(mG){if(state.entGift){say('ギフトコードは適用済みです',false);return;}
-      if(_h32('mxgift1|'+mG[1])!==mG[2]){say('コードが正しくありません',true);return;}
-      state.entGift=1;entMergeLocal();saveAll();haptic(12);toastMsg('🎁 英熟語帳が解放されました！');if(repaint)repaint();say('英熟語帳がずっと使えるようになりました',false);return;}
-    var mW=v.match(/^WEB-([A-HJKMNP-Z2-9]{5})-([A-HJKMNP-Z2-9]{4})$/);/* 同上 */
-    if(mW){if(state.entWeb){say('このキーは適用済みです',false);return;}
-      if(_h32('mxweb1|'+mW[1])!==mW[2]){say('キーが正しくありません',true);return;}
-      state.entWeb=1;entMergeLocal();saveAll();haptic(12);toastMsg('✅ 購入を確認しました。英熟語帳が使えます');if(repaint)repaint();say('英熟語帳がずっと使えるようになりました',false);return;}
-    var f=v.replace(/-/g,'');if(f.length===8)v=f.slice(0,4)+'-'+f.slice(4);
-    if(!/^[A-HJKMNP-Z2-9]{4}-[A-HJKMNP-Z2-9]{4}$/.test(v)){say('コードの形式が違います（例 AB3D-7KQ2）',true);return;}
-    if(_h32('mxfr1|'+v.slice(0,4))!==v.slice(5)){say('そのコードは存在しません。友達のアプリに表示されているコードを確認してください',true);return;}/* 出まかせの入力を弾く（2026-09-03 セキュリティ監査） */
-    if(v===state.friendCode){say('自分のコードは入力できません',true);return;}
-    state.invites=Array.isArray(state.invites)?state.invites:[];
-    if(state.invites.indexOf(v)>-1){say('このコードは登録済みです',true);return;}
-    state.invites.push(v);
-    var n=state.invites.length;
-    if(n<=3){try{ptGain(1000);}catch(e){}toastMsg('🤝 招待成立 +1000💎（'+Math.min(n,3)+'/3人）');}
-    if(n>=3&&!state.entInvite){state.entInvite=1;entMergeLocal();setTimeout(function(){toastMsg('🎉 3人達成！英熟語帳がずっと無料になりました');},900);}
-    saveAll();if(repaint)repaint();say(v+' を登録しました（'+Math.min(n,3)+'/3人）',false);}
-  function openInvite(){var ms=$('msheet');if(ms)haptic(6);if(!ms)return;
-    function paint(){
-      var n=(state.invites||[]).length,done=!!(state.entInvite||state.entGift||state.entWeb||ENT.idioms);
-      var dots='';for(var i=0;i<3;i++)dots+='<i style="display:inline-block;width:12px;height:12px;border-radius:50%;margin:0 4px;'+(i<Math.min(n,3)?'background:#111':'background:#e2e4e9')+'"></i>';
-      ms.innerHTML='<div class="q" style="font-size:19px;margin-bottom:6px">友達招待・コード入力</div>'
-        +'<div class="pwd" style="margin-bottom:6px">あなたの<b>フレンドコード</b>を友達に共有。友達がアプリを入れると友達にもコードが発行されるので、それをここに入力してください。<b>3人で英熟語帳がずっと無料</b>、1人ごとに<b>+1000💎</b>。</div>'
-        +'<div style="display:flex;gap:8px;margin:10px 0"><input class="dfield" id="myInvCode" readonly value="'+invCode()+'" style="flex:1;margin:0;text-align:center;font-weight:900;letter-spacing:.08em"><button class="dbtn" id="invCopy" type="button" style="width:auto;padding:0 14px;margin:0">コピー</button></div>'
-        +'<div style="text-align:center;margin:6px 0 2px">'+dots+'<span style="font-size:13px;color:#8a8f99;margin-left:8px">'+Math.min(n,3)+'/3人</span>'+(done?'<div style="font-weight:800;margin-top:6px">✓ 英熟語帳は解放済みです</div>':'')+'</div>'
-        +'<div class="sec-t" style="margin-top:14px">コードを入力</div>'
-        +'<input class="dfield" id="invIn" type="text" placeholder="フレンドコード／GIFT-／WEB-" autocapitalize="characters" spellcheck="false">'
-        +'<button class="dbtn" id="invGo" type="button" style="margin-top:8px">適用する</button>'
-        +'<div class="dmsg" id="invMsg"></div>'
+  /* 新規コードはWebのログイン本人へサーバー側で一度だけ引換。ローカルで検証可能なコードは発行しない。 */
+  function openRedeem(){var ms=$('msheet');haptic(6);if(!ms||PLAT!=='web')return;if(!WEBENT||!WEBENTSTATE||WEBENTSTATE.auth!=='signed_in'){showWebPaywall(false);return;}ms.dataset.webent='0';ms.innerHTML='<div class="q" style="font-size:19px;margin-bottom:6px">英熟語コード</div><div class="pwd">発行元から受け取ったコードを、このWebアカウントへ一度だけ引き換えます。</div><label class="sec-t" for="redeemCode">コード</label><input class="dfield" id="redeemCode" autocomplete="off" autocapitalize="characters" placeholder="MXI-XXXXXXXXXXXXXXXX"><button class="dbtn" id="redeemGo" type="button">引き換える</button><div class="dmsg" id="redeemMsg" role="status"></div><div class="pwl"><button class="plink" id="redeemClose" type="button">とじる</button></div>';openMSheet();$('redeemClose').onclick=closeMSheet;$('redeemGo').onclick=function(){var b=$('redeemGo'),m=$('redeemMsg');b.disabled=true;m.textContent='確認しています…';m.className='dmsg';WEBENT.redeemCode($('redeemCode').value).then(function(){return WEBENT.sync();}).then(function(){m.textContent='英熟語を解放しました';m.className='dmsg ok';haptic(12);toastMsg('✅ 英熟語が使えるようになりました');}).catch(function(e){m.textContent=(e&&e.message)||'コードを確認できませんでした';m.className='dmsg err';}).finally(function(){b.disabled=false;});};}
+  function openWebInvite(){var ms=$('msheet');haptic(6);if(!ms)return;if(!WEBENT||!WEBENTSTATE||WEBENTSTATE.auth!=='signed_in'){showWebPaywall(false);return;}ms.dataset.webent='0';ms.innerHTML='<div class="q" style="font-size:19px;margin-bottom:6px">友達紹介</div><div class="dmsg" role="status">紹介状況を確認しています…</div><div class="pwl"><button class="plink" id="invClose" type="button">とじる</button></div>';openMSheet();$('invClose').onclick=closeMSheet;
+    WEBENT.referralStatus().then(function(data){
+      var profile=data.profile||{},ref=data.referrals||{},n=Math.min(Math.max(0,parseInt(ref.confirmed||0,10)||0),3),dots='';for(var i=0;i<3;i++)dots+='<i style="display:inline-block;width:12px;height:12px;border-radius:50%;margin:0 4px;'+(i<n?'background:#111':'background:#e2e4e9')+'"></i>';
+      ms.innerHTML='<div class="q" style="font-size:19px;margin-bottom:6px">友達紹介</div><div class="pwd">このコードを友達がWeb版の<b>新規アカウント作成時</b>に入力すると1人として成立します。同じアカウントは1回だけ数え、3人で紹介者の英熟語が永久解放されます。</div>'
+        +'<div style="display:flex;gap:8px;margin:10px 0"><input class="dfield" id="myInvCode" readonly value="'+escH(profile.inviteCode||'')+'" style="flex:1;margin:0;text-align:center;font-weight:900;letter-spacing:.08em"><button class="dbtn" id="invCopy" type="button" style="width:auto;padding:0 14px;margin:0">コピー</button></div>'
+        +'<div style="text-align:center;margin:6px 0 12px">'+dots+'<span style="font-size:13px;color:#8a8f99;margin-left:8px">'+fmtN(ref.confirmed||0)+'/3人</span>'+(ref.entitled?'<div style="font-weight:800;margin-top:6px">✓ 紹介特典の英熟語は解放済みです</div>':'')+'</div>'
         +'<div class="pwl"><button class="plink" id="invClose" type="button">とじる</button></div>';
-      $('invClose').onclick=closeMSheet;
-      $('invCopy').onclick=function(){var el=$('myInvCode');try{el.select();document.execCommand('copy');}catch(e){}try{if(navigator.clipboard)navigator.clipboard.writeText(invCode());}catch(e){}haptic(6);toastMsg('コードをコピーしました');};
-      $('invGo').onclick=function(){applyAnyCode($('invIn').value,$('invMsg'),paint);};}
-    paint();openMSheet();}
+      $('invClose').onclick=closeMSheet;$('invCopy').onclick=function(){var code=profile.inviteCode||'';try{if(navigator.clipboard)navigator.clipboard.writeText(code);}catch(e){}haptic(6);toastMsg('コードをコピーしました');};
+    }).catch(function(e){ms.innerHTML='<div class="q" style="font-size:19px;margin-bottom:6px">友達紹介</div><div class="dmsg err" role="status">'+escH((e&&e.message)||'紹介状況を確認できませんでした')+'</div><div class="pwl"><button class="plink" id="invClose" type="button">とじる</button></div>';$('invClose').onclick=closeMSheet;});}
+  function openInvite(){if(PLAT==='web'){openWebInvite();return;}toastMsg('新しい友達紹介はWeb版で利用できます');}
   window.openInvite=openInvite;
-  (function(){var b=$('invBtn');if(b)b.onclick=function(){openInvite();};})();/* msheet共通クローズ。settings節のsheetCloseはIIFE内ローカルで外から見えない（2026-08-31 実機バグ修正） */
-  function renderPremium(){var ib=$('idmcutBox');if(ib)ib.classList.toggle('locked',!ENT.idioms);var inv=$('invBtn');if(inv&&PLAT==='web')inv.style.display='none';}
+  (function(){var b=$('invBtn');if(b)b.onclick=function(){openInvite();};var r=$('redeemBtn');if(r)r.onclick=openRedeem;})();/* msheet共通クローズ。settings節のsheetCloseはIIFE内ローカルで外から見えない（2026-08-31 実機バグ修正） */
+  function renderPremium(){var ib=$('idmcutBox');if(ib)ib.classList.toggle('locked',!ENT.idioms);var inv=$('invBtn');if(inv)inv.style.display=PLAT==='web'?'':'none';var redeem=$('redeemBtn');if(redeem)redeem.style.display=PLAT==='web'?'':'none';}
+  function paintKobunPromo(){var box=$('kobunPromoBox'),button=$('kobunPromoBtn'),target=window.MXKobunPromo&&window.MXKobunPromo.resolve(window.MX_KOBUN_PROMO||{});if(box)box.style.display=target?'':'none';if(!button||!target)return;button.onclick=function(){haptic(6);if(PLAT==='ios')location.href=target.native;else window.open(target.web,'_blank','noopener');};}
   function webEntOnState(s){WEBENTSTATE=s||WEBENTSTATE;var eligible=!!(s&&s.granted&&s.content);ENT.idioms=eligible;var active=!!(eligible&&installWebIdioms(s.content));if(!active)removeWebIdioms();ENT.idioms=active;renderPremium();var ms=$('msheet');if(ms&&ms.dataset.webent==='1'&&$('modal').classList.contains('on'))showWebPaywall(true);}
   function webPurchaseReturn(){try{var u=new URL(location.href),result=u.searchParams.get('mxpay');if(!result)return null;u.searchParams.delete('mxpay');history.replaceState(null,'',u.pathname+(u.search?'?'+u.searchParams.toString():'')+u.hash);return result;}catch(_){return null;}}
   function webWaitForPurchase(n){if(!WEBENT||n>5)return;WEBENT.sync().then(function(s){if(s.granted){toastMsg('購入を確認しました。英熟語を開放しました');return;}if(n<5)setTimeout(function(){webWaitForPurchase(n+1);},800*(n+1));else toastMsg('決済の反映を待っています。少し後に「権利を再確認」を押してください');});}
@@ -4495,9 +4526,11 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     WEBENT=window.MXWebEntitlement.create(window.MX_WEB_CONFIG||{});WEBENT.subscribe(webEntOnState);
     var returned=webPurchaseReturn();WEBENT.boot().then(function(){if(returned==='success')webWaitForPurchase(0);else if(returned==='cancel')toastMsg('購入はキャンセルされました');}).catch(function(){});
   }
+  function storeProductsLoad(done){var sk=skPlugin();if(!sk){if(done)done(false);return;}
+    sk.getProducts({ids:[PRODUCTS.idioms,PRODUCTS.noads]}).then(function(r){(r&&r.products||[]).forEach(function(p){if(p&&p.id&&p.price)PRICES[p.id]=p.price;});renderPremium();try{adSetPaint();}catch(e){}if(done)done(!!PRICES[PRODUCTS.noads]);}).catch(function(){if(done)done(false);});}
   function premiumBoot(){entLoad();renderPremium();if(PLAT==='web'){webPremiumBoot();return;}var sk=skPlugin();if(!sk)return;
     sk.getEntitlements().then(function(r){entApply(r&&r.entitlements);}).catch(function(){});
-    sk.getProducts({ids:[PRODUCTS.idioms,PRODUCTS.noads]})/* noads=広告非表示（月額300円）を販売再開（2026-08-31） */.then(function(r){(r&&r.products||[]).forEach(function(p){if(p&&p.id&&p.price)PRICES[p.id]=p.price;/* 表示価格（例 ¥300）。App Storeが返した値だけを使う（2026-08-27） */});renderPremium();try{adSetPaint();}catch(e){}/* 価格が届いたら広告節のボタンも更新（2026-08-31） */}).catch(function(){});
+    storeProductsLoad();
     try{sk.addListener('entitlementsChanged',function(r){entApply(r&&r.entitlements);});}catch(e){}}
   function buy(kind){haptic(10);if(PLAT==='web'){if(kind!=='idioms'||!WEBENT){toastMsg('購入設定を確認できません');return;}WEBENT.createCheckout().then(function(url){location.assign(url);}).catch(function(e){toastMsg((e&&e.message)||'購入ページを開けませんでした');});return;}var sk=skPlugin(),id=PRODUCTS[kind];if(!sk){toastMsg('購入はアプリ版で行えます');return;}
     sk.purchase({id:id}).then(function(r){if(r&&r.state==='purchased'){entApply(r.entitlements);toastMsg(kind==='noads'?'広告を消しました':'熟語帳を開放しました');}else if(r&&r.state==='pending')toastMsg('承認待ちです');}).catch(function(e){var m=(e&&(e.message||e.errorMessage))||'';/* 原因が分からないと直せないので理由を出す（2026-08-27） */
@@ -4507,7 +4540,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function manageSubs(){if(PLAT==='web'){if(!WEBENT){toastMsg('購入管理を開けません');return;}WEBENT.createPortal().then(function(url){location.assign(url);}).catch(function(e){toastMsg((e&&e.message)||'購入管理を開けませんでした');});return;}var sk=skPlugin();if(sk)sk.manageSubscriptions().catch(function(){});else toastMsg('アプリ版で管理できます');}
   function showWebPaywall(repaint){var ms=$('msheet');if(!ms)return;var s=WEBENTSTATE||{},html='<div class="q" style="font-size:19px;margin-bottom:6px">英熟語 全範囲</div><div class="pwd">無料範囲はそのまま利用できます。購入後は英熟語帳と熟語カットインの全範囲を、このアカウントで利用できます。</div>';
     if(s.auth==='config_missing')html+='<div class="dmsg err" role="status">Web版の購入設定を準備中です。英単語の無料学習は引き続き利用できます。</div>';
-    else if(s.auth==='signed_out'||s.auth==='loading')html+='<label class="sec-t" for="webEmail">メールアドレス</label><input class="dfield" id="webEmail" type="email" autocomplete="username"><label class="sec-t" for="webPassword">パスワード</label><input class="dfield" id="webPassword" type="password" autocomplete="current-password"><button class="opt" id="webLogin" type="button" style="width:100%;margin-top:10px">ログイン</button><button class="plink" id="webSignup" type="button" style="width:100%;margin-top:10px">アカウントを作成</button><div class="dmsg'+(s.error?' err':'')+'" id="webMsg" role="status">'+(s.error?escH(s.error):'購入・復元にはログインが必要です')+'</div>';
+    else if(s.auth==='signed_out'||s.auth==='loading')html+='<label class="sec-t" for="webEmail">メールアドレス</label><input class="dfield" id="webEmail" type="email" autocomplete="username"><label class="sec-t" for="webPassword">パスワード</label><input class="dfield" id="webPassword" type="password" autocomplete="current-password"><label class="sec-t" for="webInvite">紹介コード（新規登録時のみ・任意）</label><input class="dfield" id="webInvite" type="text" autocomplete="off" autocapitalize="characters" placeholder="MX-XXXXXXXXXXXXXXXXXXXX"><button class="opt" id="webLogin" type="button" style="width:100%;margin-top:10px">ログイン</button><button class="plink" id="webSignup" type="button" style="width:100%;margin-top:10px">アカウントを作成</button><div class="dmsg'+(s.error?' err':'')+'" id="webMsg" role="status">'+(s.error?escH(s.error):'紹介コードはアカウント作成時だけサーバーで確認します')+'</div>';
     else if(s.entitlement==='loading')html+='<div class="dmsg" role="status">購入権利を確認しています…</div>';
     else if(s.entitlement==='error')html+='<div class="dmsg err" role="status">権利を確認できません。確認が終わるまで英熟語の内容は表示しません。</div><button class="opt" id="webRetry" type="button" style="width:100%">権利を再確認</button>';
     else if(s.granted&&ENT.idioms)html+='<div class="pwown">✓ 購入済み・全範囲を利用できます</div><button class="plink" id="webManage" type="button" style="width:100%">購入情報を確認</button>';
@@ -4517,34 +4550,34 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var close=$('webClose');if(close)close.onclick=closeMSheet;var retry=$('webRetry'),restore=$('webRestore');if(retry)retry.onclick=function(){WEBENT.sync();};if(restore)restore.onclick=function(){WEBENT.sync();};
     var buyBtn=$('webBuy');if(buyBtn)buyBtn.onclick=function(){buyBtn.disabled=true;WEBENT.createCheckout().then(function(url){location.assign(url);}).catch(function(e){buyBtn.disabled=false;toastMsg((e&&e.message)||'購入ページを開けませんでした');});};
     var manage=$('webManage');if(manage)manage.onclick=manageSubs;var logout=$('webLogout');if(logout)logout.onclick=function(){WEBENT.signOut();};
-    function auth(go){var email=$('webEmail'),password=$('webPassword'),msg=$('webMsg');if(!email||!password)return;if(msg)msg.textContent='確認しています…';go.call(WEBENT,email.value,password.value).catch(function(e){if(msg){msg.textContent=(e&&e.message)||'ログインできませんでした';msg.className='dmsg err';}});}
-    var login=$('webLogin'),signup=$('webSignup');if(login)login.onclick=function(){auth(WEBENT.signIn);};if(signup)signup.onclick=function(){auth(WEBENT.signUp);};}
+    function auth(go,isSignup){var email=$('webEmail'),password=$('webPassword'),invite=$('webInvite'),msg=$('webMsg');if(!email||!password)return;if(msg)msg.textContent='確認しています…';go.call(WEBENT,email.value,password.value,isSignup&&invite?invite.value:'').catch(function(e){if(msg){msg.textContent=(e&&e.message)||'ログインできませんでした';msg.className='dmsg err';}});}
+    var login=$('webLogin'),signup=$('webSignup');if(login)login.onclick=function(){auth(WEBENT.signIn,false);};if(signup)signup.onclick=function(){auth(WEBENT.signUp,true);};}
   /* 現在どこからも呼んでいない（2026-08-27 に購入シート直行へ変更）。審査3.1.2で
      アプリ内の価格・期間・規約の明示を求められたときに、この1画面を戻すだけで済むよう残す */
   function showPaywall(kind){if(PLAT==='web'&&kind==='idioms'){haptic(6);showWebPaywall(false);return;}var ms=$('msheet');if(!ms)return;var na=kind==='noads';haptic(6);
     /* 審査3.1.2(c)：名称・期間・価格・利用規約・プライバシーポリシーを購入前に必ず出す。
-       価格はStoreKitが返す実売価格を優先し、取れないときも固定文言で必ず表示する（2026-08-29） */
+       広告削除はStoreKitが返す実売価格を表示し、取れない間は購入を開始しない（2026-09-06）。 */
     var _p=PRICES[PRODUCTS[kind]];
     /* StoreKitは日本だと「¥300」で返す。日本語として自然な「300円」に直す。
        外貨（$2.99等）はそのまま出す（2026-08-30） */
     if(_p)_p=_p.replace(/^¥([\d,]+)$/,'$1円');
-    var _price=na?(_p||'1,200円'):(_p||'300円');/* 広告完全削除は買い切り1,200円（2026-09-02 ユーザー指定） */
+    var _price=na?_p:(_p||'300円');/* 広告完全削除はApp Storeが返した実売価格だけを表示する。登録価格は買い切り1,200円（2026-09-06）。 */
     var _title=na?'広告を完全削除':'熟語帳＋熟語カットイン';
     var _what=na
       ?'アプリ内のすべての広告が、今後ずっと表示されなくなります。一度きりの買い切りで、月額や自動更新はありません。'
       :'センター・共通テスト、MARCH、早慶の過去問1,133試験から抽出した<b>英熟語1,376語</b>を、出題回数の多い順に収録した熟語帳が使えるようになります。あわせて、英単語の学習中にその単語を含む熟語が差し込まれる「熟語カットイン」が有効になります。';
     ms.innerHTML='<div class="q" style="font-size:19px;margin-bottom:6px">'+_title+'</div>'
-      +'<div class="pwprice">'+_price+(na?'（買い切り）':' ／ 1か月（自動更新）')+'</div>'
+      +'<div class="pwprice">'+(_price?(_price+(na?'（買い切り）':' ／ 1か月（自動更新）')):'価格を確認中')+'</div>'
       +'<div class="pwd">'+_what+'</div>'
       +(ENT[kind]
         ?'<div class="pwown">'+(na?'✓ 購入済み（広告は表示されません）':'✓ 利用中')+'</div>'
-        :'<button class="opt" id="pwBuy" type="button" style="width:100%">'+(na?_price+'で購入する':'月額'+_price+'で登録する')+'</button>')
-      +'<div class="pwl"><button class="plink" id="pwRestore" type="button">購入を復元</button>'+(na?'':'<span>・</span><button class="plink" id="pwInv" type="button">友達3人の招待で無料</button>')+'</div>'
+        :(na&&!_price?'<div class="dmsg" role="status">App Storeから購入情報を取得できていません。価格を確認できるまで購入は開始しません。</div><button class="plink" id="pwPriceRetry" type="button" style="width:100%;margin-top:10px">価格を再確認</button>':'<button class="opt" id="pwBuy" type="button" style="width:100%">'+(na?_price+'で購入する':'月額'+_price+'で登録する')+'</button>'))
+      +'<div class="pwl"><button class="plink" id="pwRestore" type="button">購入を復元</button></div>'
       +'<div class="pnote">'+(na?'広告の完全削除は一度きりの買い切りです。自動更新や追加のお支払いはありません。機種変更・再インストール後は「購入を復元」で元に戻せます。<br>':_title+'は月額'+_price+'の自動更新サブスクリプションです。期間終了の24時間前までに解約しない限り自動更新され、同額が請求されます。iPhoneの「設定」→ Apple ID →「サブスクリプション」からいつでも解約できます。<br>')+'<a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener">利用規約（EULA）</a>　<a href="https://hazardissei.github.io/memorax-pages/privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a></div>';
     phrasifyDom(ms);openMSheet();
-    var _pb=$('pwBuy');if(_pb)_pb.onclick=function(){closeMSheet();buy(kind);};
+    var _pb=$('pwBuy');if(_pb)_pb.onclick=function(){closeMSheet();buy(kind);};var _pwr=$('pwPriceRetry');if(_pwr)_pwr.onclick=function(){_pwr.disabled=true;storeProductsLoad(function(ok){if(!ok)toastMsg('購入情報を確認できませんでした');showPaywall(kind);});};
     $('pwRestore').onclick=function(){closeMSheet();restorePurchases();};
-    var _pi=$('pwInv');if(_pi)_pi.onclick=function(){closeMSheet();openInvite();};}
+  }
   (function(){var b;if((b=$('buyNoads')))b.onclick=function(){buy('noads');};if((b=$('buyIdioms')))b.onclick=function(){buy('idioms');};
     if((b=$('subInfoBtn')))b.onclick=function(){showPaywall('idioms');};/* 購入済みでも条件をいつでも見られるように（2026-08-29） */
     if((b=$('restoreBtn')))b.onclick=restorePurchases;if((b=$('manageBtn')))b.onclick=manageSubs;
@@ -4552,17 +4585,25 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
      icBackup と同じ形に固めて文字列にする。読み込みは中身を検証してから流し込み、
      成功したら再起動して全体を読み直す（部分適用のまま動かすと状態がねじれる） */
   var TRANSFER_RIGHT_KEYS=['entWeb','entGift','entInvite','invites','friendCode'];
-  function transferKeys(){var a=dataKeys().concat(['mxdict_w','mxdict_m','mxdict_note','mx2_solved','mx2_guided','mx2_snd','mx2_examday','mx2_revreq','mx2_revpend','mx2_wn_idioms','mx2_wallet']),seen={},out=[];a.forEach(function(k){if(!seen[k]){seen[k]=1;out.push(k);}});return out;}
+  function transferKeys(){var a=dataKeys().concat(['mxdict_w','mxdict_m','mxdict_note','mx2_solved','mx2_guided','mx2_snd','mx2_examday','mx2_revreq','mx2_revpend','mx2_wn_idioms']),seen={},out=[];a.forEach(function(k){if(!seen[k]){seen[k]=1;out.push(k);}});return out;}
   function transferState(raw,keepRaw){var s=typeof raw==='string'?JSON.parse(raw):raw,keep=null;if(!s||typeof s!=='object'||Array.isArray(s))throw new Error('state');
     try{keep=typeof keepRaw==='string'?JSON.parse(keepRaw):keepRaw;}catch(e){keep=null;}
     s=JSON.parse(JSON.stringify(s));TRANSFER_RIGHT_KEYS.forEach(function(k){delete s[k];if(keep&&typeof keep==='object'&&Object.prototype.hasOwnProperty.call(keep,k))s[k]=keep[k];});return s;}
-  function transferJsonKey(k){return /^(mx2_(state|done|day|pstat|wallet)|mxdict_(w|m|note)|mx2_(rev|whist|wst|munk|fc|skim|miss|lap1)_)/.test(k);}
+  function transferJsonKey(k){return /^(mx2_(state|done|day|daily|pstat)|mxdict_(w|m|note)|mx2_(rev|whist|wst|munk|fc|skim|miss|lap1)_)/.test(k);}
   function expText(){
     var o={__v:2,__app:'MemoraX',__scope:'eitan',__b:'w0904x',__d:dayKey(new Date())};/* scope付き。旧__v:1の読込互換は維持 */
     try{transferKeys().forEach(function(k){var v=localStorage.getItem(k);if(v==null)return;if(k==='mx2_state')v=JSON.stringify(transferState(v,null));o[k]=v;});/* mx2_entとstate内の購入・招待・コード権利は載せない */
     }catch(e){}
     return JSON.stringify(o);
   }
+  function transferFilename(){return 'memorax-eitan-'+dayKey(new Date())+'.json';}
+  function transferBytes(t){try{return new Blob([t]).size;}catch(e){try{return unescape(encodeURIComponent(t)).length;}catch(_){return String(t).length;}}}
+  function transferSizeText(t){var n=transferBytes(t);return n<1024?n+' B':n<1048576?Math.round(n/102.4)/10+' KB':Math.round(n/104857.6)/10+' MB';}
+  function transferFile(t){try{return new File([t],transferFilename(),{type:'application/json'});}catch(e){return null;}}
+  function transferCopy(t,cb){
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){cb(true);},function(){cb(false);});return;}}catch(e){}
+    try{var ta=document.createElement('textarea');ta.value=t;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;left:-9999px;top:0';document.body.appendChild(ta);ta.select();var ok=document.execCommand('copy');ta.remove();cb(!!ok);}catch(e){cb(false);}}
+  function transferDownload(t){try{var blob=new Blob([t],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=transferFilename();a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},1000);return true;}catch(e){return false;}}
   function impApply(txt){
     var o;try{o=JSON.parse(String(txt).trim());}catch(e){return '読み込めませんでした。文字列が途中で切れていないか確認してください。';}
     if(!o||o.__app!=='MemoraX')return 'Memora X の書き出しデータではありません。';
@@ -4583,20 +4624,29 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   }
   if((b=$('expBtn')))b.onclick=function(){
     var t=expText(),ms=$('msheet');if(!ms)return;
-    var show=function(copied){
-      ms.innerHTML='<div class="q" style="font-size:19px;margin-bottom:8px">学習データの書き出し</div>'
-        +'<div class="pwd">'+(copied?'コピーしました。メモ帳や自分宛のメールに貼って保管してください。':'下の枠を長押しして全選択し、コピーしてください。')+'</div>'
-        +'<textarea readonly style="width:100%;height:30vh;font-size:11px;line-height:1.5;border:1px solid var(--line);border-radius:10px;padding:10px">'+t.replace(/</g,'&lt;')+'</textarea>'
-        +'<div class="pnote">新しい端末でこのアプリを入れたあと、設定の「書き出したデータを読み込む」に貼り付けると続きから使えます。</div>'
-        +'<button class="opt" id="expClose" type="button" style="width:100%;margin-top:12px">閉じる</button>';
-      openMSheet();phrasifyDom(ms);
-      var c=$('expClose');if(c)c.onclick=closeMSheet;haptic(6);};
-    try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){show(true);},function(){show(false);});return;}}catch(e){}
-    show(false);};
+    var file=transferFile(t),canShare=false;try{canShare=!!(file&&navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]})));}catch(e){}
+    ms.innerHTML='<div class="q" style="font-size:19px;margin-bottom:8px">学習データの書き出し</div>'
+      +'<div class="pwd">バックアップをファイルで保管するか、文字列をコピーしてください。長い文字列は必要なときだけ表示できます。</div>'
+      +'<div class="dmsg" id="expStatus" role="status">'+transferFilename()+' ・ '+transferSizeText(t)+'</div>'
+      +'<button class="opt" id="expFile" type="button" style="width:100%;margin-top:10px">'+(canShare?'ファイルで共有':'ファイルを保存')+'</button>'
+      +'<button class="opt" id="expCopy" type="button" style="width:100%;margin-top:8px">文字列をコピー</button>'
+      +'<div class="pwl"><button class="plink" id="expRaw" type="button" aria-expanded="false">文字列を表示</button></div>'
+      +'<div id="expRawWrap" hidden><textarea id="expRawTa" readonly aria-label="書き出しデータ" style="width:100%;height:24vh;font-size:11px;line-height:1.5;border:1px solid var(--line);border-radius:10px;padding:10px"></textarea></div>'
+      +'<div class="pnote">新しい端末では、設定の「書き出したデータを読み込む」からファイルを選ぶか、コピーした文字列を貼り付けます。</div>'
+      +'<button class="opt" id="expClose" type="button" style="width:100%;margin-top:12px">閉じる</button>';
+    openMSheet();phrasifyDom(ms);haptic(6);
+    var status=$('expStatus');$('expFile').onclick=function(){
+      if(canShare){navigator.share({files:[file],title:'MemoraX 学習データ'}).then(function(){status.textContent='共有しました。';},function(){status.textContent='共有は完了しませんでした。';});}
+      else status.textContent=transferDownload(t)?'ファイルを保存しました。':'保存できませんでした。文字列をコピーしてください。';};
+    $('expCopy').onclick=function(){transferCopy(t,function(ok){status.textContent=ok?'コピーしました。安全な場所へ貼り付けて保管してください。':'コピーできませんでした。文字列を表示して手動でコピーしてください。';});};
+    $('expRaw').onclick=function(){var wrap=$('expRawWrap'),open=wrap.hidden;wrap.hidden=!open;this.setAttribute('aria-expanded',open?'true':'false');this.textContent=open?'文字列を隠す':'文字列を表示';if(open){var ta=$('expRawTa');if(!ta.value)ta.value=t;}};
+    $('expClose').onclick=closeMSheet;};
   if((b=$('impBtn')))b.onclick=function(){
     var ms=$('msheet');if(!ms)return;
     ms.innerHTML='<div class="q" style="font-size:19px;margin-bottom:8px">データの読み込み</div>'
-      +'<div class="pwd">書き出しておいた文字列を貼り付けてください。<b>いまの端末の学習データは上書きされます。</b><br><span style="font-size:13px;color:#8a8f99">購入・解放の権利は引き継がれません。購入は「購入を復元」、コードは再入力してください。</span></div>'
+      +'<div class="pwd">バックアップファイルを選ぶか、書き出しておいた文字列を貼り付けてください。<b>「読み込む」を押すと、いまの端末の学習データは上書きされます。</b><br><span style="font-size:13px;color:#8a8f99">購入・解放の権利は引き継がれません。購入は「購入を復元」、コードは再入力してください。</span></div>'
+      +'<label class="opt" style="display:flex;width:100%;margin-bottom:10px;align-items:center;justify-content:center;min-height:48px">バックアップファイルを選ぶ<input id="impFile" type="file" accept=".json,.memorax,application/json,text/plain" hidden></label>'
+      +'<div class="dmsg" id="impFileName" role="status"></div>'
       +'<textarea id="impTa" placeholder="ここに貼り付け" style="width:100%;height:24vh;font-size:11px;line-height:1.5;border:1px solid var(--line);border-radius:10px;padding:10px"></textarea>'
       +'<div class="dmsg" id="impMsg"></div>'
       +'<button class="opt" id="impGo" type="button" style="width:100%;margin-top:6px">読み込む</button>'
@@ -4604,6 +4654,9 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     openMSheet();phrasifyDom(ms);
     var msg=$('impMsg');
     $('impCancel').onclick=closeMSheet;
+    $('impFile').onchange=function(){var f=this.files&&this.files[0],name=$('impFileName');if(!f)return;if(f.size>10485760){name.textContent='ファイルが大きすぎます（上限10 MB）。';name.className='dmsg err';this.value='';return;}name.textContent=f.name+' を確認しています…';name.className='dmsg';
+      var fill=function(t){$('impTa').value=t;name.textContent=f.name+' を選びました。「読み込む」を押すまで反映されません。';name.className='dmsg ok';};var fail=function(){name.textContent='ファイルを読めませんでした。';name.className='dmsg err';};
+      try{if(typeof f.text==='function'){f.text().then(fill,fail);}else{var r=new FileReader();r.onload=function(){fill(String(r.result||''));};r.onerror=fail;r.readAsText(f);}}catch(e){fail();}};
     $('impGo').onclick=function(){
       var err=impApply($('impTa').value);
       if(err){msg.textContent=err;msg.className='dmsg err';haptic(10);return;}
@@ -4631,20 +4684,31 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   /* 広告ユニットはOSごとに別物。AndroidはAdMobにアプリを登録してから採番するので、
      それまでは空にしておく＝Androidでは広告を出さない（2026-08-29） */
   var ADUNIT={ios:'ca-app-pub-4932559321126464/9914782913',android:''};
-  var ADS={unit:ADUNIT[PLAT]||'',test:false,every:20,minSolved:30,waitMs:5000,maxFail:3,perSession:4,perDay:8,minGapMs:150000};/* 2026-09-03 実ユーザーから「広告が多い」との声を受けて調整。
-   持ち越し方式（adImpression）で機会が消えなくなり、間隔12だと実効頻度が従来の2〜3倍になっていた。
-   間隔を20へ戻し、1セッション4回・1日8回・最短2分30秒あけるの3重上限を追加。数値はここだけで調整できる。 *//* インタースティシャル（全画面）のユニットID。2026-08-27 に本番IDへ差し替え、test:false に。
+  var ADS={unit:ADUNIT[PLAT]||'',test:false,every:12,minSolved:30,waitMs:5000,loadWaitMs:8000,maxFail:3,retryMs:20000,cooldownMs:60000};/* 2026-09-06仕様：継続ユーザーの通常問題12回答ごと。日次・起動中の表示回数上限は設けない。
+   広告在庫がない時は機会を持ち越し、実表示のイベントでだけ消費する。チュートリアル・チェイン・累計30問までは対象外。 *//* インタースティシャル（全画面）のユニットID。2026-08-27 に本番IDへ差し替え、test:false に。
    バナーではなく全画面にした理由：日本のeCPMがバナー¥15-80に対し全画面¥1,080（72倍）。
    広告ユニット側で「動画」をオフにしてある（動画は×ボタンが出るまで最大12-30秒かかり、学習が止まるため）。
    その代わりeCPMは下がる見込み。実データを見て再検討する */
-  var NPA=true;/* 既定は非パーソナライズ。iOSでATT許可が取れた時だけfalseにして単価を上げる（2026-08-31） */
+  var NPA=true;/* UMPの個別同意内容を現行plugin 6.2.0から安全に判定できないため常に非パーソナライズ。ATT許可だけでfalseにしない。 */
+  var UMP_IDFA_MESSAGE=false;/* AdMob側でIDFAメッセージを公開したと確認できた時だけtrueにし、手動ATTとの二重表示を避ける。現時点は未確認。 */
   var ADQ=0;try{ADQ=parseInt(localStorage.getItem('mx2_adq')||'0',10)||0;}catch(e){}
-  var adPending=ADQ>=ADS.every,adOn=false,adInit=false,adFail=0,adTimer=null,adRetryTimer=null,adGotFill=false,adReady=false,adLoading=false,SESSQ=0;/* SESSQ=このセッションで解いた数。開幕即広告を避ける（2026-09-02） *//* adFail=連続失敗、adReady=次の全画面広告が用意できている（2026-08-26） */
+  var adPending=ADQ>=ADS.every,adOn=false,adInit=false,adSdkReady=false,adConsentReady=false,adConsentInfo=null,adPrivacyRequired=false,adFail=0,adTimer=null,adLoadTimer=null,adRetryTimer=null,adNextRetryAt=0,adReady=false,adLoading=false,SESSQ=0,_adLoadAttempt=false;/* SESSQ=この起動中の通常問題数。読込/表示のPromiseとSDKイベントは同一attemptで一度だけ処理する。 */
   function adMob(){try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.AdMob)return C.Plugins.AdMob;}catch(e){}return null;}
-  function adsEnabled(){if(!ADS.unit)return false;/* そのOSのユニットIDが未採番なら出さない（2026-08-29） */if(ENT.noads)return false;if(!state.cards||coaching)return false;if(SOLVED<ADS.minSolved)return false;if(adFail>=ADS.maxFail)return false;/* 在庫なし・オフライン等が続いたらこのセッションは出さない（2026-08-26） */if(!adCapOK())return false;/* 回数・間隔の上限（2026-09-03） */return !!adMob()||location.hash==='#ads';}
+  function adTestDevices(){var a=[];try{a=Array.isArray(window.MX_AD_TEST_DEVICES)?window.MX_AD_TEST_DEVICES:[];}catch(e){}return a.map(function(x){return String(x||'').trim();}).filter(Boolean);}
+  function adInitOptions(){var d=adTestDevices();return {initializeForTesting:d.length>0,testingDevices:d};}/* 正規テスト端末IDはビルド時の明示設定だけを受け取り、仮IDを同梱しない。 */
+  function adConsentAllows(info){if(info&&typeof info.canRequestAds==='boolean')return info.canRequestAds;var s=String(info&&info.status||'UNKNOWN').toUpperCase();return s==='OBTAINED'||s==='NOT_REQUIRED';}/* plugin 7.0.3+はcanRequestAdsを優先。6.2.0は保守的に確定状態だけ許可する。 */
+  function adConsentRemember(info){adConsentInfo=info||null;adPrivacyRequired=String(info&&info.privacyOptionsRequirementStatus||'').toUpperCase()==='REQUIRED';}
+  function adConsentBoot(done){var am=adMob(),ended=false;function fin(ok,info){if(ended)return;ended=true;adConsentRemember(info);done(!!ok);}if(!am||!am.requestConsentInfo){fin(false,null);return;}
+    am.requestConsentInfo().then(function(info){adConsentRemember(info);var s=String(info&&info.status||'UNKNOWN').toUpperCase();
+      if(adConsentAllows(info)){fin(true,info);return;}
+      if(s==='REQUIRED'&&info&&info.isConsentFormAvailable&&am.showConsentForm){am.showConsentForm().then(function(info2){fin(adConsentAllows(info2),info2);}).catch(function(){fin(false,info);});return;}
+      fin(false,info);
+    }).catch(function(){fin(false,null);});}
+  function adCoolingDown(){if(!adNextRetryAt)return false;if(Date.now()<adNextRetryAt)return true;adNextRetryAt=0;adFail=0;return false;}
+  function adsEnabled(){if(!ADS.unit)return false;/* そのOSのユニットIDが未採番なら出さない（2026-08-29） */if(ENT.noads)return false;if(!adSdkReady||!adConsentReady)return false;if(!state.cards||coaching)return false;if(SOLVED<ADS.minSolved)return false;if(adCoolingDown())return false;if(!adCapOK())return false;return !!adMob()||location.hash==='#ads';}
   function adCountSave(){try{localStorage.setItem('mx2_adq',''+ADQ);}catch(e){}}
   function adUntick(){if(ADQ>0)ADQ--;if(SESSQ>0)SESSQ--;if(ADQ<ADS.every)adPending=false;adCountSave();}/* 「1問戻る」の巻き戻し。これが無いと戻して解き直すたびに二重計上され、体感より早く広告が出る（2026-09-04 バグ調査） */
-  /* 表示回数の上限（2026-09-03）。1日ぶんは端末に保存、セッションぶんと最短間隔はメモリ */
+  /* 表示回数は上限に使わず計測だけ行う。保存済みの日次値も互換性のため残す（2026-09-06）。 */
   var ADSESS=0,_adLast=0,_adDayMem=null;
   function adDay(){var tk=dayKey(new Date());
     if(_adDayMem&&_adDayMem.d===tk)return _adDayMem;
@@ -4652,11 +4716,9 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     if(!o||o.d!==tk)o={d:tk,n:0};
     _adDayMem=o;return o;}
   function adDayBump(){var o=adDay();o.n++;_adDayMem=o;try{localStorage.setItem('mx2_adday',JSON.stringify(o));}catch(e){}}
+  function adPolicyDue(bucket){return bucket>=ADS.every;}
   function adCapOK(){
-    if(ADSESS>=ADS.perSession)return false;
-    if(adDay().n>=ADS.perDay)return false;
-    if(_adLast&&(Date.now()-_adLast)<ADS.minGapMs)return false;
-    return true;}
+    return adPolicyDue(ADQ);}
   function adTick(){if(ENT.noads||!state.cards||coaching)return;/* チュートリアルは広告カウントに含めない */
     if(SOLVED+1<=ADS.minSolved){ADQ=0;adPending=false;adCountSave();return;}/* 最初の累計30問は完全に広告なし。31問目から数え始める */
     ADQ=Math.min(ADS.every,ADQ+1);SESSQ++;/* 表示されるまでは上限のまま保持し、機会を捨てない */
@@ -4664,30 +4726,35 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     if(ADQ>=ADS.every&&adsEnabled())adPending=true;
     adCountSave();}
   function nextCardA(){if(adPending&&SESSQ>=3)showAdCard(nextCard);else nextCard();}/* セット最終問でも出す。ただし持ち越し分があっても開いた直後の1〜2問目では出さない（2026-09-02） */
+  function nextChainA(){if(adPending&&SESSQ>=3)showAdCard(chainDrop);else chainDrop();}/* 12問目でカットイン条件も成立した場合は、通常問題の採点直後→広告→カットインの順にする。 */
   function adImpression(){ADQ=0;adPending=false;ADSESS++;_adLast=Date.now();adDayBump();adCountSave();}/* 実際に画面へ出た時だけ問題数と回数を消費する */
   var _adAttempt=false;/* 表示を1回試みている最中か。イベントとpromiseの二重計上を防ぐ（2026-09-04） */
   function adShowFailed(){if(!_adAttempt)return;_adAttempt=false;adReady=false;adFail++;adFallback();adRetrySoon();}/* どちらの経路で来ても1回だけ数え、在庫の状態も正しく戻す */
-  function adRetrySoon(){if(adRetryTimer||adReady||ENT.noads||adFail>=ADS.maxFail)return;adRetryTimer=setTimeout(function(){adRetryTimer=null;adPrepare();},20000);}
-  function adsBoot(){if(!ADS.unit)return;/* そのOSのユニットIDが未採番ならSDKごと動かさない（2026-08-30） */
-    var am=adMob();if(!am||adInit)return;adInit=true;am.initialize({initializeForTesting:ADS.test}).catch(function(){});
+  function adRetrySoon(){if(adRetryTimer||adReady||ENT.noads)return;var delay=ADS.retryMs;if(adFail>=ADS.maxFail){adNextRetryAt=Date.now()+ADS.cooldownMs;delay=ADS.cooldownMs;}adRetryTimer=setTimeout(function(){adRetryTimer=null;adPrepare();},delay);}
+  function adLoadFailed(){if(!_adLoadAttempt)return;_adLoadAttempt=false;if(adLoadTimer){clearTimeout(adLoadTimer);adLoadTimer=null;}adReady=false;adLoading=false;adFail++;if(adOn)adFallback();adRetrySoon();}
+  function adsBoot(){if(!ADS.unit||ENT.noads)return;/* 広告枠なし・買い切り済みならSDK/同意処理を起動しない。 */
+    var am=adMob();if(!am||adInit)return;adInit=true;
     try{
-      am.addListener('interstitialAdLoaded',function(){adReady=true;adLoading=false;adFail=0;if(adRetryTimer){clearTimeout(adRetryTimer);adRetryTimer=null;}});
-      am.addListener('interstitialAdFailedToLoad',function(){adReady=false;adLoading=false;adFail++;if(adOn)adFallback();adRetrySoon();/* 在庫切れ等は少し置いて取り直す（2026-09-02） */});
+      am.addListener('interstitialAdLoaded',function(){_adLoadAttempt=false;if(adLoadTimer){clearTimeout(adLoadTimer);adLoadTimer=null;}adReady=!ENT.noads;adLoading=false;adFail=0;adNextRetryAt=0;if(adRetryTimer){clearTimeout(adRetryTimer);adRetryTimer=null;}});
+      am.addListener('interstitialAdFailedToLoad',adLoadFailed);
       am.addListener('interstitialAdShowed',function(){_adAttempt=false;if(adTimer){clearTimeout(adTimer);adTimer=null;}adImpression();});/* 実表示を確認してから問題カウントを戻す */
       am.addListener('interstitialAdFailedToShow',function(){adShowFailed();});
       am.addListener('interstitialAdDismissed',function(){adReady=false;adDone();adPrepare();/* 閉じたら次の分を仕込む */});
     }catch(e){}
-    attBoot(function(){adPrepare();});}
-  /* 次の全画面広告を事前に読み込んでおく（15問目に待たせない） */
-  function adPrepare(){if(!ADS.unit)return;/* 空のユニットIDでSDKを叩かない（2026-08-30） */if(SOLVED<ADS.minSolved)return;/* まだ広告対象でない人のぶんは読み込まない＝ショー率を汚さず無駄リクエストも出さない（2026-09-02） */
-    var am=adMob();if(!am||adReady||adLoading||ENT.noads||adFail>=ADS.maxFail)return;adLoading=true;
-    am.prepareInterstitial({adId:ADS.unit,isTesting:ADS.test,npa:NPA}).catch(function(){adLoading=false;adReady=false;adRetrySoon();});}
+    var init;try{init=am.initialize(adInitOptions());}catch(e){adInit=false;return;}
+    Promise.resolve(init).then(function(){adSdkReady=true;adConsentBoot(function(ok){adConsentReady=ok;try{adSetPaint();}catch(e){}if(!ok)return;attBoot(function(){adPrepare();});});}).catch(function(){adSdkReady=false;adConsentReady=false;});}
+  /* 12問目に間に合うよう7問目から先読み。失敗は3回ごとに1分休止し、次の回答または単一タイマーで再開する。 */
+  function adPrepare(){if(!ADS.unit||!adSdkReady||!adConsentReady)return;if(SOLVED<ADS.minSolved)return;
+    var am=adMob();if(!am||adReady||adLoading||ENT.noads||adCoolingDown())return;adLoading=true;_adLoadAttempt=true;
+    if(adLoadTimer)clearTimeout(adLoadTimer);adLoadTimer=setTimeout(adLoadFailed,ADS.loadWaitMs);
+    try{var p=am.prepareInterstitial({adId:ADS.unit,isTesting:ADS.test,npa:NPA});if(p&&p.catch)p.catch(adLoadFailed);}catch(e){adLoadFailed();}}
   /* ---- ATT（iOSのみ・1.0.4） ----
      許可した人にだけパーソナライズ広告＝単価が上がる。拒否・未対応・失敗はすべて従来どおり非パーソナライズ。
      初回オンボーディング中はダイアログを出さない（state.cardsができた次の起動から） */
   function attBoot(done){var am=adMob();
+    if(UMP_IDFA_MESSAGE){done();return;}/* UMPのIDFAメッセージが有効ならUMPに任せ、OSダイアログを重ねない。 */
     if(PLAT!=='ios'||!am||!am.trackingAuthorizationStatus){done();return;}
-    var fin=function(st){NPA=(st!=='authorized');done();};
+    var fin=function(){NPA=true;done();};/* ATT状態だけではUMPの広告パーソナライズ同意を証明できない。 */
     am.trackingAuthorizationStatus().then(function(r){
       var st=r&&r.status;
       if(st==='notDetermined'&&state.cards&&am.requestTrackingAuthorization){
@@ -4697,10 +4764,16 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       }else{fin(st);}
     }).catch(function(){done();});}
   /* ---- 設定の広告節（noadsのみ）。リワード動画は2026-08-31にユーザー指示で完全撤去 ---- */
-  function adSetPaint(){var ax=$('adSetBox');if(!ax)return;
+  function adPracticePaint(){var row=$('practiceNoadsRow');if(!row)return;var base=!!(ADS.unit&&adMob()&&state.cards&&!ENT.noads);row.style.display=base?'flex':'none';}
+  function adStopForNoAds(){if(adLoadTimer){clearTimeout(adLoadTimer);adLoadTimer=null;}if(adRetryTimer){clearTimeout(adRetryTimer);adRetryTimer=null;}_adLoadAttempt=false;adLoading=false;adReady=false;adPending=false;if(adOn)adHide(true);}
+  function adPrivacyPaint(){var b=$('adPrivacyBtn'),m=$('adPrivacyMsg'),am=adMob();if(!b)return;var show=!!(am&&am.showPrivacyOptionsForm&&adPrivacyRequired&&!ENT.noads);b.style.display=show?'':'none';if(!show&&m)m.style.display='none';}
+  function adPrivacyOpen(){var b=$('adPrivacyBtn'),m=$('adPrivacyMsg'),am=adMob();if(!am||!am.showPrivacyOptionsForm)return;if(b)b.disabled=true;if(m){m.style.display='';m.textContent='プライバシー設定を開いています…';}adConsentReady=false;adReady=false;
+    am.showPrivacyOptionsForm().then(function(){adConsentBoot(function(ok){adConsentReady=ok;if(m){m.style.display='';m.textContent=ok?'広告プライバシー設定を更新しました。':'広告は同意状態を確認できるまで表示しません。';}if(b)b.disabled=false;adPrivacyPaint();if(ok)adPrepare();});}).catch(function(){if(b)b.disabled=false;if(m){m.style.display='';m.textContent='設定を開けませんでした。広告は表示しません。';}adPrivacyPaint();});}
+  function adSetPaint(){adPracticePaint();var ax=$('adSetBox');if(!ax)return;
     var base=!!(ADS.unit&&adMob()&&state.cards&&!ENT.noads);ax.style.display=base?'':'none';if(!base)return;/* 広告が出ない環境・購入済みなら節ごと出さない */
-    var nb9=$('noadsBox');if(nb9)nb9.style.display=(PRICES[PRODUCTS.noads])?'':'none';}/* ASCに商品を作るまでは出さない。作れば次回起動から自動で出る（2026-08-31） */
-  (function(){var b=$('noadsBtn');if(b)b.onclick=function(){haptic(6);showPaywall('noads');};})();/* 広告非表示＝月額300円のサブスク（2026-08-31 ユーザー指定） */
+    var nb9=$('noadsBox'),np9=PRICES[PRODUCTS.noads],nbtn9=$('noadsBtn');if(np9)np9=np9.replace(/^¥([\d,]+)$/,'$1円');if(nbtn9)nbtn9.textContent=np9?('広告を完全削除する（買い切り'+np9+'）'):'広告を完全削除する';if(nb9)nb9.style.display=PRICES[PRODUCTS.noads]?'':'none';adPrivacyPaint();}/* ASCに商品を作るまでは設定内の導線を出さない。学習画面側は価格未取得時も安全な再確認画面を開ける（2026-09-06）。 */
+  (function(){var open=function(e){if(e){e.preventDefault();e.stopPropagation();}haptic(6);showPaywall('noads');};var b=$('noadsBtn');if(b)b.onclick=open;var p=$('practiceNoads');if(p){p.addEventListener('pointerdown',function(e){e.stopPropagation();});p.addEventListener('click',open);}})();/* 設定と学習画面は同じ買い切り広告削除ペイウォールを開く。 */
+  (function(){var b=$('adPrivacyBtn');if(b)b.onclick=function(){haptic(6);adPrivacyOpen();};})();
   (function(){var g0=window.go;if(typeof g0==='function'){window.go=function(id){g0.apply(this,arguments);if(id==='sc-settings')try{adSetPaint();}catch(e){}};}})();/* 画面を開くたびボタン状態を更新（2026-08-31） */
   (function(){var f0=window.entApply;if(typeof f0==='function'){window.entApply=function(){var r=f0.apply(this,arguments);try{adSetPaint();}catch(e){}return r;};}})();/* 購入・復元の反映でもボタンを消す（2026-08-31） */
   /* 広告が出せない・失敗したとき：待たずに次の問題へ（学習を止めない） */
@@ -4745,7 +4818,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function chainPick(it){if(!it)return null;var base=it.d||it.alt||null,im=idiomChain(it.w);if(base&&im)return Math.random()<0.5?base:im;return base||im;}
   window.showPaywall=showPaywall;
   window.buyBook=function(k){showPaywall(k);};/* Webはサーバー権利、NativeはStoreKitの購入条件を表示 */
-  try{wLoad();ptBadgeRefresh();}catch(e){}premiumBoot();adsBoot();try{adSetPaint();}catch(e){}
+  try{wLoad();ptBadgeRefresh();}catch(e){}premiumBoot();adsBoot();try{adSetPaint();}catch(e){}try{paintKobunPromo();}catch(e){}
   var _booted=false;
   if(location.hash!=='#reset'){
     if(loadAll())_booted=true;
@@ -4756,7 +4829,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     }
   }
   try{applyDark();}catch(e){}setTimeout(function(){try{remindSync();}catch(e){}},12000);/* リマインダー登録。ATTダイアログと重ならないよう遅らせる（2026-09-02） */
-  if(_booted){bakSave();icBackup();try{entMergeLocal();}catch(e){}showHello();setTimeout(function(){try{loginBonusTick();}catch(e){}},1800);}
+  if(_booted){bakSave();icBackup();try{entMergeLocal();}catch(e){}if(location.hash==='#calqa')go('sc-calendar');else showHello();}/* #calqa は保存済みデータで月別画面を直接検証する開発用入口。 */
   else{
     var _startOnboard=function(){narrate($('wNarr'),$('wTap'),'まずはあなたについて\n教えてください',function(){go('sc-grade');});};/* 導入1文（2026-08-02 ユーザー指定・句読点なし） */
     if(location.hash!=='#reset'&&!localStorage.getItem('mx2_state')&&icPlugin()){

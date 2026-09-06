@@ -1,0 +1,13 @@
+/* Web-only compact-height layout; keep native release snapshots unchanged. */
+@media (max-height: 520px) {
+  #sc-home .h2-head { flex-shrink: 0; }
+  #sc-home .hmmain {
+    justify-content: flex-start;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    padding-bottom: 12px;
+  }
+  #sc-home .hxhead,
+  #sc-home .hxlist,
+  #sc-home .hxstat { flex-shrink: 0; }
+}
