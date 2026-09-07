@@ -1,8 +1,9 @@
 {
   "application": "Memora X 大学受験英単語 Web",
-  "release": "2026-09-07-referrals-retired",
-  "sourceCommit": "6dba00d85f181188e97cd1abfa48a5b7ead24c4e",
-  "baseInternalBuild": "1.0.5 (129)",
+  "release": "2026-09-07-library-progress",
+  "sourceCommit": "20f2f8091760951713e90b3fafd6a535aa0246da",
+  "baseInternalBuild": "1.0.5 (131)",
+  "libraryProgress": "range-total-and-persisted-position",
   "webLayout": "compact-height-scroll-v1",
   "calendar": "daily-metric-rings-and-incorrect-words-v2",
   "wallet": "eitan-persisted-answer-events-v2",
