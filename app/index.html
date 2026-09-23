@@ -1866,6 +1866,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
 .mx-update-tut.done .mx-update-card .mx-update-versions{opacity:1}
 </style>
 <link rel="stylesheet" href="mx_analysis_calendar_v2.css">
+<script src="mx_storage_guard_v1.js"></script><!-- 保存領域の見張り。ほかのどのスクリプトより先に（2026-09-23） -->
 <script src="mx_analysis_calendar_v2.js"></script>
 <link rel="stylesheet" href="mx_settings_switch_v1.css">
 <script src="mx_settings_switch_v1.js"></script>
@@ -4174,7 +4175,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     if(!USERMEAN||typeof USERMEAN!=='object'||Array.isArray(USERMEAN))throw new Error('追加した意味を読み込めませんでした');
   }catch(e){UWLOADERROR=e;/* 壊れた保存値を空配列で上書きしない。 */}
     if(USERWORDS.length)BOOKS.forEach(function(bk){USERWORDS.forEach(function(u){bk.deck.push(u);});bk.sections.push({name:'あなたの追加単語',arr:USERWORDS});});})();/* 追加単語とその習得状態は全帳で共有。履歴・苦手意味は各帳に保持する。 */
-  function dictStorageError(){return UWLOADERROR?'追加単語の保存データを読み込めません。データを削除せず、アプリを再起動してください。':'保存できませんでした。入力は残しています。空き容量を確認して、もう一度お試しください。';}
+  function dictStorageError(){return UWLOADERROR?'追加単語の保存データを読み込めません。データを削除せず、アプリを再起動してください。':'保存できませんでした。入力は残しています。もう一度お試しください。';}
   function dictWrite(changes){if(UWLOADERROR)throw UWLOADERROR;window.MXUserDictionary.write(localStorage,changes);}
   function dictSave(){dictWrite({'mxdict_w':JSON.stringify(USERWORDS),'mxdict_m':JSON.stringify(USERMEAN)});renderUwList();}
   function uwBookSnapshot(bk,i){var out={id:bk.id};['fc','whist','munk','miss','rev','skim','wst'].forEach(function(k){
@@ -4537,7 +4538,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       localStorage.setItem('mx2_skim_'+b.id,JSON.stringify(SKIMPROG));
       localStorage.setItem('mx2_miss_'+b.id,JSON.stringify(MISSLOG));
     }
-  }catch(e){toastMsg('学習データを保存できませんでした。空き容量を確認してください。');}}
+  }catch(e){toastMsg('学習データを保存できませんでした。アプリを開き直しても続く場合はお問い合わせください。');}}
   function parseDK(k){var p=(k||'').split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
   function weekStartK(k){var x=parseDK(k);x.setDate(x.getDate()-x.getDay());return dayKey(x);}
   /* 日替わり処理：誤答=苦手 / 苦手・徹底の正解=2日連続で卒業 / スキミング自信一発=覚えた。キーは bookid|word */
@@ -4574,7 +4575,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     if(window.EitanLevelPlacement&&restoreStudyPlacement){
       try{if(window.MXUserDictionary.recoveryError)throw window.MXUserDictionary.recoveryError;
         if(window.EitanLevelPlacement.migrate(BOOKS,localStorage,window.MXUserDictionary))BOOKS.forEach(loadBookState);
-      }catch(placementError){restoreStudyPlacement();restoreStudyPlacement=null;BOOKS.forEach(loadBookState);recalcBookMetrics();setTimeout(function(){toastMsg('単語の移動を保存できなかったため、元の配置で開きました。空き容量を確認して再起動してください。');},1000);}
+      }catch(placementError){restoreStudyPlacement();restoreStudyPlacement=null;BOOKS.forEach(loadBookState);recalcBookMetrics();setTimeout(function(){toastMsg('単語の移動を保存できなかったため、元の配置で開きました。アプリを開き直してください。');},1000);}
     }
     var bi=0,j;for(j=0;j<BOOKS.length;j++)if(BOOKS[j].id===state.book)bi=j;
     if(PLAT==='web'&&state.book==='idioms'&&!ENT.idioms){WEB_WANTED_BOOK='idioms';bi=0;}
@@ -4619,14 +4620,17 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   function bakSave(){try{var tk=dayKey(new Date());if(localStorage.getItem('mx2_bakd')===tk)return;
     /* 週1回、上書き前の日次バックアップ（＝昨日までの正常品）を第2世代へ昇格。
        「読めるが壊れたデータ」が日次バックアップへ伝染しても、1週間以内なら第2世代が生きる */
+    /* 予備コピーは保存領域に余裕があるときだけ作る。足りない世代は作らずに消す（2026-09-23 「50GB空いているのに保存できない」報告。
+       iOSの保存領域は端末の空きと別枠の約5MBで、学習データ本体＋毎日＋週1の3重持ちが枠を埋めていた） */
+    var G=window.MXStorageGuard,ks=dataKeys();
+    function fits(from,to){if(!G)return true;var add=0;ks.forEach(function(k){add+=G.bytes(localStorage.getItem(from+k))-G.bytes(localStorage.getItem(to+k));});return G.usage(localStorage)+add<=G.SOFT;}
+    function copy(from,to){if(!fits(from,to)){ks.forEach(function(k){localStorage.removeItem(to+k);});return;}ks.forEach(function(k){var v=localStorage.getItem(from+k);if(v!=null)localStorage.setItem(to+k,v);});}
     var d2=localStorage.getItem('mx2_bakd2'),td9=today0();
     if(!d2||td9-parseInt(d2,10)>=7){
-      if(localStorage.getItem('mx2bk_mx2_state')!=null){
-        dataKeys().forEach(function(k){var v=localStorage.getItem('mx2bk_'+k);if(v!=null)localStorage.setItem('mx2bk2_'+k,v);});
-      }
+      if(localStorage.getItem('mx2bk_mx2_state')!=null)copy('mx2bk_','mx2bk2_');
       localStorage.setItem('mx2_bakd2',''+td9);
     }
-    dataKeys().forEach(function(k){var v=localStorage.getItem(k);if(v!=null)localStorage.setItem('mx2bk_'+k,v);});
+    copy('','mx2bk_');
     localStorage.setItem('mx2_bakd',tk);}catch(e){}}
   function bakRestore(gen){try{var p=gen===2?'mx2bk2_':'mx2bk_',n=0;
     if(localStorage.getItem(p+'mx2_level_placement_v1')==null&&BOOKS.some(function(b){return localStorage.getItem(p+'mx2_wst_'+b.id)!=null;}))localStorage.removeItem('mx2_level_placement_v1');
@@ -4923,7 +4927,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       try{ik.forEach(function(k){localStorage.setItem(k,incoming[k]);written.push(k);n++;});}catch(writeErr){
         written.forEach(function(k){try{if(snap[k]==null)localStorage.removeItem(k);else localStorage.setItem(k,snap[k]);}catch(_){};});throw writeErr;}
       return n>0?null:'中身が空でした。';
-    }catch(e){return '保存できませんでした。端末の空き容量を確認してください。';}
+    }catch(e){return '保存できませんでした。アプリを開き直してから、もう一度お試しください。';}
   }
   if((b=$('expBtn')))b.onclick=function(){
     var t=expText(),ms=$('msheet');if(!ms)return;
