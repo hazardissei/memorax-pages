@@ -2906,7 +2906,9 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   function gramSpec(d){var all=(window.EITAN_GRAMMAR||{}).words||{};return d&&all[String(d.w||'').toLowerCase()]||null;}
   function grammarLabels(d,meaning){var spec=gramSpec(d),a=spec&&spec[meaning];return Array.isArray(a)?a:[];}
   function escHTML(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-  function grammarMeanHtml(d,body){var senses=d&&d.ms&&d.ms.length?d.ms.slice():msSplit(String(body||''));msSplit(String(body||'').replace(/\n/g,'、')).forEach(function(m){if(m.trim()&&senses.indexOf(m)<0)senses.push(m);});var model=window.EitanSensePOS?window.EitanSensePOS.resolve(d,senses,window.POSD||{},window.EITAN_GRAMMAR||{}):null,any=false;
+  /* 意味の配列(ms)を持たないデータ（派生カットインなど）は、1義1行に整形済みの本文を改行でも区切る（2026-09-23）。
+     「、」だけで割ると「当然の⏎自然の」が1つの塊のまま残り、次の割り直しで同じ意味が足されて4行になっていた（natural ほか24語）。 */
+  function grammarMeanHtml(d,body){var senses=d&&d.ms&&d.ms.length?d.ms.slice():msSplit(String(body||'').replace(/\n/g,'、'));msSplit(String(body||'').replace(/\n/g,'、')).forEach(function(m){if(m.trim()&&senses.indexOf(m)<0)senses.push(m);});var model=window.EitanSensePOS?window.EitanSensePOS.resolve(d,senses,window.POSD||{},window.EITAN_GRAMMAR||{}):null,any=false;
     var rows=senses.map(function(m,i){var labels=grammarLabels(d,m).slice(),pos=model&&model.rows[i];if(d&&d.examPOS&&d.examPOS[i])labels=labels.filter(function(label){return !/^(名詞|動詞|自動詞|他動詞|形容詞|副詞|前置詞|接続詞|代名詞|助動詞|熟語)$/.test(label);});if(pos&&pos!==model.common&&labels.indexOf(pos)<0)labels.unshift(pos);if(model&&model.common)labels=labels.filter(function(label){return label!==model.common;});if(labels.length)any=true;var tx=escHTML(m);if(isHardSense(d,i))tx='<span class="hardmk">'+tx+'</span>';return '<span class="meanline">'+labels.map(function(label){return '<span class="gramk">'+escHTML(label)+'</span>';}).join('')+tx+'</span>';});
     return (any||(model&&model.common))?{html:rows.join(''),common:model&&model.common||'',complete:!!(model&&model.complete)}:null;}
   /* 意味の最終表示（2026-08-16）：タイプ完了後に品詞マークを小さく＋難訳マーカーを一括で組む */
