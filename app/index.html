@@ -1782,6 +1782,33 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
    縦が足りずtightになった場合もcontainを維持し、上端を切らない。 */
 .aimgbox{height:auto;aspect-ratio:800/533;background:#f3f5f8}
 .aimgbox img{object-fit:contain;object-position:center top}
+.card.tight .aimgbox{height:auto}/* 答えが長い語だけ画像が小さくなっていた（2026-09-23 ユーザーの声「画像のサイズがものによって違う」）。画像は常に同じ比率・同じ幅 */
+.aimgbox img{transition:opacity .18s}.aimgbox.loading img{opacity:0}/* 読み込み中は枠だけ見せ、前の語の画像を出さない */
+/* 学習画面の上を1段に（2026-09-23 ユーザー指定）：左＝範囲名と種類の2行、右＝×・もどす・音声と「n/N」。学習済み%は出さない（ホームの単語帳完成度へ）。
+   共通部品 mx_study_shell の並びは変えず、中の段を display:contents でほどいてグリッドに並べ直す。空いた高さはカードが使う */
+html body #sc-practice #mxStudyHead{display:grid!important;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"scope ctrl pos" "mode ctrl pos" "gauge gauge gauge";column-gap:6px;align-items:center;margin-bottom:8px}
+#sc-practice #mxStudyHead .mx-study-top,#sc-practice #mxStudyHead .mx-study-context{display:contents}
+#sc-practice #mxStudyScope{grid-area:scope;margin:0;line-height:1.35;align-self:end;min-width:0}
+#sc-practice #mxStudyMode{grid-area:mode;line-height:1.35;align-self:start;min-width:0}
+#sc-practice #mxStudyControls{grid-area:ctrl}
+#sc-practice #mxStudyPosition{grid-area:pos;font-size:15px;padding-left:2px}
+#sc-practice #mxStudyCount,#sc-practice #mxStudyStatus{display:none}
+/* ホームの単語帳完成度（2026-09-23）。下の3行リストと同じカードの見た目 */
+.hxdone{background:#fff;border-radius:14px;padding:14px 18px 12px;margin-bottom:18px;color:var(--h2ink);box-shadow:0 1px 2px rgba(17,20,26,.05),0 10px 26px -12px rgba(17,20,26,.22) !important}
+.hxdone .hd-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:8px}
+.hxdone .hd-t{font-size:11.5px;color:#8a94a6;letter-spacing:.1em;font-weight:800}
+.hxdone .hd-p{font-size:22px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
+.hxdone .hd-bar{display:block;height:10px;border-radius:99px;background:#edf0f4;overflow:hidden}
+.hxdone .hd-bar i{display:block;height:100%;border-radius:inherit;background:#2261f5;transition:width .3s ease}
+/* 自分で意味を変える（2026-09-23）：ボタンはメモ(左)と報告(右)の間。自分の意味にした語は答えの下に小さく印 */
+.card .meanb{display:none}
+.card.revealed .meanb{display:block;position:absolute;left:50%;transform:translateX(-50%);bottom:10px;z-index:3;border:none;background:transparent;font-family:inherit;font-size:11px;font-weight:700;color:#b6bac4;cursor:pointer;padding:4px 6px;white-space:nowrap}
+.card.revealed .meanb.has{color:var(--ink)}
+.card.revealed .meanb[hidden]{display:none}
+.ovmk{display:block;margin-top:6px;font-size:11px;font-weight:700;color:#8a94a6}
+.mvnote{font-size:12px;color:#8a94a6;margin:0 0 10px;line-height:1.5}
+#msheet .mperr{color:#f04438;font-size:12px;font-weight:700;min-height:1em;margin:6px 0}
+html body #sc-practice #mxStudyGauge{grid-area:gauge;margin-top:6px}
 @media(max-height:740px){.card.tight .aimgbox.on{display:block}}
 /* 縦が短い画面でも画像を隠さず、答え面だけ内部スクロールで本文・操作まで到達できるようにする。 */
 #sc-practice{height:100vh;height:100dvh;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
@@ -2044,6 +2071,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
         </div>
         <!-- メモ＝カード左下・報告＝右下（答え表示中のみ・レイアウト不動） -->
         <button class="memb" id="memBtn" type="button">＋ メモ</button>
+        <button class="meanb" id="meanBtn" type="button">✎ 意味</button>
         <button class="repb" id="repBtn" type="button">報告</button>
         <div class="frov g" id="tagR"></div>
         <div class="frov gy" id="tagL"></div>
@@ -2085,6 +2113,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
       <div class="hmmain" id="hmMain">
         <!-- ホーム v14（2026-08-13 案A採用）：円カルーセル廃止→ソフトフロートの3行リスト。
              ヘッダー・下タブは従来のまま。?はモード説明（mdOv）を開く -->
+        <div class="hxdone" id="hxDone" role="group" aria-label="単語帳完成度"></div><!-- 冊ごとの完成度（2026-09-23 ユーザー指定。学習画面の学習済み%をここへ移した）。描画は paintBookDone() -->
         <div class="hxhead"><span class="hxq" id="hxQ">?</span></div>
         <form class="home-code" id="homeIdiomCodeForm">
           <div class="home-code-row">
@@ -2745,14 +2774,14 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     if(cur)out.push(cur);
     return out.join('\n');}
   function sizeAnswerText(body){var el=$('ansM');if(!el)return;var lines=String(body||'').split('\n'),max=Math.max.apply(null,lines.map(function(s){return s.length;})),total=lines.join('').length;el.classList.toggle('long',max>11||total>22||lines.length>=4);el.classList.toggle('dense',max>18||total>38||lines.length>=6);requestCardFit();}
-  function reveal(c){window._qdt=(!chainMode&&window._qT0)?(Date.now()-window._qT0):null;/* 解答時間＝表示完了→最初のスワイプ（2026-08-13） */conf=c;phase='a';if(coaching&&idx===0&&!chainMode)swipeLock=true;/* 「答え合わせです」のコーチとデモが終わるまでスワイプ不可（2026-08-14）。解除はdemoAns末尾 */card.classList.add('revealed');ansb.classList.add('show');if(coachTimer)clearTimeout(coachTimer);hideCoach();card.classList.add('snap');card.style.transform='';card.style.background='';card.style.borderColor='';setTimeout(function(){card.classList.remove('snap');},220);var d=chainMode?chainData:queue[idx];var _wr9=$('wipaRow');if(_wr9)_wr9.style.display='none';/* 発音記号と再生ボタンは問題側だけに出す（2026-09-02 ユーザー指定・答えには出さない） */var ai=$('ansImg'),ab=$('aimgbox');if(ai&&ab){ab.classList.remove('on');card.classList.remove('imgmode');var ip=state.wimg==='オフ'?null:(chainMode&&chainData&&chainData.kind==='alt')?(WIMG[d.w]?WIMG[d.w].replace(/\.(webp|jpg)$/,'_2.$1'):null):exampleImageOf(d);/* 難訳は専用の_2画像（2026-08-05）。設定で画像オフ可 *//* 難訳（②の意味）は別概念なので画像を出さない（2026-08-03 FB）。派生チェインは対象 */if(ip){ai._alt=0;ai.onload=function(){ab.classList.add('on');card.classList.add('imgmode');if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);/* 画像は非同期に載るので、載った後で入るかを測り直す。これが無いと縮小判定が画像の読み込み順に左右される（2026-08-31） */};ai.onerror=function(){/* webp↔jpg を1回だけ入れ替えて再試行（2026-08-26） */var _s=ai.src;if(!ai._alt){ai._alt=1;if(_s.slice(-5)==='.webp'){ai.src=_s.slice(0,-5)+'.jpg';return;}if(_s.slice(-4)==='.jpg'){ai.src=_s.slice(0,-4)+'.webp';return;}if(_s.slice(-4)==='.png'){ai.src=_s.slice(0,-4)+'.jpg';return;}}ab.classList.remove('on');card.classList.remove('imgmode');if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);};ai.src=ip;}}var _pl=d.kind==='alt'?'':(function(){var _p9=(window.POSD||{})[(d.w||'').toLowerCase()];if(_p9)return '（'+_p9+'）';return d.pos?'（'+d.pos+'）':'';})();/* 品詞マーク（2026-08-16）：見出しはPOSD、派生は従来のpos */var _mBody=d.m;var _um=USERMEAN[d.w];if(_um)_mBody+='、'+_um;_mBody=fmtMean(_mBody);memSetup((d.w||'').toLowerCase());var _am=$('ansM');if(_am){var _ml=Math.max.apply(null,_mBody.split('\n').map(function(s){return s.length;}));_am.classList.toggle('long',_ml>11);}var _ib=$('ansImp');if(_ib){var _tx='';if(!chainMode){var _bk2=BOOKS[CURBOOK]&&BOOKS[CURBOOK].id;if(d&&d.cnt!=null&&(_bk2==='waseda'||_bk2==='keio')){var _un=(_bk2==='waseda'?'早稲田':'慶応');
+  function reveal(c){window._qdt=(!chainMode&&window._qT0)?(Date.now()-window._qT0):null;/* 解答時間＝表示完了→最初のスワイプ（2026-08-13） */conf=c;phase='a';if(coaching&&idx===0&&!chainMode)swipeLock=true;/* 「答え合わせです」のコーチとデモが終わるまでスワイプ不可（2026-08-14）。解除はdemoAns末尾 */card.classList.add('revealed');ansb.classList.add('show');if(coachTimer)clearTimeout(coachTimer);hideCoach();card.classList.add('snap');card.style.transform='';card.style.background='';card.style.borderColor='';setTimeout(function(){card.classList.remove('snap');},220);var d=chainMode?chainData:queue[idx];var _wr9=$('wipaRow');if(_wr9)_wr9.style.display='none';/* 発音記号と再生ボタンは問題側だけに出す（2026-09-02 ユーザー指定・答えには出さない） */var ai=$('ansImg'),ab=$('aimgbox');if(ai&&ab){ab.classList.remove('on');card.classList.remove('imgmode');var ip=state.wimg==='オフ'?null:(chainMode&&chainData&&chainData.kind==='alt')?(WIMG[d.w]?WIMG[d.w].replace(/\.(webp|jpg)$/,'_2.$1'):null):exampleImageOf(d);/* 難訳は専用の_2画像（2026-08-05）。設定で画像オフ可 *//* 難訳（②の意味）は別概念なので画像を出さない（2026-08-03 FB）。派生チェインは対象 */if(ip){ai._alt=0;ab.classList.add('on','loading');card.classList.add('imgmode');/* 画像の枠は読み込みを待たずに先に取る（全画像800×533で枠は同じ）。読み込み後に枠が出てカードがカクッと伸びていた（2026-09-23 ユーザーの声） */ai.onload=function(){ab.classList.remove('loading');ab.classList.add('on');card.classList.add('imgmode');if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);/* 画像は非同期に載るので、載った後で入るかを測り直す。これが無いと縮小判定が画像の読み込み順に左右される（2026-08-31） */};ai.onerror=function(){/* webp↔jpg を1回だけ入れ替えて再試行（2026-08-26） */var _s=ai.src;if(!ai._alt){ai._alt=1;if(_s.slice(-5)==='.webp'){ai.src=_s.slice(0,-5)+'.jpg';return;}if(_s.slice(-4)==='.jpg'){ai.src=_s.slice(0,-4)+'.webp';return;}if(_s.slice(-4)==='.png'){ai.src=_s.slice(0,-4)+'.jpg';return;}}ab.classList.remove('on','loading');card.classList.remove('imgmode');if(typeof requestAnimationFrame==='function')requestAnimationFrame(fitCard);};ai.src=ip;}}var _pl=d.kind==='alt'?'':(function(){var _p9=(window.POSD||{})[(d.w||'').toLowerCase()];if(_p9)return '（'+_p9+'）';return d.pos?'（'+d.pos+'）':'';})();/* 品詞マーク（2026-08-16）：見出しはPOSD、派生は従来のpos */var _mBody=ovMean(d);var _um=USERMEAN[d.w];if(_um)_mBody+='、'+_um;_mBody=fmtMean(_mBody);memSetup((d.w||'').toLowerCase());meanSetup(d);var _am=$('ansM');if(_am){var _ml=Math.max.apply(null,_mBody.split('\n').map(function(s){return s.length;}));_am.classList.toggle('long',_ml>11);}var _ib=$('ansImp');if(_ib){var _tx='';if(!chainMode){var _bk2=BOOKS[CURBOOK]&&BOOKS[CURBOOK].id;if(d&&d.cnt!=null&&(_bk2==='waseda'||_bk2==='keio')){var _un=(_bk2==='waseda'?'早稲田':'慶応');
         /* セクション＝学部なので、その学部での回数を主に出す。大学全体の計も併記する。
            従来は全セクションで大学全体の計だけを出していて、学部の実数と最大32倍ずれていた（2026-08-30） */
         _tx=d.cntLabel||((d.fc!=null&&d.g)?(d.g+'で'+d.fc+'回 ／ '+_un+'全体'+d.cnt+'回'):(_un+'全体で'+d.cnt+'回'));}else if(d&&d.cnt!=null&&_bk2==='idioms')_tx=idmLvl(d.g)+'で出題 '+d.cnt+'回';else{var _v2=impPct(d);if(_v2!=null)_tx=state.level+'レベル重要度 '+_v2+'%';}}else if(chainData&&chainData.kind==='idiom'&&chainData.cnt!=null)_tx=idmLvl(chainData.g)+'で出題 '+chainData.cnt+'回';_ib.textContent=_tx;_ib.style.display=_tx?'':'none';ansb.classList.toggle('hasimp',!!_tx);/* 重要度ピルは絶対配置なので、出るときは必ず上に余白を確保する。画像オフや読み込み前でも重ならないように（2026-08-27 実機報告 principal/issue/adopt） */}
     /* 答えはタイプ演出なしの一発表示（2026-08-20 ユーザー指定。ズレて見える問題も根絶） */
-    sizeAnswerText(_mBody);finalizeMean(d,_pl,_mBody);setExample(d);
+    sizeAnswerText(_mBody);finalizeMean(ovView(d),_pl,_mBody);ovMark(d);setExample(d);
     if(coaching&&idx===0&&!chainMode)setTimeout(function(){showCoach('result');},600);
-    paintConfuse(d);haptic(6);setTags();pbtns.innerHTML='';requestCardFit();}
+    paintConfuse(d);haptic(6);setTags();pbtns.innerHTML='';if(getComputedStyle(card).transform==='none')fitCard();/* 文字の詰め直しが一拍遅れて見えるのを防ぐ（2026-09-23） */requestCardFit();}
   /* ===== 意味の絞り込み（2026-08-09・古典版から移植） =====
      複数の意味を持つ語を間違えたとき、どの意味が分からなかったかを記録し、
      次回はその語を出すときに「「A・B」以外の意味は？」と促す。 */
@@ -2892,7 +2921,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   function paintMHint(d){
     var el=$('mhint');if(!el)return;
     el.style.display='none';el.textContent='';
-    if(!d||!d.ms||d.ms.length<2)return;
+    if(!d||!d.ms||d.ms.length<2||ovLines(d))return;/* 自分の意味にした語は、元の意味の記録でヒントを作らない */
     var unk=MUNK[d.w];if(!unk||!unk.length||unk.length>=d.ms.length)return;
     var rows=senseRows(d.ms);if(rows.length<2)return;/* 「機能（する）」のようにまとめた行は1つの意味として数える（2026-09-23） */
     var known=rows.filter(function(r){return r.idx.every(function(i){return unk.indexOf(i)<0;});}).map(function(r){return r.t;});
@@ -2932,7 +2961,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
       el.innerHTML='<span class="exen">例) '+en+'</span><span class="exjp">'+phrasify(esc(ex[1]||''))+'</span>'+(d.exampleNote?'<span class="exjp">'+phrasify(esc(d.exampleNote))+'</span>':'');
     }else el.textContent='例) '+ex;}
   function askMPick(d,done){
-    var box=$('mpick'),rows=d.ms?senseRows(d.ms):[];if(!box||rows.length<2){done();return;}/* 選択肢はまとめた行ごと（2026-09-23）。1行が複数の意味を受け持つときは一緒に付け外しする */
+    var box=$('mpick'),rows=d.ms&&!ovLines(d)?senseRows(d.ms):[];if(!box||rows.length<2){done();return;}/* 選択肢はまとめた行ごと（2026-09-23）。1行が複数の意味を受け持つときは一緒に付け外しする */
     var cur=MUNK[d.w]||[];
     box.setAttribute('role','group');box.setAttribute('aria-labelledby','mpQuestion');
     box.innerHTML='<div class="mpq" id="mpQuestion">どの意味を間違えた？（複数選べます）</div>'+
@@ -3066,7 +3095,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     /* 複数の意味を持つ語を間違えたときだけ、どの意味かを聞く（2026-08-09）。
        答えのスワイプを終えてから出す。カードは指で動いた位置から戻す */
     var _d=queue[idx];
-    if(!ok&&_d&&_d.ms&&senseRows(_d.ms).length>1){/* 「機能（する）」だけの語は意味1つの語と同じ扱い（2026-09-23） */
+    if(!ok&&_d&&_d.ms&&!ovLines(_d)&&senseRows(_d.ms).length>1){/* 「機能（する）」だけの語は意味1つの語と同じ扱い（2026-09-23） */
       card.classList.add('snap');card.style.transform='';card.style.opacity=1;
       setTimeout(function(){card.classList.remove('snap');},220);
       setTags();tintCard();
@@ -3115,6 +3144,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   /* ===== 単語メモ（2026-08-20改）：レイアウトを一切動かさない設計。
      カード左下の固定ボタン（報告と対称）→ ボトムシートで閲覧・編集。端末保存（mxdict系＝リセットでも残す） ===== */
   var NOTES=jsonLoad('mxdict_note',{});
+  var MEANOV=jsonLoad('mxdict_ov',{})||{},MEAND=null;/* 自分で変えた意味（単語→意味の配列）と、いま答えに出ている語（2026-09-23） */
   function noteSave(){try{localStorage.setItem('mxdict_note',JSON.stringify(NOTES));}catch(e){}}
   /* メモの体裁制約（2026-08-20 ユーザー指定）：2行まで・1行28字まで（表示欄と完全一致）。
      入力中もリアルタイムで同じ制約をかける＝書いた見た目がそのまま答え下に出る */
@@ -3158,6 +3188,39 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     b.addEventListener('click',function(e){e.stopPropagation();showMemoSheet();});
     if(t){t.addEventListener('pointerdown',function(e){e.stopPropagation();});
       t.addEventListener('click',function(e){e.stopPropagation();showMemoSheet();});}})();
+  /* ===== 自分で意味を変える（2026-09-23 ユーザー要望） =====
+     組み込みの意味は変えずに、単語ごとの「自分の意味」(mxdict_ov)を重ねて見せる。元に戻せば元の意味がそのまま出る。
+     「どの意味を間違えた？」の記録（MUNK）は元の意味の番号なので、自分の意味にした語ではその質問とヒントを出さない（記録をずらさない）。 */
+  function ovLines(d){var o=d&&MEANOV[d.w];return Array.isArray(o)&&o.length?o:null;}
+  function ovMean(d){var o=ovLines(d);return o?o.join('、'):(d&&d.m);}
+  function ovView(d){var o=ovLines(d);if(!o)return d;var v={},k;for(k in d)if(Object.prototype.hasOwnProperty.call(d,k))v[k]=d[k];
+    v.m=o.join('、');v.ms=o.slice();delete v.hi;delete v.hardEnd;delete v.examStart;delete v.examPOS;delete v.exampleReviewStart;return v;}
+  /* 1行1義。行の中の「、」でも分け、同じ意味は1つに。1義40字・10義まで */
+  function ovNormalize(text){var out=[];String(text||'').replace(/\r/g,'').split('\n').forEach(function(line){msSplit(line).forEach(function(m){m=m.replace(/[,，]+$/,'').trim().slice(0,40);if(m&&out.indexOf(m)<0)out.push(m);});});return out.slice(0,10);}
+  function meanOvSave(){try{localStorage.setItem('mxdict_ov',JSON.stringify(MEANOV));return true;}catch(e){return false;}}
+  function meanSetup(d){MEAND=d;var b=$('meanBtn');if(!b)return;b.hidden=!d||!!d.user;/* 追加単語は単語の編集画面で直す */var own=!!ovLines(d);b.classList.toggle('has',own);b.textContent=own?'✎ 自分の意味':'✎ 意味';}
+  function ovMark(d){if(!ovLines(d))return;var el=$('ansM');if(el)el.insertAdjacentHTML('beforeend','<span class="ovmk">✎ 自分で変えた意味</span>');}
+  function meanRefresh(d){meanSetup(d);if(phase!=='a')return;var p9=(window.POSD||{})[(d.w||'').toLowerCase()],pl=d.kind==='alt'?'':(p9?'（'+p9+'）':(d.pos?'（'+d.pos+'）':''));
+    var body=ovMean(d),um=USERMEAN[d.w];if(um)body+='、'+um;body=fmtMean(body);sizeAnswerText(body);finalizeMean(ovView(d),pl,body);ovMark(d);requestCardFit();}
+  function showMeanSheet(){var d=MEAND;if(!d||d.user)return;var ms=$('msheet');if(!ms)return;haptic(6);var cur=ovLines(d);
+    var orig=senseRows(d.ms&&d.ms.length?d.ms:msSplit(String(d.m||''))).map(function(r){return r.t;});
+    ms.innerHTML='<div class="q" style="font-size:19px;margin-bottom:6px">'+escHTML(d.w)+' の意味</div>'
+      +'<div class="mvnote">1行に1つずつ。ここで書いた意味が答えに出ます。元の意味は消えず、いつでも戻せます。</div>'
+      +'<textarea class="mssheet-ta" id="mvTa" rows="5" placeholder="例）機能（する）"></textarea>'
+      +'<div class="mperr" id="mvErr" role="alert" aria-live="assertive"></div>'
+      +'<button class="opt" id="mvSave" style="width:100%">保存</button>'
+      +'<div class="pwl">'+(cur?'<button class="plink" id="mvReset" type="button">元の意味に戻す</button>':'')+'<button class="plink" id="mvClose" type="button">閉じる</button></div>';
+    var ta=$('mvTa');ta.value=(cur||orig).join('\n');
+    openMSheet();
+    $('mvClose').onclick=closeMSheet;
+    if(cur)$('mvReset').onclick=function(){var keep=MEANOV[d.w];delete MEANOV[d.w];if(!meanOvSave()){MEANOV[d.w]=keep;$('mvErr').textContent='保存できませんでした。もう一度お試しください';return;}closeMSheet();haptic(10);meanRefresh(d);};
+    $('mvSave').onclick=function(){var lines=ovNormalize(ta.value);if(!lines.length){$('mvErr').textContent='意味を1つ以上入れてください';return;}
+      var keep=MEANOV[d.w];if(lines.join('\n')===orig.join('\n'))delete MEANOV[d.w];else MEANOV[d.w]=lines;
+      if(!meanOvSave()){if(keep)MEANOV[d.w]=keep;else delete MEANOV[d.w];$('mvErr').textContent='保存できませんでした。もう一度お試しください';return;}
+      closeMSheet();haptic(10);meanRefresh(d);};}
+  (function(){var b=$('meanBtn');if(!b)return;
+    b.addEventListener('pointerdown',function(e){e.stopPropagation();});/* カードをつかまない */
+    b.addEventListener('click',function(e){e.stopPropagation();showMeanSheet();});})();
   /* ===== 単語の報告（2026-08-16 ユーザー要望⑦） =====
      GoogleフォームのURLが入ればフォームへ、未設定の間は宛先入りメール起動で動く */
   var FBFORM='';var REPMAIL='memora.X.000@gmail.com';/* 報告の宛先。4アプリ共通。変えるならここ1か所（2026-08-26） */
@@ -3533,7 +3596,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var dk=$('nhDisk');if(dk){dk.classList.remove('pulse');void dk.offsetWidth;dk.classList.add('pulse');}
     paintDial();paintNH();};
   /* v11（2026-07-26 青デザイン）：ヘッダーリング・週カード・今日の学習スライダー・学習モードリスト */
-  function paintNH(){
+  function paintNH(){paintBookDone();
     var hb=$('hmBook');if(hb&&BOOKS[CURBOOK])hb.textContent=BOOKS[CURBOOK].sub;
     var pctv=stCount('learned')/planDeck()*100;
     var pEl=$('h2Pct');if(pEl)pEl.textContent=(pctv<10?pctv.toFixed(1):Math.round(pctv))+'%';
@@ -4095,6 +4158,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     if(BOOKS[i].id==='plus')rt.classList.add('bk-plus');else if(BOOKS[i].id==='waseda')rt.classList.add('bk-waseda');else if(BOOKS[i].id==='keio')rt.classList.add('bk-keio');else if(BOOKS[i].id==='idioms')rt.classList.add('bk-idioms');/* 大学カラー：早稲田=エンジ/慶応=紺青（2026-08-13）／英熟語=黄色（2026-08-27） */
     deckSection=null;
     if(!silent){saveAll();paintHome();if($('sc-analysis').classList.contains('on'))renderAnalysis();if($('sc-deck').classList.contains('on')){deckSection=null;renderDeck();}}
+    paintBookDone();/* ホームの単語帳完成度を開いている冊に合わせる（2026-09-23） */
   }
   /* 冊ごとの対象・網羅率（?で開閉・バー表示＝案2採用）。※数値は仮置き（過去問ツールで確定後に更新） */
   function cvr(lv,p){return '<div class="cvrow"><span class="lv">'+lv+'</span><span class="bar"><i style="width:'+p+'%"></i></span><span class="pc">'+p+'%</span></div>';}
@@ -4246,7 +4310,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     function scan(pred){for(var bi=0;bi<BOOKS.length&&hit.length<3;bi++){var deck=BOOKS[bi].deck;for(var i=0;i<deck.length&&hit.length<3;i++){var d=deck[i];if(pred(d.w.toLowerCase())&&!hit.some(function(h){return h.d===d||(h.b===BOOKS[bi]&&h.d.w===d.w);}))hit.push({d:d,b:BOOKS[bi],sn:secName(BOOKS[bi],d)});}}}
     scan(function(w){return w.indexOf(q)===0;});
     scan(function(w){return w.indexOf(q)>0;});
-    list.innerHTML=hit.length?hit.map(function(h,hi){var d=h.d,um=USERMEAN[d.w];return '<div class="drow" data-di="'+hi+'" style="cursor:pointer"><div class="dw">'+escH(d.w)+'</div><div class="dm">'+(d.drv?'<span class="dvb">派生</span>':'')+(d.user?'<span class="dvb">追加</span>':'')+escH(meanText(d.m))+(um?'、'+escH(um):'')+'</div><span class="dloc">'+escH(h.b.sub)+' '+escH((h.sn||'').replace('Section ','Section'))+'</span></div>';}).join(''):'<div class="dempty" style="padding:18px 0">見つかりませんでした</div>';
+    list.innerHTML=hit.length?hit.map(function(h,hi){var d=h.d,um=USERMEAN[d.w];return '<div class="drow" data-di="'+hi+'" style="cursor:pointer"><div class="dw">'+escH(d.w)+'</div><div class="dm">'+(d.drv?'<span class="dvb">派生</span>':'')+(d.user?'<span class="dvb">追加</span>':'')+escH(meanText(ovMean(d)))+(um?'、'+escH(um):'')+'</div><span class="dloc">'+escH(h.b.sub)+' '+escH((h.sn||'').replace('Section ','Section'))+'</span></div>';}).join(''):'<div class="dempty" style="padding:18px 0">見つかりませんでした</div>';
     list.querySelectorAll('.drow[data-di]').forEach(function(r){r.onclick=function(){var h=hit[parseInt(r.getAttribute('data-di'),10)];if(!h)return;if(h.d.user){showUserWordSheet(h.d);}else{showDictSheet(h.d);}};});/* 検索結果タップで詳細シート（2026-08-31 ユーザー要望） */
     phrasifyDom(list);}
   /* ===== 索引の単語詳細シート（2026-08-31 ユーザー要望）=====
@@ -4263,7 +4327,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     function paint(){var t=wordFind(w),inCur=!!t,note=NOTES[lw]||'';
       var stTx=t?(STLABEL[t.st]||t.st):'—';
       ms.innerHTML='<div class="q" style="font-size:20px;margin-bottom:4px">'+escH(w)+'</div>'
-        +'<div class="pwd" style="margin-bottom:12px">'+(d.drv?'<span class="dvb">派生</span>':'')+escH(d.m)+(um?'、'+escH(um):'')+'</div>'
+        +'<div class="pwd" style="margin-bottom:12px">'+(d.drv?'<span class="dvb">派生</span>':'')+escH(ovMean(d))+(um?'、'+escH(um):'')+'</div>'
         +((!d.drv&&inCur)?('<div class="sec-t" style="margin-top:2px">学習状態<span style="font-weight:600;color:#8a8f99">　いま：'+stTx+'</span></div>'
           +'<button class="opt" id="dsForget" type="button" style="width:100%;margin-bottom:8px">「覚えていない」に戻す<small>未学習として出題し直します</small></button>'
           +'<button class="opt" id="dsMiss" type="button" style="width:100%;margin-bottom:8px">苦手リストに入れる<small>「間違えた単語」モードに出ます</small></button>'
@@ -4350,6 +4414,16 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   $('addGo').addEventListener('click',function(){dictAdd();});
   var STLABEL={learned:"覚えた",review:"また出る",weak:"苦手",new:"未学習"};
   var deckFilter='all',deckSection=null;
+  /* ホームの「単語帳完成度」（2026-09-23 ユーザー指定）：冊ごとに、1回でも学習した見出し語の割合（学部の重複はユニークで数える）。
+     判定は学習画面の旧「学習済み%」と同じ（忘却曲線の記録・回答履歴・学習状態のどれか）。今の冊はメモリ上の最新（FC/WHIST）で数える */
+  function bookDonePct(b,i){var fc=i===CURBOOK?FC:(b.fc||{}),wh=i===CURBOOK?WHIST:(b.whist||{}),seen={},n=0;
+    (b.deck||[]).forEach(function(x){if(!x||x.drv||x.user||seen[x.w])return;seen[x.w]=1;if((fc[x.w]&&fc[x.w].t)||(wh[x.w]&&wh[x.w].length)||(x.st&&x.st!=='new'))n++;});
+    return b.hw?Math.min(100,Math.floor(n/b.hw*100)):0;}
+  /* 出すのは開いている冊だけ（2026-09-23 ユーザー指定）。冊を切り替えると setBook の最後で描き直す */
+  function paintBookDone(){var el=$('hxDone');if(!el)return;var b=BOOKS[CURBOOK];if(!b||!b.hw){el.innerHTML='';el.style.display='none';return;}
+    var p=bookDonePct(b,CURBOOK);
+    el.innerHTML='<div class="hd-top"><span class="hd-t">単語帳完成度</span><b class="hd-p">'+p+'%</b></div><span class="hd-bar"><i style="width:'+p+'%"></i></span>';
+    el.setAttribute('aria-label',(b.sub||'単語帳')+'の完成度 '+p+'%');el.style.display='';}
   function stCount(st,arr){/* 冊全体の集計は語のユニーク数（学部重複帳対策・2026-08-13）。セクション内は重複がないので影響なし */
     var n=0,seen={};(arr||DECKDATA).forEach(function(d){if(d.st===st&&!seen[d.w]){seen[d.w]=1;n++;}});return n;}
   /* 間違えた単語の画面（2026-08-11）：単語・何日前に間違えたか・直近の正誤3点。
@@ -4373,7 +4447,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       var f9=FC[d.w],dy9=(f9&&f9.t)?Math.max(0,_tdD-dayNum(f9.t)):null;
       var wh9=(WHIST[d.w]||[]).slice(-5),dt9='',k9;
       for(k9=0;k9<5;k9++){dt9+='<i class="'+(k9<wh9.length?(wh9[k9]===2?'b':(wh9[k9]?'g':'r')):'o')+'"></i>';}
-      return '<div class="drow"><div class="dw">'+escH(d.w)+'</div><div class="dm">'+escH(meanText(d.m))+'</div>'
+      return '<div class="drow"><div class="dw">'+escH(d.w)+'</div><div class="dm">'+escH(meanText(ovMean(d)))+'</div>'
         +'<span class="dinfo"><i class="dd">'+(dy9==null?'未':(dy9===0?'今日':dy9+'日前'))+'</i><span class="mdots">'+dt9+'</span></span></div>';
     }).join(''):'<div class="dempty">まだありません</div>';
     phrasifyDom(list);
@@ -4646,7 +4720,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var tk=dayKey(new Date());if(localStorage.getItem('mx2_icbd')===tk)return;/* 1日1回 */
     var o={__v:1,__d:tk};
     dataKeys().forEach(function(k){var v=localStorage.getItem(k);if(v!=null)o[k]=v;});
-    ['mxdict_w','mxdict_m','mxdict_note'].forEach(function(k){var v=localStorage.getItem(k);if(v!=null)o[k]=v;});/* 追加単語・メモも守る */
+    ['mxdict_w','mxdict_m','mxdict_note','mxdict_ov'].forEach(function(k){var v=localStorage.getItem(k);if(v!=null)o[k]=v;});/* 追加単語・メモも守る */
     p.set({key:'mx2_backup',value:JSON.stringify(o)}).then(function(){
       try{localStorage.setItem('mx2_icbd',tk);}catch(e){}
     }).catch(function(){});
@@ -4890,11 +4964,11 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
      icBackup と同じ形に固めて文字列にする。読み込みは中身を検証してから流し込み、
      成功したら再起動して全体を読み直す（部分適用のまま動かすと状態がねじれる） */
   var TRANSFER_RIGHT_KEYS=['entWeb','entGift','entInvite','invites','friendCode','entTester'];/* テスター印もお引っ越しデータに載せない（他端末に特典が渡るのを防ぐ。2026-09-16） */
-  function transferKeys(){var a=dataKeys().concat(['mxdict_w','mxdict_m','mxdict_note','mx2_solved','mx2_guided','mx2_snd','mx2_examday','mx2_revreq','mx2_revpend','mx2_wn_idioms','mx2_kobun_promo_v1']),seen={},out=[];a.forEach(function(k){if(!seen[k]){seen[k]=1;out.push(k);}});return out;}
+  function transferKeys(){var a=dataKeys().concat(['mxdict_w','mxdict_m','mxdict_note','mxdict_ov','mx2_solved','mx2_guided','mx2_snd','mx2_examday','mx2_revreq','mx2_revpend','mx2_wn_idioms','mx2_kobun_promo_v1']),seen={},out=[];a.forEach(function(k){if(!seen[k]){seen[k]=1;out.push(k);}});return out;}
   function transferState(raw,keepRaw){var s=typeof raw==='string'?JSON.parse(raw):raw,keep=null;if(!s||typeof s!=='object'||Array.isArray(s))throw new Error('state');
     try{keep=typeof keepRaw==='string'?JSON.parse(keepRaw):keepRaw;}catch(e){keep=null;}
     s=JSON.parse(JSON.stringify(s));TRANSFER_RIGHT_KEYS.forEach(function(k){delete s[k];if(keep&&typeof keep==='object'&&Object.prototype.hasOwnProperty.call(keep,k))s[k]=keep[k];});return s;}
-  function transferJsonKey(k){return /^(mx2_(state|done|day|daily|pstat)|mxdict_(w|m|note)|mx2_(rev|whist|wst|munk|fc|skim|miss|lap1)_)/.test(k);}
+  function transferJsonKey(k){return /^(mx2_(state|done|day|daily|pstat)|mxdict_(w|m|note|ov)|mx2_(rev|whist|wst|munk|fc|skim|miss|lap1)_)/.test(k);}
   function expText(){
     var o={__v:2,__app:'MemoraX',__scope:'eitan',__b:'w0904x',__d:dayKey(new Date())};/* scope付き。旧__v:1の読込互換は維持 */
     try{transferKeys().forEach(function(k){var v=localStorage.getItem(k);if(v==null)return;if(k==='mx2_state')v=JSON.stringify(transferState(v,null));o[k]=v;});/* mx2_entとstate内の購入・招待・コード権利は載せない */
@@ -5166,14 +5240,14 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     controls:[{selector:'#psnd'},{selector:'#sc-practice .pundo',label:'1問戻る',glyph:'↺'},{selector:'#pquit',label:'中断',glyph:'×'}],
     watch:['#cbdg'],read:function(){
       var d=queue[idx],si=d?secInfoOf(d):null,b=BOOKS[CURBOOK]||{},section=si&&SECTIONS[si.sec];
-      var items=coaching?queue:(section?section.arr:(b.hw||queue));
+      var items=coaching?queue:(section?section.arr:(b.deck||queue));/* b.hw は語数（数値）で .filter できず、範囲の無いときに見出しの更新が止まっていた（2026-09-23） */
       items=(items||[]).filter(function(x){return !x.drv;});
       var progress=MXStudyShell.measure(items,function(x){return x.w;},function(x){return coaching?queue.indexOf(x)<idx:!!((FC[x.w]&&FC[x.w].t)||(WHIST[x.w]&&WHIST[x.w].length)||(x.st&&x.st!=='new'));});
       var kind="英単語";
       if(b.id==='idioms')kind='英熟語';
       if(chainMode&&chainData)kind={idiom:'英熟語カットイン',alt:'別の意味',deriv:'派生語カットイン'}[chainData.kind]||'関連問題';
       return Object.assign(progress,{scope:coaching?'操作練習':[(b.sub||"大学英単語"),si&&si.name].filter(Boolean).join(' › '),
-        position:(recs.length+1)+'問目',kind:kind,mode:coaching?'練習':({goku:'自動出題',skim:'スキミング',weak:'苦手',miss:'直近のミス',rev:'復習'}[curTask]||'通常'),long:false});
+        position:queue.length?(Math.min(idx+1,queue.length)+'/'+queue.length):'',/* 「今何問目／今回の全問題数」を1つに（2026-09-23 ユーザー指定） */kind:kind,mode:coaching?'練習':({goku:'自動出題',skim:'スキミング',weak:'苦手',miss:'直近のミス',rev:'復習'}[curTask]||'通常'),long:false});
     }});
 
 })();
