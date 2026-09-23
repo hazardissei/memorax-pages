@@ -1854,6 +1854,16 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   .exam-head input,.exam-head select{display:block;width:100%;min-width:0;box-sizing:border-box;font:inherit;font-size:17px;padding:10px;border:1px solid var(--line,#ccc);background:var(--bg,#fff);color:var(--text,#111)}
   .exam-row{padding:16px 0;border-bottom:1px solid var(--line,#ccc);font-size:17px;line-height:1.65;overflow-wrap:anywhere}.exam-row strong{font-size:22px}.exam-row p{font-size:14px;margin:6px 0 0}.exam-note,#examCount{font-size:14px;line-height:1.7}.exam-pages{display:flex;gap:12px;margin-top:16px}.exam-pages button{flex:1;min-width:0}
   #modal .exam-pages .opt,#modal #examClose{padding:12px 16px !important;text-align:center;font-size:17px !important}
+/* 強制アップデートをチュートリアル調に（2026-09-23 ユーザー指定）。mx_update_gate_v1.js の描画を後から整える */
+.mx-update-gate.mx-update-tut{background:rgba(241,244,249,.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:0 14px;cursor:pointer}
+.mx-update-tut .mx-update-card{width:100%;max-width:460px;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none}
+.mx-update-tut .mx-update-card h1{position:absolute;width:1px;height:1px;margin:0;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.mx-update-tut .mx-update-card p{margin:0;font-size:27px;line-height:1.62;font-weight:700;letter-spacing:.02em;color:var(--ink);white-space:pre-line}
+.mx-update-tut .mx-update-card .mx-update-versions{position:fixed;left:0;right:0;bottom:calc(28px + env(safe-area-inset-bottom,0px));margin:0;font-size:11px;font-weight:600;line-height:1.6;letter-spacing:.04em;color:var(--sub);opacity:0;transition:opacity .4s;white-space:normal}
+.mx-update-tut .mx-update-card button{display:block;width:auto;margin:16px auto 0;padding:8px 14px;background:transparent;color:var(--sub);border:0;border-radius:0;font-size:12px;font-weight:600;letter-spacing:.05em;line-height:1.6;opacity:0;pointer-events:none}
+.mx-update-tut .mx-update-card button:focus{outline:none}
+.mx-update-tut.done .mx-update-card button{opacity:1;pointer-events:auto;animation:bob 2s ease-in-out infinite}
+.mx-update-tut.done .mx-update-card .mx-update-versions{opacity:1}
 </style>
 <link rel="stylesheet" href="mx_analysis_calendar_v2.css">
 <script src="mx_analysis_calendar_v2.js"></script>
@@ -3062,9 +3072,14 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   function commit(dir){if(flyLock||adOn||(TICKETDAILY&&TICKETDAILY.isOpen()))return;haptic(9);if(phase==='q'){if(dir==='r')reveal('high');else if(dir==='l')reveal('none');else if(dir==='d')reveal('mid');}else{if(dir==='r')result(true);else if(dir==='l')result(false);}}
   function fly(dir,cb){flyLock=true;card.classList.add('snap');card.style.transform='translateX('+(dir*520)+'px) rotate('+(dir*12)+'deg)';card.style.opacity=0;setTimeout(function(){card.classList.remove('snap');try{if(!ticketCelebrate(cb))cb();}finally{flyLock=false;}},210);}/* 例外でもロックを残さない（2026-08-14） */
   var down=false,sx=0,sy=0,swipeLock=false;
-  card.addEventListener('pointerdown',function(e){if(swipeLock||mpickOpen||flyLock||down)return;if(e.target&&e.target.closest&&e.target.closest('button,input,textarea,a,select,label'))return;ensureAudio();haptic(4);/* カードを掴んだ手応え */down=true;sx=e.clientX;sy=e.clientY;card.classList.add('drag');try{card.setPointerCapture(e.pointerId);}catch(_){}});
-  card.addEventListener('pointermove',function(e){if(!down)return;var dx=e.clientX-sx,dy=e.clientY-sy,ad=(phase==='q'),dir,pct;if(!ad&&Math.abs(dy)>12&&Math.abs(dy)>=Math.abs(dx)){down=false;card.classList.remove('drag');card.style.transform='';try{card.releasePointerCapture(e.pointerId);}catch(_){}setTags();tintCard();return;}if(ad&&dy>40&&dy>Math.abs(dx)){dir='d';pct=(dy-40)/90;}else if(dx>0){dir='r';pct=dx/110;}else{dir='l';pct=-dx/110;}card.style.transform='translate('+dx+'px,'+Math.max(0,dy)+'px) rotate('+(dx*.04)+'deg)';setTags(dir,pct);tintCard(dir,pct);});
-  card.addEventListener('pointerup',function(e){if(!down)return;down=false;card.classList.remove('drag');var dx=e.clientX-sx,dy=e.clientY-sy,ad=(phase==='q');if(ad&&dy>90&&dy>Math.abs(dx)){commit('d');return;}if(dx>95&&(ad||Math.abs(dx)>Math.abs(dy)*1.25)){commit('r');return;}if(dx<-95&&(ad||Math.abs(dx)>Math.abs(dy)*1.25)){commit('l');return;}card.classList.add('snap');card.style.transform='';setTimeout(function(){card.classList.remove('snap');},220);setTags();tintCard();});
+  /* 答え面の方向ロック（2026-09-23 ユーザーの声「下にスクロールするとスワイプできない」「カードが縦に動く」）。
+     冒頭で縦に動いたら従来どおりスクロールへ譲る（長い答えを読めるように：Codex 2026-09-08 の規約）。
+     先に横へ8px動いたら横スワイプで確定し、その後は指が縦にブレても放棄しない。答え面のカードは縦に動かさない。
+     旧実装は放棄判定が毎回の移動でかかり、確定条件も「横が縦の1.25倍」と厳しかったため、親指の弧で失敗していた。 */
+  var swAxis=null;
+  card.addEventListener('pointerdown',function(e){if(swipeLock||mpickOpen||flyLock||down)return;if(e.target&&e.target.closest&&e.target.closest('button,input,textarea,a,select,label'))return;ensureAudio();haptic(4);/* カードを掴んだ手応え */down=true;swAxis=null;sx=e.clientX;sy=e.clientY;card.classList.add('drag');try{card.setPointerCapture(e.pointerId);}catch(_){}});
+  card.addEventListener('pointermove',function(e){if(!down)return;var dx=e.clientX-sx,dy=e.clientY-sy,ad=(phase==='q'),dir,pct;if(!ad&&swAxis!=='x'){if(Math.abs(dy)>12&&Math.abs(dy)>=Math.abs(dx)){down=false;card.classList.remove('drag');card.style.transform='';try{card.releasePointerCapture(e.pointerId);}catch(_){}setTags();tintCard();return;}if(Math.abs(dx)>8&&Math.abs(dx)>Math.abs(dy))swAxis='x';}if(ad&&dy>40&&dy>Math.abs(dx)){dir='d';pct=(dy-40)/90;}else if(dx>0){dir='r';pct=dx/110;}else{dir='l';pct=-dx/110;}card.style.transform='translate('+dx+'px,'+(ad?Math.max(0,dy):0)+'px) rotate('+(dx*.04)+'deg)';setTags(dir,pct);tintCard(dir,pct);});
+  card.addEventListener('pointerup',function(e){if(!down)return;down=false;card.classList.remove('drag');var dx=e.clientX-sx,dy=e.clientY-sy,ad=(phase==='q');if(ad&&dy>90&&dy>Math.abs(dx)){commit('d');return;}if(dx>95&&(ad||swAxis==='x')){commit('r');return;}if(dx<-95&&(ad||swAxis==='x')){commit('l');return;}card.classList.add('snap');card.style.transform='';setTimeout(function(){card.classList.remove('snap');},220);setTags();tintCard();});
   card.addEventListener('pointercancel',function(){down=false;card.classList.remove('drag');card.style.transform='';setTags();tintCard();});
   pbtns.addEventListener('click',function(e){var b=e.target.closest('button');if(b)commit(b.getAttribute('data-a'));});
   document.addEventListener('keydown',function(e){if(e.target&&(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT'))return;/* メモ等の入力中は矢印で答えない（2026-08-16） */if(mpickOpen)return;if(adOn)return;if(!$('sc-practice').classList.contains('on'))return;if($('coach').classList.contains('on'))return;if(swipeLock)return;if(e.key==='ArrowRight')commit('r');else if(e.key==='ArrowLeft')commit('l');else if(e.key==='ArrowDown'&&phase==='q')commit('d');});
@@ -3674,6 +3689,41 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   document.addEventListener('click',function(e){if(!e.target.closest('.mh-info'))document.querySelectorAll('.mh-tipb.on').forEach(function(x){x.classList.remove('on');});});
   /* 設定画面（学年・レベル・1日の問数） */
   var SETOPTS={grade:['中3','高1','高2','高3','浪人'],level:['共通テスト','上位国立大学','旧帝大以上','日東駒専','MARCH','早慶'],cards:['100','150','200','300'],cutin:['オン','オフ'],wimg:['オン','オフ'],idmcut:['オン','オフ'],dark:['ライト','ダーク']};
+  /* ---- 強制アップデートをチュートリアル調に（2026-09-23 ユーザー指定） ----
+     mx_update_gate_v1.js（Codex製・テスト済み）には手を入れず、描画された #mxUpdateGate を整える。
+     ぼかし背景＋27px太字を1文字ずつ表示＋跳ねる案内＝チュートリアルと同じ見た目。表示後はどこをタップしてもストアへ。
+     文字送りは共有の typeInto を使わない（起動時の語りと twT を奪い合い、途中で止まることがあるため）。 */
+  function updTutEnhance(g){
+    if(!g||g._tut)return;g._tut=1;
+    try{if(twT){clearInterval(twT);twT=null;}}catch(e){}/* 下で動いている語りを止める */
+    var msg=g.querySelector('.mx-update-card p:not(.mx-update-versions)'),btn=g.querySelector('.mx-update-card button');
+    if(!msg||!btn)return;
+    g.classList.add('mx-update-tut');
+    var pl='';try{pl=(window.Capacitor&&window.Capacitor.getPlatform)?window.Capacitor.getPlatform():'';}catch(e){}
+    btn.textContent='';btn.appendChild(document.createTextNode(pl==='android'?'タップして Google Play へ':'タップして App Store へ'));btn.appendChild(document.createElement('br'));btn.appendChild(document.createTextNode('⌄'));
+    var text=msg.textContent||'新しいアップデートがあります';try{if(typeof phrasify==='function')text=phrasify(text);}catch(e){}
+    var shown=document.createElement('span'),ghost=document.createElement('span');ghost.style.opacity='0';
+    msg.textContent='';msg.appendChild(shown);msg.appendChild(ghost);ghost.textContent=text;
+    var i=0,typing=true,timer=null;
+    function finish(){if(!typing)return;typing=false;if(timer){clearInterval(timer);timer=null;}shown.textContent=text;ghost.textContent='';g.classList.add('done');}
+    timer=setInterval(function(){
+      if(i>=text.length){finish();return;}
+      shown.textContent=text.slice(0,i+1);ghost.textContent=text.slice(i+1);
+      var c=text.charCodeAt(i);if(c!==32&&c!==10&&c!==8203){try{pop();}catch(e){}}
+      i++;
+    },55);
+    g.addEventListener('click',function(e){
+      if(typing){finish();return;}/* 文字送り中のタップは送りを終わらせるだけ（チュートリアルと同じ） */
+      if(e.target===btn||btn.contains(e.target))return;/* ボタン自身はボタン側で開く（二重に開かない） */
+      btn.click();
+    });
+  }
+  (function(){
+    function scan(){var g=document.getElementById('mxUpdateGate');if(g){updTutEnhance(g);return true;}return false;}
+    if(scan()||typeof MutationObserver!=='function')return;
+    var mo=new MutationObserver(function(){if(scan())mo.disconnect();});
+    try{mo.observe(document.body,{childList:true});}catch(e){}
+  })();
   function applyDark(){document.documentElement.classList.toggle('dark',state.dark==='ダーク');}/* 画面の色（2026-08-31 ユーザー要望）。既定はライト */
   /* 自動リマインダー。許可はOSで管理し、拒否時は静かに停止する。 */
   function lnPlugin(){try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.LocalNotifications)return C.Plugins.LocalNotifications;}catch(e){}return null;}

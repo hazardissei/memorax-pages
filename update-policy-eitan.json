@@ -1,7 +1,9 @@
 {
   "enabled": true,
-  "publishedPlatforms": ["ios"],
-  "message": "新しいアップデートがあります",
+  "publishedPlatforms": [
+    "ios"
+  ],
+  "message": "新しいアップデートが\nあります",
   "platforms": {
     "ios": {
       "minimumVersion": "1.0.6",
