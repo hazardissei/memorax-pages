@@ -1869,6 +1869,13 @@ html body #sc-practice #mxStudyGauge{grid-area:gauge;margin-top:6px}
 #sc-practice .card.revealed .ex,#sc-practice .card.revealed .ex .exjp{color:#666}
 #sc-practice .card.revealed .ex .exjp{font-size:14px;line-height:1.7}
 #sc-practice .meanline{margin:5px 0;min-width:0}
+/* 答えの文字を少し大きく（2026-09-23 ユーザー指定）。ふだん24px、入りきらない時は23px→22px（従来の大きさ）まで */
+#sc-practice .card.revealed .m{font-size:24px!important}
+#sc-practice .card.revealed.anscompact .m{font-size:23px!important}
+#sc-practice .card.revealed.ansdense .m{font-size:22px!important}
+/* 画像のない語・熟語は、英単語と答えをひとまとまりでカードの縦中央に（2026-09-23 ユーザー指定）。長い答えは従来どおり上から並んでスクロール */
+#sc-practice .card.revealed:not(.imgmode) .wwrap{margin-top:auto}
+#sc-practice .card.revealed:not(.imgmode) .ansb{margin-bottom:auto}
 #sc-practice .card.cfopen .aimgbox.on{display:none}
 #sc-practice .phead2{flex-wrap:wrap;gap:8px}
 #sc-practice .pcpill{max-width:100%;word-break:keep-all;overflow-wrap:anywhere}
@@ -4422,7 +4429,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   /* 出すのは開いている冊だけ（2026-09-23 ユーザー指定）。冊を切り替えると setBook の最後で描き直す */
   function paintBookDone(){var el=$('hxDone');if(!el)return;var b=BOOKS[CURBOOK];if(!b||!b.hw){el.innerHTML='';el.style.display='none';return;}
     var p=bookDonePct(b,CURBOOK);
-    el.innerHTML='<div class="hd-top"><span class="hd-t">単語帳完成度</span><b class="hd-p">'+p+'%</b></div><span class="hd-bar"><i style="width:'+p+'%"></i></span>';
+    el.innerHTML='<div class="hd-top"><span class="hd-t">'+escHTML((b.sub||'単語帳')+'完成度')+'</span><b class="hd-p">'+p+'%</b></div><span class="hd-bar"><i style="width:'+p+'%"></i></span>';
     el.setAttribute('aria-label',(b.sub||'単語帳')+'の完成度 '+p+'%');el.style.display='';}
   function stCount(st,arr){/* 冊全体の集計は語のユニーク数（学部重複帳対策・2026-08-13）。セクション内は重複がないので影響なし */
     var n=0,seen={};(arr||DECKDATA).forEach(function(d){if(d.st===st&&!seen[d.w]){seen[d.w]=1;n++;}});return n;}
