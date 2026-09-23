@@ -2893,8 +2893,8 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     el.style.display='none';el.textContent='';
     if(!d||!d.ms||d.ms.length<2)return;
     var unk=MUNK[d.w];if(!unk||!unk.length||unk.length>=d.ms.length)return;
-    var known=[],i;
-    for(i=0;i<d.ms.length;i++)if(unk.indexOf(i)<0)known.push(d.ms[i]);
+    var rows=senseRows(d.ms);if(rows.length<2)return;/* 「機能（する）」のようにまとめた行は1つの意味として数える（2026-09-23） */
+    var known=rows.filter(function(r){return r.idx.every(function(i){return unk.indexOf(i)<0;});}).map(function(r){return r.t;});
     if(!known.length)return;
     el.textContent='「'+known.join('・')+'」以外の意味は？';
     el.style.display='';
@@ -2909,13 +2909,15 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   /* 意味の配列(ms)を持たないデータ（派生カットインなど）は、1義1行に整形済みの本文を改行でも区切る（2026-09-23）。
      「、」だけで割ると「当然の⏎自然の」が1つの塊のまま残り、次の割り直しで同じ意味が足されて4行になっていた（natural ほか24語）。 */
   function grammarMeanHtml(d,body){var senses=d&&d.ms&&d.ms.length?d.ms.slice():msSplit(String(body||'').replace(/\n/g,'、'));msSplit(String(body||'').replace(/\n/g,'、')).forEach(function(m){if(m.trim()&&senses.indexOf(m)<0)senses.push(m);});var model=window.EitanSensePOS?window.EitanSensePOS.resolve(d,senses,window.POSD||{},window.EITAN_GRAMMAR||{}):null,any=false;
-    var rows=senses.map(function(m,i){var labels=grammarLabels(d,m).slice(),pos=model&&model.rows[i];if(d&&d.examPOS&&d.examPOS[i])labels=labels.filter(function(label){return !/^(名詞|動詞|自動詞|他動詞|形容詞|副詞|前置詞|接続詞|代名詞|助動詞|熟語)$/.test(label);});if(pos&&pos!==model.common&&labels.indexOf(pos)<0)labels.unshift(pos);if(model&&model.common)labels=labels.filter(function(label){return label!==model.common;});if(labels.length)any=true;var tx=escHTML(m);if(isHardSense(d,i))tx='<span class="hardmk">'+tx+'</span>';return '<span class="meanline">'+labels.map(function(label){return '<span class="gramk">'+escHTML(label)+'</span>';}).join('')+tx+'</span>';});
+    var labs=senses.map(function(m,i){var labels=grammarLabels(d,m).slice(),pos=model&&model.rows[i];if(d&&d.examPOS&&d.examPOS[i])labels=labels.filter(function(label){return !/^(名詞|動詞|自動詞|他動詞|形容詞|副詞|前置詞|接続詞|代名詞|助動詞|熟語)$/.test(label);});if(pos&&pos!==model.common&&labels.indexOf(pos)<0)labels.unshift(pos);if(model&&model.common)labels=labels.filter(function(label){return label!==model.common;});return labels;});
+    /* 「X（する）」にまとめた行は、両方の品詞札だけを名詞→動詞の順に付ける（2026-09-23） */
+    var rows=senseRows(senses).map(function(r){var labels=r.src.length<2?labs[r.at]:r.src.reduce(function(a,i){return a.concat(labs[i].filter(function(label){return /^(名詞|動詞|自動詞|他動詞|形容詞|副詞|前置詞|接続詞|代名詞|助動詞|熟語)$/.test(label)&&a.indexOf(label)<0;}));},[]);if(labels.length)any=true;var tx=escHTML(r.t);if(isHardSense(d,r.at))tx='<span class="hardmk">'+tx+'</span>';return '<span class="meanline">'+labels.map(function(label){return '<span class="gramk">'+escHTML(label)+'</span>';}).join('')+tx+'</span>';});
     return (any||(model&&model.common))?{html:rows.join(''),common:model&&model.common||'',complete:!!(model&&model.complete)}:null;}
   /* 意味の最終表示（2026-08-16）：タイプ完了後に品詞マークを小さく＋難訳マーカーを一括で組む */
   function finalizeMean(d,pl,body){var el=$('ansM');if(!el)return;var h,gh=grammarMeanHtml(d,body);
     if(gh)h=gh.html;
-    else if(d&&d.hi!=null&&d.ms){h=d.ms.map(function(m,i){m=escHTML(m);return (i?'<br>':'')+(isHardSense(d,i)?'<span class="hardmk">'+m+'</span>':m);}).join('');}
-    else{h=String(body).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
+    else if(d&&d.hi!=null&&d.ms){h=senseRows(d.ms).map(function(r,i){var m=escHTML(r.t);return (i?'<br>':'')+(isHardSense(d,r.at)?'<span class="hardmk">'+m+'</span>':m);}).join('');}
+    else{h=senseRows(String(body).split('\n')).map(function(r){return escHTML(r.t);}).join('<br>');}
     var common=gh?(gh.common?('（'+gh.common+'）'):''):pl;
     el.innerHTML=(d&&d.kind==='alt'?'② ':'')+(common?'<span class="posk">'+escHTML(common)+'</span>':'')+h;}
   /* 例文の表示（2026-08-16 B案）：配列 [英文(対象語を*で囲む), 和訳] は2行のリッチ表示、
@@ -2929,21 +2931,21 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
       el.innerHTML='<span class="exen">例) '+en+'</span><span class="exjp">'+phrasify(esc(ex[1]||''))+'</span>'+(d.exampleNote?'<span class="exjp">'+phrasify(esc(d.exampleNote))+'</span>':'');
     }else el.textContent='例) '+ex;}
   function askMPick(d,done){
-    var box=$('mpick');if(!box||!d.ms||d.ms.length<2){done();return;}
+    var box=$('mpick'),rows=d.ms?senseRows(d.ms):[];if(!box||rows.length<2){done();return;}/* 選択肢はまとめた行ごと（2026-09-23）。1行が複数の意味を受け持つときは一緒に付け外しする */
     var cur=MUNK[d.w]||[];
     box.setAttribute('role','group');box.setAttribute('aria-labelledby','mpQuestion');
     box.innerHTML='<div class="mpq" id="mpQuestion">どの意味を間違えた？（複数選べます）</div>'+
-      d.ms.map(function(m,i){m=escHTML(m);var on=cur.indexOf(i)>-1;return '<button class="mpb'+(on?' on':'')+'" type="button" data-i="'+i+'" aria-pressed="'+(on?'true':'false')+'">'+(isHardSense(d,i)?'<span class="hardmk">'+m+'</span>':m)+'</button>';}).join('')+
+      rows.map(function(r){var m=escHTML(r.t),on=r.idx.some(function(i){return cur.indexOf(i)>-1;});return '<button class="mpb'+(on?' on':'')+'" type="button" data-i="'+r.idx.join(',')+'" aria-pressed="'+(on?'true':'false')+'">'+(isHardSense(d,r.at)?'<span class="hardmk">'+m+'</span>':m)+'</button>';}).join('')+
       '<div class="mperr" id="mpErr" role="alert" aria-live="assertive"></div><button class="mpb mpdone" id="mpDone" type="button">次へ</button>';
     box.style.display='';box.scrollTop=0;mpickOpen=true;
     box.querySelectorAll('.mpb[data-i]').forEach(function(b){
       b.onclick=function(e){e.stopPropagation();
-        var i=parseInt(b.getAttribute('data-i'),10);
+        var ii=b.getAttribute('data-i').split(',').map(function(x){return parseInt(x,10);});
         var a=MUNK[d.w]||(MUNK[d.w]=[]);
-        var k=a.indexOf(i);
-        if(k>-1)a.splice(k,1);else a.push(i);
+        var on=!ii.some(function(i){return a.indexOf(i)>-1;});
+        ii.forEach(function(i){var k=a.indexOf(i);if(on&&k<0)a.push(i);else if(!on&&k>-1)a.splice(k,1);});
         if(!a.length)delete MUNK[d.w];
-        var on=k<0;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');var er=$('mpErr');if(er)er.textContent='';haptic(6);saveAll();};
+        b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');var er=$('mpErr');if(er)er.textContent='';haptic(6);saveAll();};
     });
     $('mpDone').onclick=function(e){e.stopPropagation();
       if(!(MUNK[d.w]||[]).length){/* 未選択では進ませない */
@@ -3063,7 +3065,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     /* 複数の意味を持つ語を間違えたときだけ、どの意味かを聞く（2026-08-09）。
        答えのスワイプを終えてから出す。カードは指で動いた位置から戻す */
     var _d=queue[idx];
-    if(!ok&&_d&&_d.ms&&_d.ms.length>1){
+    if(!ok&&_d&&_d.ms&&senseRows(_d.ms).length>1){/* 「機能（する）」だけの語は意味1つの語と同じ扱い（2026-09-23） */
       card.classList.add('snap');card.style.transform='';card.style.opacity=1;
       setTimeout(function(){card.classList.remove('snap');},220);
       setTags();tintCard();
@@ -3988,6 +3990,28 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       if(c==='('||c==='（')dep++;else if(c===')'||c==='）')dep=Math.max(0,dep-1);
       if(c==='、'&&dep===0){if(cur.trim())out.push(cur.trim());cur='';}else cur+=c;}
     if(cur.trim())out.push(cur.trim());return out;}
+  /* 名詞「X」と動詞「Xする」が別の意味として並ぶときは「X（する）」の1行にまとめて見せる（2026-09-23 ユーザー指定）。
+     表示だけの整理で、意味の番号（「どの意味を間違えた？」の記録 MUNK）は変えない。「主張／要求」のように／で並ぶ意味の中も対象。
+     行：t=表示する文字、at=難訳の印を取る元の番号、idx=この行が受け持つ元の番号、src=品詞札を取る元の番号（名詞が先）。返す配列の merged=まとめたか */
+  function senseRows(ms){
+    var rows=(ms||[]).map(function(m,i){m=String(m);var parts=[],cur='',dep=0,k,c;
+      for(k=0;k<m.length;k++){c=m.charAt(k);if(c==='('||c==='（')dep++;else if(c===')'||c==='）')dep=Math.max(0,dep-1);
+        if(c==='／'&&dep===0){parts.push(cur);cur='';}else cur+=c;}
+      parts.push(cur);return {t:m,parts:parts,at:i,idx:[i],src:[i],ch:false};});
+    var merged=false,hit=true,a,b,p,q,v,n,keep,drop;
+    while(hit){hit=false;
+      for(a=0;!hit&&a<rows.length;a++)for(p=0;!hit&&p<rows[a].parts.length;p++){
+        v=rows[a].parts[p];if(v.length<3||v.slice(-2)!=='する')continue;n=v.slice(0,-2);
+        for(b=0;!hit&&b<rows.length;b++){if(b===a||(q=rows[b].parts.indexOf(n))<0)continue;
+          keep=Math.min(a,b);drop=Math.max(a,b);
+          rows[keep].parts[keep===a?p:q]=n+'（する）';rows[drop].parts.splice(keep===a?q:p,1);
+          rows[keep].src=rows[b].src.concat(rows[a].src).filter(function(x,i,all){return all.indexOf(x)===i;});
+          rows[keep].ch=rows[drop].ch=true;merged=hit=true;
+          if(!rows[drop].parts.length){rows[keep].idx=rows[keep].idx.concat(rows[drop].idx);rows.splice(drop,1);}}}}
+    var out=rows.map(function(r){return {t:r.ch?r.parts.join('／'):r.t,at:r.at,idx:r.idx,src:r.src};});
+    out.merged=merged;return out;}
+  /* 一覧（検索・間違えた単語）用：まとめた意味を「、」でつなぐ。まとめが無ければ元の文字のまま */
+  function meanText(m){if(!m)return m;var r=senseRows(msSplit(String(m)));return r.merged?r.map(function(x){return x.t;}).join('、'):m;}
   function buildBook(def){
     var arr=[],i,n;
     (def.words||[]).forEach(function(x){
@@ -4221,7 +4245,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     function scan(pred){for(var bi=0;bi<BOOKS.length&&hit.length<3;bi++){var deck=BOOKS[bi].deck;for(var i=0;i<deck.length&&hit.length<3;i++){var d=deck[i];if(pred(d.w.toLowerCase())&&!hit.some(function(h){return h.d===d||(h.b===BOOKS[bi]&&h.d.w===d.w);}))hit.push({d:d,b:BOOKS[bi],sn:secName(BOOKS[bi],d)});}}}
     scan(function(w){return w.indexOf(q)===0;});
     scan(function(w){return w.indexOf(q)>0;});
-    list.innerHTML=hit.length?hit.map(function(h,hi){var d=h.d,um=USERMEAN[d.w];return '<div class="drow" data-di="'+hi+'" style="cursor:pointer"><div class="dw">'+escH(d.w)+'</div><div class="dm">'+(d.drv?'<span class="dvb">派生</span>':'')+(d.user?'<span class="dvb">追加</span>':'')+escH(d.m)+(um?'、'+escH(um):'')+'</div><span class="dloc">'+escH(h.b.sub)+' '+escH((h.sn||'').replace('Section ','Section'))+'</span></div>';}).join(''):'<div class="dempty" style="padding:18px 0">見つかりませんでした</div>';
+    list.innerHTML=hit.length?hit.map(function(h,hi){var d=h.d,um=USERMEAN[d.w];return '<div class="drow" data-di="'+hi+'" style="cursor:pointer"><div class="dw">'+escH(d.w)+'</div><div class="dm">'+(d.drv?'<span class="dvb">派生</span>':'')+(d.user?'<span class="dvb">追加</span>':'')+escH(meanText(d.m))+(um?'、'+escH(um):'')+'</div><span class="dloc">'+escH(h.b.sub)+' '+escH((h.sn||'').replace('Section ','Section'))+'</span></div>';}).join(''):'<div class="dempty" style="padding:18px 0">見つかりませんでした</div>';
     list.querySelectorAll('.drow[data-di]').forEach(function(r){r.onclick=function(){var h=hit[parseInt(r.getAttribute('data-di'),10)];if(!h)return;if(h.d.user){showUserWordSheet(h.d);}else{showDictSheet(h.d);}};});/* 検索結果タップで詳細シート（2026-08-31 ユーザー要望） */
     phrasifyDom(list);}
   /* ===== 索引の単語詳細シート（2026-08-31 ユーザー要望）=====
@@ -4348,7 +4372,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
       var f9=FC[d.w],dy9=(f9&&f9.t)?Math.max(0,_tdD-dayNum(f9.t)):null;
       var wh9=(WHIST[d.w]||[]).slice(-5),dt9='',k9;
       for(k9=0;k9<5;k9++){dt9+='<i class="'+(k9<wh9.length?(wh9[k9]===2?'b':(wh9[k9]?'g':'r')):'o')+'"></i>';}
-      return '<div class="drow"><div class="dw">'+escH(d.w)+'</div><div class="dm">'+escH(d.m)+'</div>'
+      return '<div class="drow"><div class="dw">'+escH(d.w)+'</div><div class="dm">'+escH(meanText(d.m))+'</div>'
         +'<span class="dinfo"><i class="dd">'+(dy9==null?'未':(dy9===0?'今日':dy9+'日前'))+'</i><span class="mdots">'+dt9+'</span></span></div>';
     }).join(''):'<div class="dempty">まだありません</div>';
     phrasifyDom(list);
