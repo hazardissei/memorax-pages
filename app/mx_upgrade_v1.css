@@ -1,0 +1,25 @@
+.mx-upgrade-overlay{position:fixed;inset:0;z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px;padding-top:max(16px,env(safe-area-inset-top));padding-bottom:max(16px,env(safe-area-inset-bottom));box-sizing:border-box;background:rgba(18,20,24,.42);color:#101117;overscroll-behavior:contain}
+.mx-upgrade-card{position:relative;width:100%;max-width:420px;max-height:100%;overflow-y:auto;overscroll-behavior:contain;box-sizing:border-box;background:#fff;border-radius:22px;padding:48px 24px 16px;box-shadow:0 12px 38px #0003;text-align:center;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}
+.mx-upgrade-card button{font:inherit;cursor:pointer;touch-action:manipulation}
+.mx-upgrade-card button:focus-visible,.mx-upgrade-card summary:focus-visible,.mx-upgrade-card a:focus-visible{outline:3px solid #336ab5;outline-offset:3px}
+.mx-upgrade-card .mx-upgrade-close{position:absolute;right:10px;top:10px;width:40px;height:40px;border:0;border-radius:50%;background:#f0f0f1;color:#171820;font-size:30px;line-height:1;display:grid;place-items:center;padding:0}
+#mxUpgradeTitle{font-size:26px;font-weight:800;line-height:1.35;margin:0;letter-spacing:-.035em;overflow-wrap:anywhere}
+.mx-upgrade-mascot{display:block;width:180px;height:180px;object-fit:contain;margin:12px auto 14px}
+.mx-upgrade-benefits{list-style:none;margin:0;padding:0;text-align:left;display:grid;gap:14px;font-size:18px;font-weight:700;line-height:1.5}
+.mx-upgrade-benefits li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:12px;align-items:start;overflow-wrap:anywhere}
+.mx-upgrade-benefits li span{display:grid;place-items:center;background:#48b445;color:white;border-radius:7px;font-size:21px;height:26px;line-height:1;margin-top:1px}
+.mx-upgrade-price{font-weight:750;font-size:23px;line-height:1.4;margin:20px 0 12px}
+.mx-upgrade-card .mx-upgrade-buy{display:block;width:100%;min-height:56px;padding:12px 8px;border:0;border-radius:14px;background:#17181b;color:white;font-size:23px;font-weight:750;line-height:1.4}
+.mx-upgrade-card button:disabled{opacity:.5;cursor:default}
+.mx-upgrade-card .mx-upgrade-later{display:block;min-height:44px;margin:6px auto 0;padding:8px 16px;border:0;background:none;color:#686b71;font-size:16px;font-weight:650}
+.mx-upgrade-card .mx-upgrade-link{min-height:36px;border:0;padding:6px;background:transparent;color:#41454e;text-decoration:underline;font-size:13px}
+.mx-upgrade-status{font-size:13px;line-height:1.5;color:#535760}
+.mx-upgrade-status:empty{display:none}
+.mx-upgrade-details{font-size:12px;line-height:1.6;color:#62656d;margin-top:2px}
+.mx-upgrade-details summary{cursor:pointer;min-height:32px;display:list-item;list-style-position:inside;padding:6px;box-sizing:border-box}
+.mx-upgrade-details p{text-align:left;margin:8px 0}
+.mx-upgrade-details a{color:inherit;text-decoration:underline;display:inline-block;padding:5px 0}
+.mx-upgrade-card [hidden]{display:none!important}
+@media(max-width:360px){.mx-upgrade-card{padding:44px 18px 12px;border-radius:18px}#mxUpgradeTitle{font-size:23px}.mx-upgrade-benefits{font-size:16px;gap:10px}.mx-upgrade-benefits li{gap:9px;grid-template-columns:24px minmax(0,1fr)}.mx-upgrade-benefits li span{height:24px;font-size:19px}.mx-upgrade-mascot{width:140px;height:140px;margin:8px auto 10px}.mx-upgrade-price{font-size:21px;margin:14px 0 10px}}
+@media(max-height:700px){.mx-upgrade-mascot{width:120px;height:120px;margin:6px auto 8px}.mx-upgrade-benefits{gap:9px}.mx-upgrade-price{margin:12px 0 8px}.mx-upgrade-card{padding-top:44px}}
+@media(max-height:480px){.mx-upgrade-mascot{width:88px;height:88px}.mx-upgrade-card{max-width:520px}.mx-upgrade-content{display:grid;grid-template-columns:90px 1fr;align-items:center;gap:8px}#mxUpgradeTitle{grid-column:1/-1;font-size:22px}.mx-upgrade-benefits{font-size:15px;gap:6px}.mx-upgrade-benefits li{gap:8px}.mx-upgrade-card .mx-upgrade-buy{min-height:46px;font-size:20px}.mx-upgrade-price{font-size:20px}}

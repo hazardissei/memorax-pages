@@ -1,0 +1,17 @@
+.mx-ticket-daily-overlay{position:fixed;inset:0;z-index:10090;display:flex;align-items:center;justify-content:center;background:#fff;overscroll-behavior:contain}
+.mx-ticket-daily-overlay[hidden]{display:none!important}
+.mx-ticket-daily-card{box-sizing:border-box;width:100%;max-width:430px;max-height:100dvh;overflow:auto;display:flex;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 18px) 24px calc(env(safe-area-inset-bottom,0px) + 18px);color:#382675;text-align:center}
+.mx-ticket-daily-tag{margin:0 0 9px;font-size:14px;font-weight:700;color:#65617e;letter-spacing:.06em}
+.mx-ticket-daily-card h2{margin:0;font-size:38px;line-height:1.1;font-weight:900;letter-spacing:-.05em;white-space:nowrap}
+.mx-ticket-daily-card h2 span{font-size:70px;letter-spacing:-.07em;margin-right:5px}
+.mx-ticket-daily-congrats{margin:5px 0 0;font-size:27px;line-height:1.3;font-weight:800;letter-spacing:.04em;color:#7c5ecc}
+/* Display the character region of the approved mockup without altering its source. */
+.mx-ticket-daily-art{position:relative;flex-shrink:0;width:100%;max-width:330px;aspect-ratio:4/3;overflow:hidden;margin:4px auto 8px}
+.mx-ticket-daily-art img{position:absolute;display:block;max-width:none;width:133.333333%;height:auto;left:-16.666667%;top:-62.5%;pointer-events:none}
+.mx-ticket-daily-rule{box-sizing:border-box;width:100%;padding:16px 8px;border-radius:20px;background:#f5f1ff}
+.mx-ticket-daily-rule p{margin:0;font-size:14px;line-height:1.6;font-weight:600;color:#6f658b}
+.mx-ticket-daily-rule strong{display:block;font-size:25px;line-height:1.5;font-weight:800;letter-spacing:-.03em;margin:9px 0}
+.mx-ticket-daily-card .mx-ticket-daily-continue{flex-shrink:0;width:100%;min-height:52px;margin-top:15px;padding:12px;border:0;border-radius:16px;background:#8067df;color:#fff;font-family:inherit;font-size:18px;font-weight:750;line-height:1.5;cursor:pointer}
+.mx-ticket-daily-continue:focus-visible{outline:3px solid #b9a2e8;outline-offset:3px}
+@media(max-height:700px){.mx-ticket-daily-card{padding-top:calc(env(safe-area-inset-top,0px) + 10px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 12px)}.mx-ticket-daily-tag{font-size:12px;margin-bottom:5px}.mx-ticket-daily-card h2{font-size:32px}.mx-ticket-daily-card h2 span{font-size:58px}.mx-ticket-daily-congrats{font-size:23px}.mx-ticket-daily-art{max-width:260px;margin:2px auto 5px}.mx-ticket-daily-rule{padding:12px 8px}.mx-ticket-daily-rule strong{font-size:22px;margin:5px 0}.mx-ticket-daily-rule p{font-size:12px}}
+@media(max-height:600px){.mx-ticket-daily-card{padding:calc(env(safe-area-inset-top,0px) + 6px) 20px calc(env(safe-area-inset-bottom,0px) + 8px)}.mx-ticket-daily-tag{font-size:11px;margin-bottom:4px}.mx-ticket-daily-card h2{font-size:28px}.mx-ticket-daily-card h2 span{font-size:50px}.mx-ticket-daily-congrats{font-size:21px;margin-top:2px}.mx-ticket-daily-art{max-width:205px;margin:0 auto 4px}.mx-ticket-daily-rule{padding:10px 8px;border-radius:15px}.mx-ticket-daily-rule strong{font-size:20px;line-height:1.4;margin:4px 0}.mx-ticket-daily-rule p{font-size:11px}.mx-ticket-daily-card .mx-ticket-daily-continue{margin-top:10px;min-height:46px;font-size:16px;padding:10px}}

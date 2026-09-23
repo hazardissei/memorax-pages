@@ -1,0 +1,121 @@
+#hdrInviteAct{border:0;padding:0;background:none;color:inherit;font:inherit;cursor:pointer}
+.mx-local-ticket .mx-ticket-nav{position:sticky;top:0;z-index:2;background:#faf9ff;padding-bottom:8px}
+.mx-local-ticket .mx-ticket-close{min-width:44px;min-height:44px}
+.mx-local-ticket .mx-ticket-panel{overflow-wrap:anywhere}
+#hdrInviteAct .ic{display:flex;align-items:center;justify-content:center}
+#hdrInviteAct svg{width:25px;height:25px}
+#sc-home .h2-head{gap:8px}
+#sc-home .h2-title{flex:0 0 auto}
+#sc-home .h2-title .t{white-space:nowrap}
+#sc-home .h2-acts{gap:8px}
+#sc-home .h2-act .lb{font-size:9px;white-space:nowrap}
+.mx-ticket-overlay{position:fixed;inset:0;z-index:10050;background:rgba(21,18,40,.35);display:flex;justify-content:center;align-items:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);overscroll-behavior:contain}
+.mx-ticket-overlay[hidden],.mx-ticket-panel [hidden]{display:none!important}
+.mx-ticket-panel{--ticket-ink:#302548;--ticket-muted:#777186;--ticket-color:#7960d3;background:#faf9ff;color:var(--ticket-ink);width:min(100%,480px);max-height:100%;height:100%;overflow-y:auto;box-sizing:border-box;padding:calc(14px + env(safe-area-inset-top,0px)) 22px calc(28px + env(safe-area-inset-bottom,0px));font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;line-height:1.6;overscroll-behavior:contain}
+.mx-ticket-panel *{box-sizing:border-box}
+.mx-ticket-panel button,.mx-ticket-panel input{font:inherit}
+.mx-ticket-panel button{cursor:pointer;touch-action:manipulation}
+.mx-ticket-panel button:disabled{opacity:.55;cursor:default}
+.mx-ticket-panel button:focus-visible,.mx-ticket-panel input:focus-visible{outline:3px solid #b8a5f1;outline-offset:3px}
+.mx-ticket-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.mx-ticket-nav h2{font-size:16px;font-weight:700;margin:0;letter-spacing:.04em}
+.mx-ticket-close{height:42px;width:42px;border:1px solid #e7e2f2;border-radius:50%;background:#fff;color:var(--ticket-ink);font-size:25px!important;line-height:1}
+.mx-ticket-help{border:0;background:none;color:var(--ticket-muted);font-size:12px!important;padding:10px 0}
+.mx-ticket-eyebrow{color:var(--ticket-color);font-size:10px;letter-spacing:.2em;font-weight:800;margin:0 0 9px}
+.mx-ticket-title{font-size:31px;letter-spacing:-.045em;line-height:1.4;margin:0 0 10px;font-weight:800}
+.mx-ticket-sub{font-size:12px;line-height:1.85;color:var(--ticket-muted);margin:0}
+.mx-ticket-progress{position:relative;margin:25px 16px 20px;display:flex;justify-content:space-between}
+.mx-ticket-line{position:absolute;left:25px;right:25px;top:24px;height:5px;background:#e6dff7;border-radius:8px;overflow:hidden}
+.mx-ticket-line span{display:block;height:100%;background:var(--ticket-color);width:0;transition:width .3s}
+.mx-ticket-step{z-index:1;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px;color:#9389a4}
+.mx-ticket-step i{background:#eee9f8;border:5px solid #faf9ff;box-sizing:content-box;width:39px;height:39px;border-radius:50%;display:grid;place-items:center;font-style:normal}
+.mx-ticket-step svg{width:23px;height:23px}
+.mx-ticket-step.done{color:#6549bc;font-weight:700}.mx-ticket-step.done i{background:#7960d3;color:white}
+.mx-ticket-step:last-child i{background:#eee3ff;color:#8863d1}.mx-ticket-step:last-child.done i{background:#7960d3;color:#fff}
+.mx-ticket-progress-note{font-size:12px;text-align:center;margin:0 0 24px;color:var(--ticket-color);font-weight:700}
+.mx-ticket-box{border:1px solid #e8e2f2;background:#fff;border-radius:20px;padding:18px;margin:15px 0}
+.mx-ticket-box h3{font-size:13px;margin:0 0 11px;font-weight:700}
+.mx-ticket-current{background:linear-gradient(135deg,#f0eafb,#f8f3ff);border:0}
+.mx-ticket-days{display:flex;align-items:baseline;gap:7px}.mx-ticket-days strong{font-size:40px;line-height:1.2;letter-spacing:-.06em}.mx-ticket-days span{font-size:12px}
+.mx-ticket-today{display:flex;justify-content:space-between;align-items:baseline;margin-top:15px;font-size:11px;gap:8px}.mx-ticket-today b{font-size:16px}
+.mx-ticket-meter{height:6px;border-radius:8px;background:#e3d9f2;overflow:hidden;margin-top:8px}.mx-ticket-meter span{display:block;height:100%;background:#7960d3}
+.mx-ticket-note{font-size:11px;line-height:1.75;margin:10px 0 0;color:var(--ticket-muted)}
+.mx-ticket-tabs{display:flex;border-bottom:1px solid #e4ddef;margin-top:24px;gap:24px}.mx-ticket-tabs button{border:0;border-bottom:2px solid transparent;background:none;padding:9px 0;color:#92869e;font-size:13px}.mx-ticket-tabs button[aria-selected=true]{color:#6345b0;border-color:#8063cd;font-weight:700}
+.mx-ticket-field{display:block;font-size:11px;color:var(--ticket-muted);margin:14px 0 6px}
+.mx-ticket-input{width:100%;border:1px solid #dfd8ec;border-radius:12px;background:#faf9fd;color:var(--ticket-ink);font-size:16px!important;padding:12px;min-width:0;appearance:none;-webkit-appearance:none}
+.mx-ticket-code{font-size:12px!important;letter-spacing:.055em;text-align:center;font-family:ui-monospace,SFMono-Regular,monospace!important;padding:14px 7px}
+.mx-ticket-primary{width:100%;border:0;border-radius:13px;background:#795ecb;color:#fff;font-size:13px!important;font-weight:700!important;min-height:46px;padding:11px 14px;margin-top:12px}
+.mx-ticket-secondary{width:100%;border:1px solid #e0d8ef;border-radius:13px;background:#fff;color:#6a4cbb;font-size:12px!important;min-height:44px;padding:9px 14px;margin-top:10px}
+.mx-ticket-msg{min-height:1.6em;font-size:12px;color:#6949af;margin:14px 0 0;overflow-wrap:anywhere}.mx-ticket-msg.error{color:#ac3f54}
+.mx-ticket-rules{margin-top:24px;border-top:1px solid #e8e2f2;padding-top:15px;font-size:11px;color:var(--ticket-muted)}
+.mx-ticket-rules summary{cursor:pointer;color:#574669;font-weight:600;min-height:32px}.mx-ticket-rules p{line-height:1.85;margin:8px 0}
+.mx-ticket-account{border:0;background:none;color:#81718f;font-size:11px!important;padding:12px 0;margin-right:16px;text-decoration:underline}
+.mx-ticket-account.danger{color:#a34555}
+.mx-ticket-otp{letter-spacing:.35em;text-align:center}
+.mx-ticket-guide{position:absolute;inset:0;background:rgba(250,249,255,.98);z-index:2;display:flex;flex-direction:column;justify-content:center;padding:32px;overflow:auto}
+.mx-ticket-guide svg{width:65px;height:65px;color:#8b6bd4;margin-bottom:25px}
+.mx-ticket-guide h3{font-size:26px;line-height:1.5;letter-spacing:-.03em}.mx-ticket-guide p{font-size:13px;line-height:1.9;color:var(--ticket-muted)}
+@media(min-width:600px){.mx-ticket-panel{height:min(850px,94vh);border-radius:28px;padding-top:20px}.mx-ticket-overlay{padding:20px}.mx-ticket-guide{position:fixed;max-width:480px;margin:auto;border-radius:28px;max-height:850px}}
+@media(max-width:350px){.mx-ticket-panel{padding-left:16px;padding-right:16px}.mx-ticket-title{font-size:28px}.mx-ticket-code{font-size:11px!important}#sc-home .h2-acts{gap:6px}#sc-home .h2-title .t{font-size:20px}#sc-home .h2-act{width:36px}#sc-home .h2-act .lb{font-size:8px}}
+@media(max-height:700px){#sc-home .hmmain{flex:0 0 auto;min-height:initial;justify-content:flex-start;margin-top:12px}}
+@media(prefers-reduced-motion:reduce){.mx-ticket-line span{transition:none}}
+
+/* Ticket-only book highlight: white interior, lavender outline and soft glow. */
+#modal .mx-book-ticket{border:1.5px solid #ddd6ec;border-radius:15px;background:#fff;margin:10px 0 6px;transition:box-shadow .2s,border-color .2s}
+#modal .mx-book-ticket.is-active{border-color:#977ae4;box-shadow:0 0 0 2px rgba(151,122,228,.10),0 0 18px rgba(121,96,211,.23)}
+#modal .msheet .mx-book-ticket>.opt,#modal .msheet .mx-book-ticket>.opt.sel{display:block;width:100%;margin:0;padding:14px 16px 10px;box-shadow:none!important;border:0!important;background:#fff!important;border-radius:14px!important;text-align:left}
+.mx-book-ticket-meta{display:flex;align-items:center;gap:9px;padding:0 12px 9px 16px}
+.mx-book-ticket-meta[hidden]{display:none!important}
+.mx-book-ticket-label{font-size:11px;color:#776985}
+.mx-book-ticket-days{font-size:14px;font-weight:750;color:#6548b3;white-space:nowrap}
+.mx-book-ticket-help{display:grid;place-items:center;flex-shrink:0;width:44px;height:44px;margin:-5px 0;border:0;background:radial-gradient(circle at center,#f2edfb 14px,transparent 15px);color:#7756c3;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.mx-book-ticket-help:focus-visible{outline:2px solid #9678da;outline-offset:0;border-radius:50%}
+.mx-ticket-rules-overlay{position:fixed;inset:0;z-index:10070;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(28,22,43,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.mx-ticket-rules-overlay[hidden]{display:none!important}
+.mx-ticket-rule-card{box-sizing:border-box;width:100%;max-width:360px;max-height:calc(100dvh - 48px);overflow:auto;padding:25px 23px 23px;border:1px solid #eee8f6;border-radius:24px;background:#fff;color:#30233f;box-shadow:0 20px 70px rgba(30,20,50,.16)}
+.mx-ticket-rule-icon{display:grid;place-items:center;width:48px;height:48px;margin:0 auto 15px;border-radius:15px;background:#f1ebfc;color:#805bc9}
+.mx-ticket-rule-icon svg{width:29px;height:29px}
+.mx-ticket-rule-card h2{margin:0;text-align:center;font-size:19px;font-weight:750;letter-spacing:-.03em;line-height:1.5}
+.mx-ticket-rule-intro{text-align:center;font-size:13px;color:#756881;margin:10px 0 20px}
+.mx-ticket-rule-benefit{padding:16px 10px;border-radius:14px;background:#f5f0ff;text-align:center;color:#6348a5}
+.mx-ticket-rule-benefit strong{font-size:14px;line-height:1.7}
+.mx-ticket-rule-benefit p{font-size:12px;line-height:1.7;margin:5px 0 0}
+.mx-ticket-rule-detail{text-align:center;font-size:13px;line-height:1.85;margin:20px 0 16px}
+.mx-ticket-rule-note{font-size:10px;line-height:1.9;color:#8a8093;text-align:center;margin:0 0 18px}
+.mx-ticket-rule-card button{font:inherit;cursor:pointer}
+.mx-ticket-rule-card button:focus-visible{outline:3px solid #b8a5f1;outline-offset:3px}
+@media(max-width:350px){.mx-ticket-rules-overlay{padding:18px}.mx-ticket-rule-card{padding:20px 16px;max-height:calc(100dvh - 36px)}.mx-ticket-rule-card h2{font-size:17px}.mx-ticket-rule-benefit strong{font-size:13px}}
+@media(prefers-reduced-motion:reduce){#modal .mx-book-ticket{transition:none}}
+
+/* Confirmed ticket gift: local artwork, no per-display image/network request. */
+.mx-ticket-gift-overlay{position:fixed;inset:0;z-index:10080;display:flex;align-items:center;justify-content:center;background:#fff}
+.mx-ticket-gift-overlay[hidden]{display:none!important}
+.mx-ticket-gift-card{box-sizing:border-box;display:flex;flex-direction:column;align-items:center;width:100%;max-width:430px;max-height:100dvh;overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 18px) 25px calc(env(safe-area-inset-bottom,0px) + 12px);color:#30223f;text-align:center}
+.mx-ticket-gift-tag{margin:0 0 15px;color:#8466c2;font-size:11px;font-weight:700;letter-spacing:.09em}
+.mx-ticket-gift-card h2{font-size:27px;font-weight:800;letter-spacing:-.035em;line-height:1.5;margin:0}
+.mx-ticket-gift-congrats{font-size:16px;font-weight:700;letter-spacing:.06em;color:#8766c9;margin:7px 0 0}
+.mx-ticket-gift-memora{display:block;flex-shrink:0;width:230px;height:230px;object-fit:contain;margin:6px auto 9px}
+.mx-ticket-gift-rule{box-sizing:border-box;width:100%;padding:16px 10px 13px;border-radius:18px;background:#f6f1ff}
+.mx-ticket-gift-rule p{margin:0;color:#756484;font-size:12px;line-height:1.85}
+.mx-ticket-gift-rule strong{display:block;font-size:14px;color:#6645ac;line-height:1.65;margin:9px 0}
+.mx-ticket-gift-hint{font-size:10px;line-height:1.7;color:#988aa2;margin:13px 0 5px}
+.mx-ticket-gift-card button{font-family:inherit;cursor:pointer;flex-shrink:0}
+.mx-ticket-gift-card .mx-ticket-primary{margin-top:10px;min-height:48px;font-size:14px!important}
+.mx-ticket-gift-later{border:0;background:transparent;color:#92869d;font-size:12px;padding:14px 25px 5px;min-height:44px}
+.mx-ticket-gift-card button:focus-visible{outline:3px solid #b9a2e8;outline-offset:3px}
+@media(max-height:680px){.mx-ticket-gift-card{padding-top:calc(env(safe-area-inset-top,0px) + 8px)}.mx-ticket-gift-tag{margin-bottom:8px}.mx-ticket-gift-card h2{font-size:22px}.mx-ticket-gift-congrats{font-size:13px}.mx-ticket-gift-memora{width:160px;height:160px;margin:3px auto}.mx-ticket-gift-rule{padding:10px 8px}.mx-ticket-gift-rule p{font-size:11px}.mx-ticket-gift-rule strong{font-size:12px;margin:5px 0}.mx-ticket-gift-hint{margin:8px 0 0;font-size:9px}}
+@media(max-height:600px){.mx-ticket-gift-card{padding-top:calc(env(safe-area-inset-top,0px) + 4px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 6px)}.mx-ticket-gift-tag{margin-bottom:4px}.mx-ticket-gift-card h2{font-size:20px;line-height:1.4}.mx-ticket-gift-congrats{margin-top:3px}.mx-ticket-gift-memora{width:120px;height:120px}.mx-ticket-gift-rule{padding-top:8px;padding-bottom:8px}.mx-ticket-gift-hint{margin-top:5px}.mx-ticket-gift-card .mx-ticket-primary{margin-top:6px}}
+
+/* Apple distribution code redemption and local ticket rules. */
+.mx-local-ticket .mx-ticket-title{font-size:27px;line-height:1.45;letter-spacing:-.025em;margin:18px 0 22px}
+.mx-local-ticket .mx-ticket-box{margin-top:14px;padding:17px}
+.mx-local-ticket .mx-ticket-msg:empty{display:none}
+.mx-local-ticket .mx-ticket-msg:not(:empty){padding:12px 14px;border-radius:12px;background:#f5f1fc;font-size:12px;line-height:1.7;margin:10px 0 0}
+.mx-local-ticket .mx-ticket-restore{display:block;border:0;background:transparent;padding:12px 0 2px;margin:10px auto 0;color:#81718f;font:inherit;font-size:11px;text-decoration:underline;cursor:pointer;min-height:44px}
+.mx-local-ticket .mx-ticket-rules{margin-top:12px}
+.mx-local-ticket [hidden]{display:none!important}
+
+/* Put the awarded duration ahead of the daily extension rule. */
+.mx-ticket-gift-rule .mx-ticket-gift-summary{font-size:15px;line-height:1.8;font-weight:750;color:#493461;margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #e4d7f5;text-wrap:balance}
+.mx-ticket-gift-summary .mx-ticket-gift-duration{display:inline-block;font-size:23px;line-height:1.3;color:#6943b3;background:#e9ddfb;border-radius:8px;padding:3px 8px;margin:0 5px 3px 0;font-weight:850}
+@media(max-height:680px){.mx-ticket-gift-rule .mx-ticket-gift-summary{margin-bottom:8px;padding-bottom:8px}}

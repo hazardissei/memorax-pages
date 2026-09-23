@@ -332,10 +332,10 @@
   },
   "counterintuitive|直感に反する": {
     "id": "fd44550c1121",
-    "hash": "08f71b1cf5049371826c19e344460fdc8bc6d711de48af7fe76a4fae6bed63d4",
+    "hash": "f9fb00055248f3b589d57a4012d18ea8f599039983408db3e1039855c66a111f",
     "ex": [
-      "Memora-kun's *counterintuitive* trick: darkness makes his glowing stars easier to see.",
-      "メモラ君の直感に反する工夫では、暗くすると光る星が見やすくなる。"
+      "Memora-kun's *counterintuitive* strategy is slowing down to finish the puzzle faster.",
+      "メモラ君の直感に反する作戦は、パズルを早く解くために急がないことだ。"
     ]
   },
   "credible|信頼できる": {
@@ -428,10 +428,10 @@
   },
   "expectation|期待": {
     "id": "a5251d433db7",
-    "hash": "7de65dc0353abee9ff5a395e0a9d3f7479303bb28dc5e4f68bc98f3d1c042535",
+    "hash": "a8de3f63006895e2631bb98572f457a340cae8c45719e6fb784c1fef9b7ca748",
     "ex": [
-      "Memora-kun's *expectation* of one cookie becomes a mountain of cookies.",
-      "メモラ君はクッキー1枚を期待していたが、山盛りのクッキーが現れる。"
+      "Exceeding Memora-kun's *expectations*, Tanuki brings a mountain of cookies.",
+      "メモラ君の期待を上回り、タヌキは山盛りのクッキーを持ってくる。"
     ]
   },
   "expenditure|支出": {
@@ -444,10 +444,10 @@
   },
   "fishery|漁業": {
     "id": "140e7948ba69",
-    "hash": "aa2ceeb6dcba867123dbf672879b6eb872a0bb81eaf69f1250378ddefcae9f22",
+    "hash": "de233b9a34ccfcc84265dbb6a0eea70406839b5496dc7e30605fdd3fdc0571af",
     "ex": [
-      "Memora-kun tours the local *fishery* in an enormous yellow raincoat.",
-      "メモラ君は、巨大な黄色いレインコートを着て地元の漁業を見学する。"
+      "Memora-kun studies the local *fishery* aboard Tanuki's tiny fishing boat.",
+      "メモラ君は、タヌキの小さな漁船に乗って地元の漁業を調べる。"
     ]
   },
   "flash|閃光": {
@@ -1013,10 +1013,10 @@
   },
   "hindsight|後知恵": {
     "id": "e19b26b21d0a",
-    "hash": "9b041aa6536a3b800268dcbf375f5ee8d9135c877e527ca5d3225828927c48a5",
+    "hash": "acaf9b149efa1944c518705f896377b2de7c1c2007238100359e9d8484a5cd0f",
     "ex": [
-      "In *hindsight*, Memora-kun should have measured the doorway before buying.",
-      "後知恵だが、メモラ君は買う前に戸口を測っておくべきだった。"
+      "In *hindsight*, Memora-kun should have measured the doorway before buying the sofa.",
+      "後知恵だが、メモラ君はソファを買う前に戸口を測っておくべきだった。"
     ]
   },
   "indicator|指標": {
@@ -1301,10 +1301,10 @@
   },
   "concession|譲歩": {
     "id": "e8018f131e31",
-    "hash": "c85a97f1c51df0380e6452aa74940a14e8cfce4c1af680fd37bfbccb59616ff7",
+    "hash": "f9fc0141e34e78ebad4abb2884c1d6a01f8de4f767385cd2b4947125c90793b9",
     "ex": [
-      "As a *concession*, Memora-kun lets Tanuki choose the smaller umbrella.",
-      "譲歩として、メモラ君はタヌキに小さい方の傘を選ばせる。"
+      "As a *concession*, Memora-kun lets Tanuki take the larger umbrella.",
+      "譲歩として、メモラ君はタヌキに大きい方の傘を譲る。"
     ]
   },
   "consensual|合意に基づく": {
@@ -1565,10 +1565,10 @@
   },
   "inconsistency|矛盾": {
     "id": "497ecbddbd23",
-    "hash": "5105fe4c3895f82e6218abca96da778c8b8baceeb7c22aa80c8005911709796a",
+    "hash": "97533b71211ce1c6b251676605fd8a11bc1582f3a12421be372bd497cc51dc7c",
     "ex": [
-      "Memora-kun spots an *inconsistency*: Tanuki claims emptiness while holding a full bag.",
-      "メモラ君は、満杯の袋を持ちながら空だと言うタヌキの矛盾に気づく。"
+      "Memora-kun spots an *inconsistency*: Tanuki's 'empty' bag is full.",
+      "メモラ君は、タヌキの「空」の袋が満杯という矛盾に気づく。"
     ]
   },
   "inhospitable|住みにくい": {
@@ -1710,10 +1710,10 @@
   },
   "mystify|当惑させる": {
     "id": "f9ce05bf3a85",
-    "hash": "6f3583d96f75bbf68bc499faf952306092109364cb101113dd30f1fafe325f5a",
+    "hash": "7e9f13b8885fd3f8217a3403eacd85b8b62005e5b4a8f3a4f3002826fe25c254",
     "ex": [
-      "A square bubble *mystifies* Memora-kun and his round bubble wand.",
-      "四角いシャボン玉が、丸い輪を持ったメモラ君を当惑させる。"
+      "A square bubble *mystifies* Memora-kun, who has a round bubble wand.",
+      "丸いシャボン玉の輪を持つメモラ君は、四角いシャボン玉に当惑する。"
     ]
   },
   "nationwide|全国的な": {
@@ -2782,10 +2782,10 @@
   },
   "alphabetic|アルファベットの": {
     "id": "b96bd647063f",
-    "hash": "76b417fa5eebbaa32213e2c11864eaf781c7cd9facadaede211d40b7b715b2f3",
+    "hash": "ac7730fcac1dbb982e80bb5ac339468600da44474677a52803fdd3c87a948817",
     "ex": [
-      "Memora-kun puts recipe cards in *alphabetic* order, leaving dessert last.",
-      "メモラ君は、レシピカードをアルファベット順に並べ、デザートを最後にする。"
+      "Memora-kun files recipes in *alphabetic* order, placing apple pie before bread.",
+      "メモラ君はレシピをアルファベット順に整理し、apple pieをbreadより前に置く。"
     ]
   },
   "antagonist|敵対者": {
@@ -3222,10 +3222,10 @@
   },
   "miraculously|奇跡的に": {
     "id": "893675efd4e7",
-    "hash": "c59ac863844615905097b0c689f7ae279c3e8b5ee115af8529eff277fb5ca00a",
+    "hash": "15f2976a23057a9b6a0c590a200d42c129ed46d8367bf3337af136fccf931a78",
     "ex": [
-      "*Miraculously*, Memora-kun catches every falling plate except his own sandwich.",
-      "奇跡的にメモラ君は落ちた皿をすべて受け止めるが、自分のサンドイッチは逃す。"
+      "*Miraculously*, Memora-kun catches every falling plate; Tanuki catches the flying sandwich.",
+      "奇跡的にメモラ君は落ちる皿をすべて受け止め、タヌキは飛ぶサンドイッチをつかむ。"
     ]
   },
   "monastic|修道院の": {
@@ -3318,10 +3318,10 @@
   },
   "praiseworthy|称賛に値する": {
     "id": "931bea137f2d",
-    "hash": "cc9879d48362bff8ad4e984537981b68e8f4c73678a2c04d57b0f5e5b7876e95",
+    "hash": "b367e3e42a3cadc94781a46741e8697abc6199a3dc91aa50927eaa4b0b1c47fa",
     "ex": [
-      "Memora-kun's *praiseworthy* honesty returns the extra cake slice to Tanuki.",
-      "メモラ君は、称賛に値する正直さで余分なケーキをタヌキに返す。"
+      "With *praiseworthy* honesty, Memora-kun returns the cake he received by mistake.",
+      "メモラ君は、称賛に値する正直さで誤ってもらったケーキを返す。"
     ]
   },
   "progression|進行": {
@@ -4463,10 +4463,10 @@
   },
   "tedium|退屈": {
     "id": "e1f3f0766560",
-    "hash": "06629cb3e4a9c0b0914a281f3b46540e4ec5691998cb760497a2730c657ec9c7",
+    "hash": "75ef5614c9ce73116b5b7b17314fdf8074c0fdd4fe9ec8ad260b217099b0c1fe",
     "ex": [
-      "To relieve the *tedium*, Memora-kun sorts buttons while riding a rocking chair.",
-      "退屈を紛らわすため、メモラ君はロッキングチェアに揺られながらボタンを仕分ける。"
+      "Memora-kun relieves the *tedium* of sorting buttons by rocking his chair.",
+      "メモラ君は椅子を揺らして、ボタン仕分けの退屈を紛らわす。"
     ]
   },
   "ulterior|隠れた": {
@@ -4775,10 +4775,10 @@
   },
   "intuitively|直感的に": {
     "id": "b7e8d3993b58",
-    "hash": "0b8aae63c34b03725aec5aa75f15a1ed9072b2e07dd4101aae0e05fff1b0e7b2",
+    "hash": "3845bad1fa069c80f48beaa49f2accf6d934de86508c1af3b60f6c3990946d19",
     "ex": [
-      "Memora-kun *intuitively* reaches for Tanuki's falling cup before it tips over.",
-      "メモラ君は、タヌキのカップが倒れる前に直感的に手を伸ばす。"
+      "Memora-kun *intuitively* catches Tanuki's cup as it tips off the table.",
+      "メモラ君は、テーブルから倒れ落ちるタヌキのカップを直感的に受け止める。"
     ]
   },
   "lucid|明快な": {
@@ -5088,10 +5088,10 @@
   },
   "ego|自我": {
     "id": "1ae373201775",
-    "hash": "46e628f5b2ec17af564ad2110e08eb62cff2ddfaced942b1477c778b507ccba2",
+    "hash": "7bf987f442042a567c89beae49448e3a036edf786307e41036467db72189e110",
     "ex": [
-      "Doyamogu's *ego* suffers when Memora-kun wins with a smaller trophy.",
-      "メモラ君がより小さなトロフィーで優勝すると、ドヤモグの自我が傷つく。"
+      "Doyamogu's *ego* suffers when Memora-kun receives the larger trophy.",
+      "メモラ君が大きい方のトロフィーをもらうと、ドヤモグの自尊心が傷つく。"
     ]
   },
   "erratic|不規則な": {

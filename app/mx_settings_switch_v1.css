@@ -1,0 +1,57 @@
+/* Soft pill switches: the reference's shape, with each subject's own colour.
+   Scoped to settings; existing choice chips, purchase controls and saved values stay intact. */
+:root{
+  --mx-switch-on:#8963e0;
+  --mx-switch-edge:#6744b9;
+  --mx-switch-off:#7d8491;
+  --mx-switch-text:#555c68;
+}
+:root[data-mx-settings-theme="kobun"]{--mx-switch-on:#50788c;--mx-switch-edge:#36546d}
+:root[data-mx-settings-theme="sekaishi"]{--mx-switch-on:#547ee7;--mx-switch-edge:#3658b9}
+:root[data-mx-settings-theme="nihonshi"]{--mx-switch-on:#cf6275;--mx-switch-edge:#a44059}
+:is(#sc-settings,#setModal) .mx-switch-host{display:flex;align-items:center;min-height:48px;gap:0}
+:is(#sc-settings,#setModal) button.mx-settings-switch{
+  -webkit-appearance:none;appearance:none;display:inline-flex;align-items:center;gap:10px;
+  position:relative;flex:0 0 auto;min-width:100px;min-height:48px;margin:0;padding:4px 2px;
+  border:0!important;border-radius:8px;background:transparent!important;box-shadow:none!important;
+  color:var(--mx-switch-text);font:inherit;font-size:12px;font-weight:700;line-height:1;
+  cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+.mx-settings-switch .mx-switch-track{
+  display:block;position:relative;flex:none;width:64px;height:36px;border-radius:999px;
+  background:var(--mx-switch-off);
+  box-shadow:inset 0 2px 3px #0002,inset 0 -1px 1px #fff2,0 1px 2px #0001;
+  transition:background-color .18s ease,box-shadow .18s ease;
+}
+.mx-settings-switch .mx-switch-thumb{
+  display:block;position:absolute;top:3px;left:3px;width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(145deg,#fff 12%,#f6f4fa 60%,#e5e3ec);
+  box-shadow:inset 0 1px 2px #fff,0 2px 5px #18132640,0 0 0 1px #fff4;
+  transform:translateX(0);transition:transform .18s cubic-bezier(.22,.7,.3,1);
+}
+.mx-settings-switch[aria-checked="true"] .mx-switch-track{
+  background:var(--mx-switch-on);
+  box-shadow:inset 0 2px 3px #ffffff24,inset 0 -2px 3px var(--mx-switch-edge),0 1px 3px #0002;
+}
+.mx-settings-switch[aria-checked="true"] .mx-switch-thumb{transform:translateX(28px)}
+.mx-settings-switch .mx-switch-status{display:block;min-width:2em}
+:is(#sc-settings,#setModal) .mx-settings-switch:focus-visible{outline:3px solid var(--mx-switch-on);outline-offset:3px}
+:is(#sc-settings,#setModal) .mx-settings-switch:disabled{cursor:not-allowed}
+/* Purchase lock stays visible and genuinely disabled, including keyboard input. */
+#sc-settings #idmcutBox.locked{opacity:.5}
+html.dark{--mx-switch-off:#535b6b;--mx-switch-text:#c4cbd7}
+/* English dark mode inverts the whole body; cancel it for these controls. */
+html.dark :is(#sc-settings,#setModal) .mx-settings-switch{filter:invert(1) hue-rotate(180deg)}
+@media(prefers-color-scheme:dark){
+  :root[data-mx-settings-theme="sekaishi"],:root[data-mx-settings-theme="nihonshi"]{
+    --mx-switch-off:#535b6b;--mx-switch-text:#c4cbd7;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .mx-settings-switch .mx-switch-track,.mx-settings-switch .mx-switch-thumb{transition:none}
+}
+@media(forced-colors:active){
+  .mx-settings-switch .mx-switch-track{background:Canvas!important;border:2px solid ButtonText;box-shadow:none}
+  .mx-settings-switch .mx-switch-thumb{background:ButtonText;box-shadow:none;top:1px;left:1px}
+  .mx-settings-switch[aria-checked="true"] .mx-switch-track{border-color:Highlight}
+}
