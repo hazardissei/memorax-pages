@@ -1854,11 +1854,6 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
   .exam-head input,.exam-head select{display:block;width:100%;min-width:0;box-sizing:border-box;font:inherit;font-size:17px;padding:10px;border:1px solid var(--line,#ccc);background:var(--bg,#fff);color:var(--text,#111)}
   .exam-row{padding:16px 0;border-bottom:1px solid var(--line,#ccc);font-size:17px;line-height:1.65;overflow-wrap:anywhere}.exam-row strong{font-size:22px}.exam-row p{font-size:14px;margin:6px 0 0}.exam-note,#examCount{font-size:14px;line-height:1.7}.exam-pages{display:flex;gap:12px;margin-top:16px}.exam-pages button{flex:1;min-width:0}
   #modal .exam-pages .opt,#modal #examClose{padding:12px 16px !important;text-align:center;font-size:17px !important}
-/* 強制アップデートの覆い（2026-09-22）。チュートリアルと同じぼかし＋大きい文字。閉じる手段は置かない */
-#updOv{position:fixed;inset:0;z-index:300;background:rgba(241,244,249,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;padding:0 24px}
-#updOv .updtxt{font-size:27px;font-weight:900;line-height:2;letter-spacing:.02em;text-align:center;white-space:pre-line;color:#15171c}
-#updOv .updgo{border:none;background:#15171c;color:#fff;font-size:16px;font-weight:800;padding:15px 32px;border-radius:12px;font-family:inherit;cursor:pointer;letter-spacing:.04em}
-#updOv .updgo:active{transform:scale(.96)}
 </style>
 <link rel="stylesheet" href="mx_analysis_calendar_v2.css">
 <script src="mx_analysis_calendar_v2.js"></script>
@@ -2380,7 +2375,6 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
     <div class="adbox" id="adbox"><div class="adph" id="adph"></div></div>
     <div class="adhint">← スワイプで次の問題へ →</div><!-- 実機は全画面広告（2026-08-26）。このカードはWeb検証(#ads)専用 -->
   </div>
-  <div id="updOv" style="display:none"><div class="updtxt" id="updTxt"></div><button class="updgo" id="updGo" type="button">ストアを開く</button></div><!-- 強制アップデート（2026-09-22） -->
   <div id="swglow"></div><!-- 正解スワイプの全画面グロー（2026-09-03 ユーザー要望） -->
   <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   <div class="modal" id="modal"><div class="msheet" id="msheet" role="dialog" aria-modal="true" tabindex="-1"></div></div>
@@ -2414,6 +2408,7 @@ html.dark img{filter:invert(1) hue-rotate(180deg)}
 <script src="mx_ticket_gift.js"></script>
 <link rel="stylesheet" href="mx_ticket_daily.css">
 <script src="mx_ticket_daily.js"></script>
+<script src="mx_update_config.js" charset="utf-8"></script><!-- 強制アップデートのポリシーURL（2026-09-23） -->
 <script src="mx_update_gate_v1.js" charset="utf-8"></script><!-- MX-N021: default-off, fail-open native update gate -->
 <script src="mx_effort_wallet_v1.js" charset="utf-8"></script><!-- v1.0.5 #37: eitan-scoped, event-ledger wallet -->
 <script src="mx_kobun_promo_config.js" charset="utf-8"></script><!-- 古典版のApp Store URL。公開後に設定（2026-09-20） -->
@@ -3679,38 +3674,6 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   document.addEventListener('click',function(e){if(!e.target.closest('.mh-info'))document.querySelectorAll('.mh-tipb.on').forEach(function(x){x.classList.remove('on');});});
   /* 設定画面（学年・レベル・1日の問数） */
   var SETOPTS={grade:['中3','高1','高2','高3','浪人'],level:['共通テスト','上位国立大学','旧帝大以上','日東駒専','MARCH','早慶'],cards:['100','150','200','300'],cutin:['オン','オフ'],wimg:['オン','オフ'],idmcut:['オン','オフ'],dark:['ライト','ダーク']};
-  /* ---- 強制アップデート（2026-09-22） ----
-     app-version.json の min より古い版では学習に入れない。min は GitHub Pages で配るので、
-     アプリを出し直さずに「この版から下は止める」を切り替えられる。
-     一度 min を知ったら端末に残し、オフラインでも止める（機内モードでの回避を防ぐ）。
-     ただし一度も取得できていない状態で止めることはしない（オフライン学習を壊さないため）。
-     ※この仕組みを持たない 1.0.5 以前には届かない。効くのは 1.0.6 以降を入れた人に対してだけ。 */
-  var APPVER='1.0.6';/* codemagic が APP_VERSION と同じ値へ書き換える（cap sync より前） */
-  var UPDURL={ios:'https://apps.apple.com/jp/app/id6791698395',android:'https://play.google.com/store/apps/details?id=com.issei.eitan'};
-  function verLt(a,b){var x=String(a).split('.'),y=String(b).split('.'),i,n=Math.max(x.length,y.length);
-    for(i=0;i<n;i++){var p=parseInt(x[i]||'0',10)||0,q=parseInt(y[i]||'0',10)||0;if(p!==q)return p<q;}return false;}
-  function updBlock(){var ov=$('updOv');if(!ov)return;ov.style.display='';
-    var t=$('updTxt');
-    if(t){if(typeof typeInto==='function')typeInto(t,'新しいアップデートが'+String.fromCharCode(10)+'あります',null,false,55,false);
-      else t.textContent='新しいアップデートがあります';}
-    var b=$('updGo');if(b)b.onclick=function(){var u=UPDURL[PLAT]||UPDURL.ios;try{location.href=u;}catch(e){}};
-    try{if(window.speechSynthesis)window.speechSynthesis.cancel();}catch(e){}
-    try{var _nu=ttsNative();if(_nu)_nu.stop();}catch(e){}}
-  function updGate(){
-    if(location.hash==='#updtest'){updBlock();return;}/* 実機で見た目を確認する用。解放は一切しない */
-    if(PLAT==='web')return;/* Webは常に最新が配られるので対象外 */
-    var saved='';try{saved=localStorage.getItem('mx2_minver')||'';}catch(e){}
-    if(saved&&verLt(APPVER,saved)){updBlock();return;}
-    try{
-      var ac=(typeof AbortController==='function')?new AbortController():null;
-      var to=ac?setTimeout(function(){try{ac.abort();}catch(e){}},4000):null;
-      fetch('https://hazardissei.github.io/memorax-pages/app-version.json?t='+Date.now(),ac?{signal:ac.signal,cache:'no-store'}:{cache:'no-store'})
-        .then(function(r){return r.json();})
-        .then(function(j){if(to)clearTimeout(to);var min=j&&j.min;if(!min)return;
-          if(verLt(APPVER,min)){try{localStorage.setItem('mx2_minver',min);}catch(e){}updBlock();}
-          else{try{localStorage.removeItem('mx2_minver');}catch(e){}}})
-        .catch(function(){if(to)clearTimeout(to);});
-    }catch(e){}}
   function applyDark(){document.documentElement.classList.toggle('dark',state.dark==='ダーク');}/* 画面の色（2026-08-31 ユーザー要望）。既定はライト */
   /* 自動リマインダー。許可はOSで管理し、拒否時は静かに停止する。 */
   function lnPlugin(){try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.LocalNotifications)return C.Plugins.LocalNotifications;}catch(e){}return null;}
@@ -5107,7 +5070,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     }
   }
   ticketBoot();
-  try{applyDark();}catch(e){}try{updGate();}catch(e){}setTimeout(function(){try{remindSync();}catch(e){}},12000);/* リマインダー登録。ATTダイアログと重ならないよう遅らせる（2026-09-02） */
+  try{applyDark();}catch(e){}setTimeout(function(){try{remindSync();}catch(e){}},12000);/* リマインダー登録。ATTダイアログと重ならないよう遅らせる（2026-09-02） */
   if(_booted){bakSave();icBackup();try{entMergeLocal();}catch(e){}if(location.hash==='#calqa')go('sc-calendar');else showHello();}/* #calqa は保存済みデータで月別画面を直接検証する開発用入口。 */
   else{
     var _startOnboard=function(){narrate($('wNarr'),$('wTap'),'まずはあなたについて\n教えてください',function(){go('sc-grade');});};/* 導入1文（2026-08-02 ユーザー指定・句読点なし） */

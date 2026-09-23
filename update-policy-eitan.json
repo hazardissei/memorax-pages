@@ -1,0 +1,12 @@
+{
+  "enabled": true,
+  "publishedPlatforms": ["ios"],
+  "message": "新しいアップデートがあります",
+  "platforms": {
+    "ios": {
+      "minimumVersion": "1.0.6",
+      "availableVersion": "1.0.6",
+      "storeUrl": "https://apps.apple.com/jp/app/id6791698395"
+    }
+  }
+}
