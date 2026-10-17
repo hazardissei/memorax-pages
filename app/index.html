@@ -3425,6 +3425,7 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
         p.style.setProperty('font-size','24px','important');
         typeInto(p,'試験まで\nあと'+state.daysLeft+'日です',function(){typed=true;},false,24,true);/* 句読点なし（2026-08-14 ユーザー指定） */
         return;}
+      if(webMovePending()){showWebMove();return;}/* Web 版からアプリへ：名言のあと1日1回（2026-10-18） */
       if(kobunPromoPending()){showKobunPromo();return;}/* 古典版リリース告知：名言のあと1人1回（2026-09-20） */
       go('sc-home');
     };}
@@ -4898,6 +4899,17 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
   var KOBUN_PROMO_KEY='mx2_kobun_promo_v1';
   var KOBUN_PROMO_TEXT='古典単語・常識が\nリリースされました\n\n共通テスト・センター試験\n過去20年\n2回以上出題単語\n\nMARCH・早稲田\n全ての学部20年\n3回以上出題単語\n\nぜひダウンロード\nお願いします';
   function kobunPromoTarget(){return (window.MXKobunPromo&&window.MXKobunPromo.resolve(window.MX_KOBUN_PROMO||{}))||null;}
+  /* Web 版からアプリへ（2026-10-18 オーナー「アンドロイド版がリリースされました。今後のアプデはこちらから行いますとチュートリアルと全く同じ方式で案内出して、インストール画面に飛ばして」）：
+     Web 版だけ・名言のあと1日1回・チュートリアルと同じ語りの画面（narrate）で知らせ、最後のタップでストアのインストール画面を開く（別のタブ。開けなければこのタブで）。
+     iPhone・iPad は App Store、それ以外（Android・パソコン）は Google Play。学習データの引き継ぎ（書き出し→アプリで読み込み）も一言 */
+  var WEBMOVE_KEY='mx2_webmove_day';
+  function webMoveTarget(){var ua='';try{ua=navigator.userAgent||'';}catch(e){}var ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&(navigator.maxTouchPoints||0)>1);
+    var data='\n\n学習データは\n設定の\n「学習データを書き出す」で\nアプリへ引き継げます';
+    return ios?{url:'https://apps.apple.com/jp/app/id6791698395',text:'iPhone版のアプリで\n今後のアップデートを\n行います'+data}
+      :{url:'https://play.google.com/store/apps/details?id=com.issei.eitan',text:'Android版が\nリリースされました\n\n今後のアップデートは\nこちらから行います'+data};}
+  function webMovePending(){if(PLAT!=='web'||!state.cards)return false;try{return localStorage.getItem(WEBMOVE_KEY)!==dayKey(new Date());}catch(e){return false;}}
+  function showWebMove(){var t=webMoveTarget();try{localStorage.setItem(WEBMOVE_KEY,dayKey(new Date()));}catch(e){}
+    go('sc-planmsg');narrate($('pmNarr'),$('pmTap'),t.text,function(){go('sc-home');var w=null;try{w=window.open(t.url,'_blank');}catch(e){w=null;}if(w){try{w.opener=null;}catch(e){}}else location.href=t.url;});}
   function kobunPromoPending(){if(PLAT!=='ios'||!state.cards||!kobunPromoTarget())return false;try{return !localStorage.getItem(KOBUN_PROMO_KEY);}catch(e){return false;}}
   function showKobunPromo(){var target=kobunPromoTarget();try{localStorage.setItem(KOBUN_PROMO_KEY,'1');}catch(e){}
     go('sc-planmsg');narrate($('pmNarr'),$('pmTap'),KOBUN_PROMO_TEXT,function(){go('sc-home');if(target)location.href=target.native;});}
@@ -4984,6 +4996,9 @@ function repPaint(){var n=repList().length,ln=$('repExportLine'),c=$('repCount')
     var o={__v:2,__app:'MemoraX',__scope:'eitan',__b:'w0904x',__d:dayKey(new Date())};/* scope付き。旧__v:1の読込互換は維持 */
     try{transferKeys().forEach(function(k){var v=localStorage.getItem(k);if(v==null)return;if(k==='mx2_state')v=JSON.stringify(transferState(v,null));o[k]=v;});/* mx2_entとstate内の購入・招待・コード権利は載せない */
     }catch(e){}
+    /* 努力ダイヤ（2026-10-18 ユーザーの声「Android 版で Web 版の努力ダイヤが引き継がれない」）：アプリで読み込むと、まだ換金していない端末なら この数で1回 広告なしチケットに換金できる。
+       書き出しにだけ載せる（読み込みの許可リスト transferKeys には入れない＝Web どうしの読み込みでダイヤは増えない） */
+    try{['memorax_eitan_wallet_v105','mx2_wallet'].forEach(function(k){var v=localStorage.getItem(k);if(v!=null)o[k]=v;});}catch(e){}
     return JSON.stringify(o);
   }
   function transferFilename(){return 'memorax-eitan-'+dayKey(new Date())+'.json';}
