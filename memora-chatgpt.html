@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Memora for ChatGPT — ChatGPT で作った一問一答を My Memora に</title>
+<style>
+body{margin:0;background:#fff;color:#111;font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;line-height:1.9}
+.wrap{max-width:640px;margin:0 auto;padding:48px 24px 80px}
+h1{font-size:26px;font-weight:900;letter-spacing:-.01em;border-bottom:2px solid #1D1D1F;padding-bottom:14px}
+h1 small{display:block;font-size:12px;font-weight:700;color:#6E6E73;letter-spacing:.2em;margin-top:6px}
+h2{font-size:17px;font-weight:800;margin:36px 0 10px;border-left:3px solid #1D1D1F;padding-left:10px}
+p,li{font-size:14.5px;color:#333}
+ul,ol{padding-left:20px}
+.en{color:#555;font-size:13.5px}
+.date{color:#777;font-size:12px;margin-top:40px}
+a{color:#1e40af}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>My Memora for ChatGPT<small>CHATGPT PLUGIN</small></h1>
+
+  <h2>できること</h2>
+  <p>ChatGPT で作った一問一答を、My Memora（iPhone の暗記アプリ）に保存できます。写真・PDF・貼り付けたノート・テーマだけからでも、ChatGPT が問題と答えのカードを作って保存し、8けたの ID を返します。</p>
+  <p class="en">Save question-and-answer flashcards made in ChatGPT to My Memora, a flashcard app for iPhone. From a photo, a PDF, pasted notes, or just a topic, ChatGPT writes the cards, saves the deck, and gives you an 8-digit ID.</p>
+
+  <h2>使い方</h2>
+  <ol>
+    <li>ChatGPT で頼みます（例：「この写真を一問一答にして My Memora に保存して」「鎌倉時代の一問一答を20問作って My Memora に入れて」）。</li>
+    <li>ChatGPT が保存して、8けたの ID を出します。</li>
+    <li>My Memora を開いて、ホームの「ID で受け取る」に ID を入れ、「単語帳を受け取る」を押します。単語帳が自分のフォルダに入ります。</li>
+  </ol>
+  <p class="en">1. Ask ChatGPT, e.g. "Make flashcards from these notes and save them to My Memora." 2. ChatGPT saves the deck and shows an 8-digit ID. 3. Open My Memora, tap "ID で受け取る" (Receive by ID) on the home screen, enter the ID, and tap "単語帳を受け取る" (Receive deck). The deck is added to your folders.</p>
+  <p>My Memora は <a href="https://apps.apple.com/jp/app/id6821674457">App Store</a> から無料で入れられます（日本とアメリカ）。受け取りは無料版でもできます（無料版は受け取るあいだ広告が出ます）。</p>
+  <p class="en">Get My Memora free on the <a href="https://apps.apple.com/jp/app/id6821674457">App Store</a> (Japan and the United States). Receiving works in the free version (it shows an ad while receiving).</p>
+
+  <h2>データの扱い（まとめ）</h2>
+  <ul>
+    <li>保存するのは、ChatGPT が作った単語帳（名前・教科・セクションとカードの文字）だけです。写真や PDF のファイルそのものは、開発者のサーバーに送られません。</li>
+    <li>保存した単語帳は「みんなの単語帳」の一覧に出ず、ID を入れた人だけが受け取れます。保存から30日でサーバーから削除します（受け取った単語帳はアプリの中に残ります）。</li>
+    <li>ChatGPT のアカウントの情報（氏名・メールアドレスなど）は受け取りません。使いすぎを防ぐため、匿名の利用者の番号から作った値（ハッシュ）で1日の回数だけを数えます。</li>
+  </ul>
+  <p class="en">We store only the deck ChatGPT creates (title, subject, sections, and card text). Photos and PDF files are not sent to our server. Saved decks are not listed publicly; anyone with the ID can receive them, and they are deleted from our server 30 days after saving (received decks stay in the app). We do not receive your ChatGPT account information. To prevent abuse, we count daily saves using a hash of the anonymous user ID that ChatGPT sends.</p>
+  <p>くわしくは <a href="memora-privacy.html">プライバシーポリシー</a> と <a href="memora-terms.html">利用規約</a> をご覧ください。<span class="en">See the <a href="memora-privacy.html">privacy policy</a> and <a href="memora-terms.html">terms of use</a> (Japanese).</span></p>
+
+  <h2 id="support">サポート・お問い合わせ</h2>
+  <p>不具合のご報告・単語帳の削除のご依頼（ID を書いてください）は、こちらへお寄せください。<br><a href="mailto:hazard.issei.1710@icloud.com">hazard.issei.1710@icloud.com</a></p>
+  <p class="en">For support, bug reports, or to request deletion of a saved deck (please include its ID), email <a href="mailto:hazard.issei.1710@icloud.com">hazard.issei.1710@icloud.com</a>.</p>
+
+  <p class="date">制定日: 2026年11月25日<br>My Memora 開発者: Issei Sato</p>
+</div>
+</body>
+</html>
